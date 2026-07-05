@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Konfigirasyon Firebase ou
+// Konfigirasyon Firebase ou 
 const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
     authDomain: "bwdepot-61214.firebaseapp.com",
