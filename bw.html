@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWdepo - Premium Edition</title>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --accent: #10B981;
+            --natcash: #00A550;
+            --purple: #8B5CF6;
+            --danger: #EF4444;
+            --border: #E2E8F0;
+            --nav-bg: #FFFFFF;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --accent: #34D399;
+            --natcash: #22C55E;
+            --purple: #A78BFA;
+            --danger: #F87171;
+            --border: #334155;
+            --nav-bg: #1E293B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 130px; /* Ajiste pou evite header a kache kontni */
+            padding-bottom: 30px;
+        }
+
+        /* HEADER & NAVIGATION RESPONSIV */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo span {
+            color: #38BDF8;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        nav button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        nav button.active {
+            background-color: var(--bg-card);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        [data-theme="dark"] nav button.active {
+            color: var(--primary-light);
+        }
+
+        /* PAJ KONTENÈ YO (Lajè adaptab pou Laptop) */
+        .page {
+            display: none;
+            padding: 0 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* STRUKTI DE KOLÒN POU LAPTOP / GWO EKRAN */
+        .pos-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* KAT AK BOX JENERAL */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+        }
+
+        /* GRID PWODWI (Adaptab: 1 kolòn telefòn, 2 tablèt, 3 laptop) */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .prod-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            position: relative;
+            height: 115px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .prod-card img {
+            width: 95px;
+            height: 100%;
+            object-fit: cover;
+            background-color: #E2E8F0;
+        }
+
+        .prod-info {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .prod-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .prod-stock {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stock-alert {
+            background-color: var(--danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            z-index: 10;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .type-btn {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-sell {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        /* TABLES */
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table th {
+            text-align: left;
+            padding: 8px 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+        }
+
+        .cart-table td {
+            padding: 12px 6px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bill-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: 800;
+            border-top: 2px dashed var(--border);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        /* INPUTS YO */
+        .input-text, .select-style {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* GRID DASHBOARD ADMIN RESPONSIV */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--text-muted);
+        }
+
+        .stat-card.revenue { border-left-color: var(--accent); }
+        .stat-card.profit { border-left-color: var(--primary-light); }
+        .stat-card.stock { border-left-color: var(--purple); }
+        .stat-card.natcash { border-left-color: var(--natcash); }
+        .stat-card.livecash { border-left-color: #F59E0B; }
+        .stat-card h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .stat-card p { font-size: 18px; font-weight: 800; }
+
+        .log-list {
+            max-height: 180px;
+            overflow-y: auto;
+            background-color: #0F172A;
+            color: #38BDF8;
+            font-family: monospace;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* ADMIN SUB TABS RESPONSIV */
+        .admin-sub-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .sub-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 6px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .sub-tab-btn.active {
+            color: var(--purple);
+            border-bottom: 2px solid var(--purple);
+        }
+
+        .sub-page { display: none; }
+        .sub-page.active { display: block; }
+
+        .lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        /* MODAL POPUPS */
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-content {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid var(--primary-light);
+        }
+        .modal-content h3 { margin-bottom: 12px; font-size: 19px; }
+        .modal-content p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+
+        /* ====== MEDIA QUERIES POU GRADDÈ EKRAN YO ====== */
+
+        /* Pou Laptop ak Tablèt an fòma Laj (Gwo ekran) */
+        @media (min-width: 768px) {
+            body {
+                padding-top: 95px; /* Paske header a ap vin pi plat */
+            }
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            nav {
+                width: auto;
+                min-width: 380px;
+            }
+            .pos-layout {
+                grid-template-columns: 1.2fr 0.8fr; /* Divize paj la an kote pwodwi ak kote fakti */
+                align-items: start;
+            }
+            .admin-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 bwat stat kòt a kòt sou PC */
+            }
+            .stat-card.livecash {
+                grid-column: span 4; /* Gwo bwat kach la ap pran tout liy anba a */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL INITYAL FON DE KÈS -->
+    <div id="verification-popup" class="verification-modal">
+        <div class="modal-content">
+            <span style="font-size: 40px;">💰</span>
+            <h3 id="modal-title">Verifikasyon Kès</h3>
+            <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
+            
+            <div class="modal-buttons" id="modal-initial-btns">
+                <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
+                <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
+            </div>
+
+            <div id="dispute-section" class="dispute-box">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
+                <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
+                <button onclick="submitDispute()" class="btn-main" style="background-color: var(--primary);">Valide Kontestasyon an 📤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP POU FÈMTI KÈS AVÈG -->
+    <div id="close-kes-popup" class="verification-modal">
+        <div class="modal-content" style="border-color: var(--purple);">
+            <span style="font-size: 40px;">🔒</span>
+            <h3>Fèmti Kès Jounen an (3h PM)</h3>
+            <p>Konpòtman sekirite: Konte tout kòb fizik (kach) ou gen nan men w kounye a epi tape l anba a san gade sistèm nan.</p>
+            <input type="number" id="vandes-counted-cash" class="input-text" placeholder="Konbyen kòb fizik ki gen nan menw?">
+            <button onclick="submitCloseKesBlind()" class="btn-main" style="background-color: var(--purple);">Finalize epi Voye Rapò Fèmti 📤</button>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP POU DEPANSRAPID -->
+    <div id="expense-popup" class="verification-modal" onclick="closeExpenseModalOutside(event)">
+        <div class="modal-content" style="border-color: var(--danger);" onclick="event.stopPropagation()">
+            <span style="font-size: 40px;">💸</span>
+            <h3>Anrejistre yon Depans</h3>
+            <p>Kòb sa a ap soti dirèkteman nan kès kach la.</p>
+            <input type="number" id="expense-amount" class="input-text" placeholder="Montan an Goud (HTG)">
+            <input type="text" id="expense-reason" class="input-text" placeholder="Rezon depans lan (Glas, kous...)">
+            <div class="modal-buttons">
+                <button onclick="submitExpense()" class="btn-modal-yes" style="background-color: var(--danger);">Sove Depans</button>
+                <button onclick="document.getElementById('expense-popup').style.display='none'" class="btn-modal-no" style="background-color: var(--text-muted);">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <div class="header-top">
+                <div class="logo">📦 <span>BWdepo</span></div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
+            </div>
+            <nav>
+                <button id="nav-pos" class="active" onclick="triggerPageSecurity('pos')">🛒 Bwason</button>
+                <button id="nav-natcash-tab" onclick="triggerPageSecurity('natcash-tab')">🟢 NatCash</button>
+                <button id="nav-admin" onclick="showPage('admin')">📊 Admin</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ONGLÈ 1: LAVANT BWASON (Layout divize pou laptop) -->
+    <div id="page-pos" class="page active">
+        <div class="pos-layout">
+            
+            <!-- KOLÒN GÒCH: PWODWI AK CHÈCHÈ -->
+            <div class="left-column">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(30, 58, 138, 0.05);">
+                        <span style="font-size:11px; color:var(--text-muted); font-weight:bold; display:block;">KACH FIZIK NAN MENW:</span>
+                        <strong id="pos-cash-display" style="font-size:17px; color:var(--primary-light);">0 HTG</strong>
+                        <button onclick="openExpenseModal()" style="margin-top:4px; display:inline-block; padding:3px 8px; background:var(--danger); color:white; border:none; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Mete Depans 💸</button>
+                    </div>
+                    <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(139, 92, 246, 0.05); display:flex; align-items:center; justify-content:center;">
+                        <button onclick="openCloseKesModal()" class="btn-main" style="background:var(--purple); padding:8px; font-size:12px;">🔒 Fèmen Kès (3h)</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <input type="text" id="search-box" class="search-input" placeholder="🔎 Chèche yon bwason..." oninput="filterProducts()">
+                </div>
+
+                <h2 class="section-title">🥤 Pwodwi ki disponib</h2>
+                <div class="products-grid" id="products-container"></div>
+            </div>
+
+            <!-- KOLÒN DWA: FAKTI (Ap kòt a kòt sou laptop, anba sou telefòn) -->
+            <div class="right-column">
+                <h2 class="section-title">📝 Fakti Kliyan</h2>
+                <div class="card">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Pwodwi</th>
+                                <th>Tip</th>
+                                <th>Pri</th>
+                                <th style="text-align:right;">Retire</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-rows"></tbody>
+                    </table>
+                    <div class="bill-total-row">
+                        <span>Total:</span>
+                        <span id="bill-total-display">0 HTG</span>
+                    </div>
+                    <button onclick="checkoutSale()" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
+                        Validate Lavant lan ✅
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ONGLÈ 2: GUICHET NATCASH -->
+    <div id="page-natcash-tab" class="page">
+        <h2 class="section-title" style="color: var(--natcash);">🟢 Guichet NatCash</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div class="card" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0;">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
+                <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
+            </div>
+            <div class="card" style="background-color: rgba(30, 58, 138, 0.08); border: 1px solid var(--primary); text-align: center; padding: 14px; margin-bottom: 0;">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Kòb Fizik nan Menw (Kach):</span>
+                <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
+            </div>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
+            <label style="font-weight: 700; font-size: 13px; color: var(--text-muted); display:block; margin-bottom:6px;">Montan Tranzaksyon (HTG):</label>
+            <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                <button onclick="processNatCash('depo')" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
+                <button onclick="processNatCash('retre')" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; text-transform:uppercase;">📋 Istorik Kout NatCash</h3>
+            <div id="pos-nat-logs" style="font-size: 13px; font-family: monospace; line-height: 1.5; max-height: 140px; overflow-y: auto;">
+                Pa gen tranzaksyon...
+            </div>
+        </div>
+    </div>
+
+    <!-- ONGLÈ 3: PAJ ADMIN -->
+    <div id="page-admin" class="page">
+        <div id="admin-auth" class="card lock-screen">
+            <span style="font-size: 40px; margin-bottom: 10px;">🔒</span>
+            <h3 style="margin-bottom: 6px;">Espas Admin Sekirize</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Mete kòd sekirite a pou w ka jwenn aksè nan dashboard la.</p>
+            <input type="password" id="admin-pass-input" placeholder="Kòd Admin" class="input-text" style="text-align: center; max-width: 240px;">
+            <button onclick="checkAdminAuth()" class="btn-main" style="background-color: var(--primary); max-width: 240px; padding: 12px;">Antre 🔓</button>
+        </div>
+
+        <div id="admin-content" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 class="section-title" style="margin-bottom:0;">📊 Dashboard Jeneral</h2>
+                <button onclick="lockAdmin()" style="background:transparent; border:none; color:var(--danger); font-weight:bold; font-size:13px; cursor:pointer;">Bloke Paj 🔒</button>
+            </div>
+
+            <div id="admin-close-alert" class="card" style="display: none; background-color: rgba(139, 92, 246, 0.15); border: 2px solid var(--purple); color: var(--text-main);">
+                <strong style="color: var(--purple); display: block; margin-bottom: 4px;">📊 RAPÒ FÈMTI KÈS (3h PM)</strong>
+                <p id="admin-close-text" style="font-size: 14px; margin: 0; font-weight: 600; white-space: pre-line;"></p>
+            </div>
+
+            <div id="admin-dispute-alert" class="card" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 2px solid var(--danger); color: var(--text-main);">
+                <strong style="color: var(--danger); display: block; margin-bottom: 4px;">⚠️ ALÈT KONTESTASYON FÒN DE KÈS:</strong>
+                <p id="admin-dispute-text" style="font-size: 14px; margin: 0; font-weight: 600;"></p>
+            </div>
+            
+            <div class="admin-grid">
+                <div class="stat-card revenue">
+                    <h3>Lavant Bwason</h3>
+                    <p id="stat-revenue">0 G</p>
+                </div>
+                <div class="stat-card profit">
+                    <h3>Benefis Pwodwi</h3>
+                    <p id="stat-profit">0 G</p>
+                </div>
+                <div class="stat-card stock">
+                    <h3>Valè Stòk</h3>
+                    <p id="stat-stock-value">0 G</p>
+                </div>
+                <div class="stat-card natcash">
+                    <h3>Balans Kat</h3>
+                    <p id="stat-nat-balance">5,000 G</p>
+                </div>
+                <div class="stat-card livecash">
+                    <h3 style="color: #D97706;">💰 Kach nan Men Vandè (Tan Reyèl)</h3>
+                    <p id="vandes-live-cash" style="color: #B45309; font-size: 20px;">0 HTG</p>
+                </div>
+            </div>
+
+            <div class="card" style="border-top: 4px solid var(--danger);">
+                <h3 style="font-size: 13px; color: var(--danger); text-transform: uppercase; margin-bottom: 6px;">📋 Swivi Depans Rapid ki Soti nan Kès</h3>
+                <div class="log-list" id="admin-expense-logs" style="height: 100px; background:#1E293B; color:#F87171;">Pa gen depans ki fèt jodi a...</div>
+            </div>
+
+            <div class="card" style="border-top: 4px solid var(--primary-light);">
+                <h3 style="font-size:14px; margin-bottom:10px; text-transform: uppercase; color: var(--primary-light);">💰 Prepare Fon de Kès Vandè a</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <div>
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">NatCash (G):</label>
+                        <input type="number" id="setup-fon-natcash" value="0" class="input-text">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant An Gwo (G):</label>
+                        <input type="number" id="setup-fon-gwo" value="0" class="input-text">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant Detay (G):</label>
+                        <input type="number" id="setup-fon-detay" value="0" class="input-text">
+                    </div>
+                </div>
+                <button onclick="saveFonDeKesFromAdmin()" class="btn-main" style="background-color: var(--primary-light); padding:12px; margin-top:6px;">
+                    💾 Sove epi Lese Fon de Kès Sa yo
+                </button>
+            </div>
+
+            <div class="card" style="border-top: 4px solid var(--purple);">
+                <div class="admin-sub-tabs">
+                    <button id="sub-nav-add-frizer" class="sub-tab-btn active" onclick="showSubPage('add-frizer')">📥 Mete Frizer</button>
+                    <button id="sub-nav-view-frizer" class="sub-tab-btn" onclick="showSubPage('view-frizer')">🧊 Stòk Frizer</button>
+                    <button id="sub-nav-gaste-frizer" class="sub-tab-btn" onclick="showSubPage('gaste-frizer')">💥 Grenn Koule</button>
+                    <button id="sub-nav-kontab-separe" class="sub-tab-btn" onclick="showSubPage('kontab-separe')">📜 Kaye Kontab</button>
+                </div>
+
+                <div id="sub-page-add-frizer" class="sub-page active">
+                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Pwodwi:</label>
+                    <select id="frizer-select-prod" class="select-style"></select>
+                    
+                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Tip Deplasman:</label>
+                    <select id="frizer-select-type" class="select-style">
+                        <option value="kes">Kès Konplè (24 grenn)</option>
+                        <option value="demi">Demi-Kès (12 grenn)</option>
+                        <option value="detail">Grenn Detay</option>
+                    </select>
+
+                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Kantite:</label>
+                    <input type="number" id="frizer-qty" class="input-text" value="1">
+                    
+                    <button onclick="moveProductToFrizer()" class="btn-main" style="background-color: var(--purple);">
+                        Konfime Deplasman 📥
+                    </button>
+                </div>
+
+                <div id="sub-page-view-frizer" class="sub-page">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Pwodwi</th>
+                                <th>Nan Frize</th>
+                            </tr>
+                        </thead>
+                        <tbody id="frizer-stock-rows"></tbody>
+                    </table>
+                </div>
+
+                <div id="sub-page-gaste-frizer" class="sub-page">
+                    <label style="font-size:12px; color:var(--text-muted);">Rapòte yon grenn ki koule nan depo jeneral la:</label>
+                    <select id="gaste-select-prod" class="select-style" style="margin-top:6px;"></select>
+                    <input type="number" id="gaste-qty" class="input-text" value="1">
+                    <button onclick="reportGasteProduct()" class="btn-main" style="background-color: var(--danger);">
+                        Retire Grenn Koule a 💥
+                    </button>
+                </div>
+
+                <div id="sub-page-kontab-separe" class="sub-page">
+                    <h4 style="font-size: 12px; color: var(--primary-light); text-transform: uppercase; margin-bottom: 4px;">📦 Lavant An Gwo</h4>
+                    <div class="log-list" id="logs-an-gwo" style="margin-bottom: 12px; height: 110px;">Pa gen lavant an gwo...</div>
+
+                    <h4 style="font-size: 12px; color: var(--purple); text-transform: uppercase; margin-bottom: 4px;">🥤 Lavant An Detay (Frizer)</h4>
+                    <div class="log-list" id="logs-an-detay" style="margin-bottom: 12px; height: 110px; color: #A78BFA;">Pa gen lavant an detay...</div>
+
+                    <h4 style="font-size: 12px; color: var(--natcash); text-transform: uppercase; margin-bottom: 4px;">📲 Istorik NatCash Detaye</h4>
+                    <div class="log-list" id="admin-nat-logs" style="height: 110px; color: #10B981;">Pa gen operasyon...</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <h3 style="font-size:13px; margin-bottom:8px;">⚙️ Balans Kat NatCash</h3>
+                <input type="number" id="admin-set-nat-balance" placeholder="Ex: 25000" class="input-text">
+                <button onclick="updateNatBalanceFromAdmin()" class="btn-main" style="background-color: #0F172A; padding:12px;">💾 Anrejistre Balans Kat la</button>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size:13px; margin-bottom:8px;">📥 Refè Stòk Depo Jeneral</h3>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <select id="restock-select" class="select-style"></select>
+                    <input type="number" id="restock-qty" placeholder="Kantite pou ajoute" class="input-text">
+                    <button onclick="submitRestock()" class="btn-main" style="background-color: var(--primary);">Ajoute nan Stòk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let inventory = [
+            { id: 1, name: "Ti Fritop Haiti", img: "https://images.unsplash.com/photo-1613967193442-19cfb7e05bc5?w=200", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
+            { id: 2, name: "Cola Real Haiti", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+            { id: 3, name: "Couronne Haiti", img: "https://images.unsplash.com/photo-1527960656366-ee2a999e32e6?w=200", stockGrenn: 120, stockFrizerGrenn: 12, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } },
+            { id: 4, name: "Robusto Haiti", img: "https://images.unsplash.com/photo-1603532616252-0566042456ec?w=200", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 850, kes: 1700 }, buyingPrice: { detail: 70, demi: 600, kes: 1200 } },
+            { id: 5, name: "Fanta Haiti", img: "https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?w=200", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } }
+        ];
+
+        let currentCart = [];
+        let totalRevenue = 0;
+        let totalProfit = 0;
+        let natCashBalance = 5000; 
+        let physicalCashBalance = 0; 
+        let currentTheme = "light";
+        let isAdminAuthenticated = false;
+
+        let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
+        let verifiedSections = { natcash: false, bwason: false };
+        let currentVerifyingType = ""; 
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            document.getElementById(`nav-${pageId}`).classList.add('active');
+
+            if(pageId === 'pos') renderProducts();
+            if(pageId === 'admin') {
+                if(isAdminAuthenticated) {
+                    updateAdminDashboard();
+                    populateAdminSelects();
+                    renderFrizerStockTable();
+                }
+            }
+        }
+
+        function triggerPageSecurity(pageId) {
+            if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
+                currentVerifyingType = "natcash";
+                openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
+                return;
+            }
+            if (pageId === 'pos' && !verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
+                currentVerifyingType = "bwason";
+                let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
+                openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
+                return;
+            }
+            showPage(pageId);
+        }
+
+        function openVerificationModal(title, msg) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('dispute-section').style.display = 'none';
+            document.getElementById('modal-initial-btns').style.display = 'flex';
+            document.getElementById('verification-popup').style.display = 'flex';
+        }
+
+        function acceptFonDeKes() {
+            if (currentVerifyingType === "natcash") {
+                verifiedSections.natcash = true;
+                physicalCashBalance += adminFonDeKes.natcash; 
+                showPage('natcash-tab');
+            } else if (currentVerifyingType === "bwason") {
+                verifiedSections.bwason = true;
+                physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
+                showPage('pos');
+            }
+            document.getElementById('verification-popup').style.display = 'none';
+            updateAdminDashboard();
+        }
+
+        function showDisputeInput() {
+            document.getElementById('modal-initial-btns').style.display = 'none';
+            document.getElementById('dispute-section').style.display = 'block';
+            document.getElementById('disputed-amount-input').value = '';
+        }
+
+        function submitDispute() {
+            let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
+            if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
+
+            let adminAmountExpected = 0;
+            let sectionName = "";
+
+            if (currentVerifyingType === "natcash") {
+                adminAmountExpected = adminFonDeKes.natcash;
+                sectionName = "NatCash";
+                verifiedSections.natcash = true; 
+                physicalCashBalance += realAmount;
+                showPage('natcash-tab');
+            } else if (currentVerifyingType === "bwason") {
+                adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
+                sectionName = "Vant Bwason (An gwo + Detay)";
+                verifiedSections.bwason = true;
+                physicalCashBalance += realAmount;
+                showPage('pos');
+            }
+
+            document.getElementById('admin-dispute-alert').style.display = "block";
+            document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud, men li deklare li jwenn ${realAmount} Goud nan kès la.`;
+
+            document.getElementById('verification-popup').style.display = 'none';
+            alert("⚠️ Yo voye kontestasyon an bay Admin nan.");
+            updateAdminDashboard();
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-reason').value = '';
+            document.getElementById('expense-popup').style.display = 'flex';
+        }
+
+        function closeExpenseModalOutside(event) {
+            document.getElementById('expense-popup').style.display = 'none';
+        }
+
+        function submitExpense() {
+            let amt = parseFloat(document.getElementById('expense-amount').value);
+            let reason = document.getElementById('expense-reason').value.trim();
+
+            if (isNaN(amt) || amt <= 0) return alert("Tanpri antre yon montan valab!");
+            if (reason === "") return alert("Tanpri ekri rezon depans lan!");
+            if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
+
+            physicalCashBalance -= amt;
+            
+            let timeStr = new Date().toLocaleTimeString();
+            let expLogBox = document.getElementById('admin-expense-logs');
+            if (expLogBox.innerHTML.includes("Pa gen depans")) expLogBox.innerHTML = '';
+            expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud : ${reason}<br>` + expLogBox.innerHTML;
+
+            document.getElementById('expense-popup').style.display = 'none';
+            alert(`✅ Depans pou "${reason}" (${amt} HTG) anrejistre.`);
+            updateAdminDashboard();
+        }
+
+        function openCloseKesModal() {
+            document.getElementById('vandes-counted-cash').value = '';
+            document.getElementById('close-kes-popup').style.display = 'flex';
+        }
+
+        function submitCloseKesBlind() {
+            let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
+            if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
+
+            let systemExpected = physicalCashBalance;
+            let eka = counted - systemExpected;
+            let rapòMesaj = "";
+
+            if (eka === 0) {
+                rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\nEka: 0 Goud.`;
+            } else if (eka < 0) {
+                rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔴 MANKE: ${Math.abs(eka)} Goud!`;
+            } else {
+                rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔵 ANPLIS: ${eka} Goud!`;
+            }
+
+            document.getElementById('admin-close-alert').style.display = "block";
+            document.getElementById('admin-close-text').innerText = rapòMesaj;
+
+            document.getElementById('close-kes-popup').style.display = 'none';
+            alert("🔒 Yo voye rapò fèmti kès la bay Admin nan.");
+        }
+
+        function saveFonDeKesFromAdmin() {
+            adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
+            adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
+            adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
+
+            verifiedSections.natcash = false;
+            verifiedSections.bwason = false;
+            alert(`Sove! Vandè a ap gen pou l verifye yo.`);
+        }
+
+        function checkAdminAuth() {
+            let pass = document.getElementById('admin-pass-input').value;
+            if(pass === "1234") {
+                isAdminAuthenticated = true;
+                document.getElementById('admin-auth').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                updateAdminDashboard();
+                populateAdminSelects();
+                renderFrizerStockTable();
+            } else {
+                alert("❌ Modpas Kòd Admin Enkòrèk!");
+            }
+            document.getElementById('admin-pass-input').value = '';
+        }
+
+        function lockAdmin() {
+            isAdminAuthenticated = false;
+            document.getElementById('admin-content').style.display = 'none';
+            document.getElementById('admin-auth').style.display = 'flex';
+        }
+
+        function showSubPage(subId) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`sub-page-${subId}`).classList.add('active');
+            document.getElementById(`sub-nav-${subId}`).classList.add('active');
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            inventory.forEach(p => {
+                let isLowStock = p.stockGrenn < 24;
+                let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
+                
+                container.innerHTML += `
+                    <div class="prod-card" data-name="${p.name.toLowerCase()}">
+                        ${alertBadge}
+                        <img src="${p.img}" alt="${p.name}">
+                        <div class="prod-info">
+                            <div class="prod-name">${p.name}</div>
+                            <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
+                            <div class="type-selector">
+                                <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g)</button>
+                                <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g)</button>
+                            </div>
+                            <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g)</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function populateAdminSelects() {
+            const restockSelect = document.getElementById('restock-select');
+            const frizerSelect = document.getElementById('frizer-select-prod');
+            const gasteSelect = document.getElementById('gaste-select-prod');
+
+            restockSelect.innerHTML = ''; frizerSelect.innerHTML = ''; gasteSelect.innerHTML = '';
+
+            inventory.forEach(p => {
+                let optionHTML = `<option value="${p.id}">${p.name}</option>`;
+                restockSelect.innerHTML += optionHTML;
+                frizerSelect.innerHTML += optionHTML;
+                gasteSelect.innerHTML += optionHTML;
+            });
+        }
+
+        function moveProductToFrizer() {
+            let prodId = parseInt(document.getElementById('frizer-select-prod').value);
+            let type = document.getElementById('frizer-select-type').value;
+            let qty = parseInt(document.getElementById('frizer-qty').value);
+
+            if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite ki valab!");
+
+            let multiplier = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+            let totalGrennToMove = qty * multiplier;
+            let p = inventory.find(item => item.id === prodId);
+
+            if(p.stockGrenn < totalGrennToMove) return alert(`⚠️ Pa gen ase stòk nan depo!`);
+
+            p.stockGrenn -= totalGrennToMove; p.stockFrizerGrenn += totalGrennToMove;
+            alert(`❄️ Siksè! ${totalGrennToMove} grenn deplase.`);
+            renderFrizerStockTable(); updateAdminDashboard();
+        }
+
+        function renderFrizerStockTable() {
+            const tbody = document.getElementById('frizer-stock-rows');
+            tbody.innerHTML = '';
+            inventory.forEach(p => {
+                tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style="color:var(--purple); font-weight:bold;">${p.stockFrizerGrenn}</span> grenn</td></tr>`;
+            });
+        }
+
+        function reportGasteProduct() {
+            let prodId = parseInt(document.getElementById('gaste-select-prod').value);
+            let qty = parseInt(document.getElementById('gaste-qty').value);
+            if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
+            let p = inventory.find(prod => prod.id === prodId);
+            if(p.stockGrenn < qty) return alert(`⚠️ Pa gen ase stòk!`);
+            p.stockGrenn -= qty;
+            alert(`💥 Yo retire ${qty} grenn koule.`);
+            updateAdminDashboard();
+        }
+
+        function filterProducts() {
+            let filterValue = document.getElementById('search-box').value.toLowerCase();
+            document.querySelectorAll('.prod-card').forEach(card => {
+                let name = card.getAttribute('data-name');
+                card.style.display = name.includes(filterValue) ? "flex" : "none";
+            });
+        }
+
+        function toggleTheme() {
+            const root = document.documentElement;
+            const btn = document.getElementById('theme-btn');
+            if(currentTheme === "light") {
+                root.setAttribute('data-theme', 'dark');
+                btn.innerText = "🌙 Nwit"; currentTheme = "dark";
+            } else {
+                root.removeAttribute('data-theme');
+                btn.innerText = "☀️ Lajounen"; currentTheme = "light";
+            }
+        }
+
+        function addToCart(prodId, type) {
+            let p = inventory.find(item => item.id === prodId);
+            let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
+            let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+
+            if(type === 'detail') {
+                if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
+            } else {
+                if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
+            }
+
+            currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
+            renderCart();
+        }
+
+        function removeFromCart(uniqueId) {
+            if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
+                currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
+                renderCart();
+            } else {
+                alert("❌ Kòd enkòrèk!");
+            }
+        }
+
+        function renderCart() {
+            const tbody = document.getElementById('cart-rows');
+            tbody.innerHTML = ''; let total = 0;
+            currentCart.forEach(item => {
+                total += item.price;
+                tbody.innerHTML += `<tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.labelType}</td>
+                    <td><strong>${item.price} G</strong></td>
+                    <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
+                </tr>`;
+            });
+            document.getElementById('bill-total-display').innerText = total + " HTG";
+        }
+
+        function checkoutSale() {
+            if(currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+            let billTotal = 0; let billProfit = 0;
+            let timeStr = new Date().toLocaleTimeString();
+            let logGwoBox = document.getElementById('logs-an-gwo');
+            let logDetayBox = document.getElementById('logs-an-detay');
+
+            if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
+            if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
+
+            currentCart.forEach(item => {
+                let p = inventory.find(prod => prod.id === item.prodId);
+                if(item.type === 'detail') {
+                    p.stockFrizerGrenn -= item.qtyNeeded;
+                    logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G<br>` + logDetayBox.innerHTML;
+                } else {
+                    p.stockGrenn -= item.qtyNeeded;
+                    logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G<br>` + logGwoBox.innerHTML;
+                }
+                billTotal += item.price; billProfit += (item.price - item.buyPrice);
+            });
+
+            totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
+            alert(`✅ Lavant anrejistre (${billTotal} HTG).`);
+            currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
+        }
+
+        function processNatCash(type) {
+            let amountInput = document.getElementById('nat-amount');
+            let amt = parseFloat(amountInput.value);
+            if(isNaN(amt) || amt <= 0) return alert("Antre yon montan valab!");
+            let timeStr = new Date().toLocaleTimeString();
+            let safeLog = ""; let adminLog = ""; 
+
+            if(type === 'depo') {
+                natCashBalance += amt; physicalCashBalance += amt;   
+                safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG (Pran Kach)`;
+                adminLog = `[${timeStr}] 📥 DEPO: Kat +${amt} HTG. Kach +${amt}g.`;
+            } else if(type === 'retre') {
+                if(physicalCashBalance < amt && !confirm("⚠️ Pa gen ase kòb fizik nan kès, kontinye?")) return;
+                natCashBalance -= amt; physicalCashBalance -= amt;   
+                safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG (Remèt Kach)`;
+                adminLog = `[${timeStr}] 📤 RETRÈ: Kat -${amt} HTG. Kach -${amt}g.`;
+            }
+
+            const posLogBox = document.getElementById('pos-nat-logs');
+            if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
+            posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
+
+            const adminLogBox = document.getElementById('admin-nat-logs');
+            if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
+            adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
+
+            amountInput.value = ''; updateAdminDashboard();
+        }
+
+        function updateNatBalanceFromAdmin() {
+            let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
+            if(isNaN(val) || val < 0) return alert("Antre chif valab!");
+            natCashBalance = val; document.getElementById('admin-set-nat-balance').value = '';
+            updateAdminDashboard();
+        }
+
+        function updateAdminDashboard() {
+            document.getElementById('pos-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
+            document.getElementById('vandes-natcash-display').innerText = natCashBalance.toLocaleString() + " HTG";
+            document.getElementById('vandes-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
+            document.getElementById('vandes-live-cash').innerText = physicalCashBalance.toLocaleString() + " HTG";
+
+            if(!isAdminAuthenticated) return;
+            document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " G";
+            document.getElementById('stat-profit').innerText = totalProfit.toLocaleString() + " G";
+            document.getElementById('stat-nat-balance').innerText = natCashBalance.toLocaleString() + " G";
+
+            let totalStockVal = 0;
+            inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
+            document.getElementById('stat-stock-value').innerText = totalStockVal.toLocaleString() + " G";
+        }
+
+        function submitRestock() {
+            let prodId = parseInt(document.getElementById('restock-select').value);
+            let qty = parseInt(document.getElementById('restock-qty').value);
+            if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
+            inventory.find(prod => prod.id === prodId).stockGrenn += qty;
+            document.getElementById('restock-qty').value = '';
+            renderProducts();
+        }
+
+        renderProducts();
+    </script>
+</body>
+</html>
