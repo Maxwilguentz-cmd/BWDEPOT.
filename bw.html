@@ -4,466 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BWdepo - Premium Edition</title>
-    <style>
-        :root {
-            --bg-body: #F1F5F9;
-            --bg-card: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --primary: #1E3A8A;
-            --primary-light: #3B82F6;
-            --accent: #10B981;
-            --natcash: #00A550;
-            --purple: #8B5CF6;
-            --danger: #EF4444;
-            --border: #E2E8F0;
-            --nav-bg: #FFFFFF;
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #0F172A;
-            --bg-card: #1E293B;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --primary: #3B82F6;
-            --primary-light: #60A5FA;
-            --accent: #34D399;
-            --natcash: #22C55E;
-            --purple: #A78BFA;
-            --danger: #F87171;
-            --border: #334155;
-            --nav-bg: #1E293B;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-top: 130px; /* Ajiste pou evite header a kache kontni */
-            padding-bottom: 30px;
-        }
-
-        /* HEADER & NAVIGATION RESPONSIV */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 12px;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .logo span {
-            color: #38BDF8;
-        }
-
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        nav {
-            display: flex;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 4px;
-            border-radius: 8px;
-            width: 100%;
-        }
-
-        nav button {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 10px 6px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        nav button.active {
-            background-color: var(--bg-card);
-            color: var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        [data-theme="dark"] nav button.active {
-            color: var(--primary-light);
-        }
-
-        /* PAJ KONTENÈ YO (Lajè adaptab pou Laptop) */
-        .page {
-            display: none;
-            padding: 0 16px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* STRUKTI DE KOLÒN POU LAPTOP / GWO EKRAN */
-        .pos-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* KAT AK BOX JENERAL */
-        .card {
-            background-color: var(--bg-card);
-            border-radius: 14px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 16px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            font-size: 15px;
-            outline: none;
-        }
-
-        /* GRID PWODWI (Adaptab: 1 kolòn telefòn, 2 tablèt, 3 laptop) */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 14px;
-        }
-
-        .prod-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            position: relative;
-            height: 115px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .prod-card img {
-            width: 95px;
-            height: 100%;
-            object-fit: cover;
-            background-color: #E2E8F0;
-        }
-
-        .prod-info {
-            padding: 10px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .prod-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .prod-stock {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .stock-alert {
-            background-color: var(--danger);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            z-index: 10;
-        }
-
-        .type-selector {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .type-btn {
-            background-color: var(--bg-body);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-sell {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 6px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        /* TABLES */
-        .cart-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .cart-table th {
-            text-align: left;
-            padding: 8px 6px;
-            color: var(--text-muted);
-            font-size: 12px;
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-        }
-
-        .cart-table td {
-            padding: 12px 6px;
-            font-size: 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .bill-total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 20px;
-            font-weight: 800;
-            border-top: 2px dashed var(--border);
-            padding-top: 14px;
-            margin-top: 14px;
-        }
-
-        /* INPUTS YO */
-        .input-text, .select-style {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            margin-bottom: 12px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            font-size: 15px;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-        }
-
-        /* GRID DASHBOARD ADMIN RESPONSIV */
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--text-muted);
-        }
-
-        .stat-card.revenue { border-left-color: var(--accent); }
-        .stat-card.profit { border-left-color: var(--primary-light); }
-        .stat-card.stock { border-left-color: var(--purple); }
-        .stat-card.natcash { border-left-color: var(--natcash); }
-        .stat-card.livecash { border-left-color: #F59E0B; }
-        .stat-card h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .stat-card p { font-size: 18px; font-weight: 800; }
-
-        .log-list {
-            max-height: 180px;
-            overflow-y: auto;
-            background-color: #0F172A;
-            color: #38BDF8;
-            font-family: monospace;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        /* ADMIN SUB TABS RESPONSIV */
-        .admin-sub-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 6px;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .sub-tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 6px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .sub-tab-btn.active {
-            color: var(--purple);
-            border-bottom: 2px solid var(--purple);
-        }
-
-        .sub-page { display: none; }
-        .sub-page.active { display: block; }
-
-        .lock-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        /* MODAL POPUPS */
-        .verification-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .modal-content {
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            padding: 24px;
-            border-radius: 16px;
-            max-width: 440px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border: 2px solid var(--primary-light);
-        }
-        .modal-content h3 { margin-bottom: 12px; font-size: 19px; }
-        .modal-content p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; }
-        .modal-buttons { display: flex; gap: 10px; }
-        .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
-
-        /* ====== MEDIA QUERIES POU GRADDÈ EKRAN YO ====== */
-
-        /* Pou Laptop ak Tablèt an fòma Laj (Gwo ekran) */
-        @media (min-width: 768px) {
-            body {
-                padding-top: 95px; /* Paske header a ap vin pi plat */
-            }
-            .header-container {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            nav {
-                width: auto;
-                min-width: 380px;
-            }
-            .pos-layout {
-                grid-template-columns: 1.2fr 0.8fr; /* Divize paj la an kote pwodwi ak kote fakti */
-                align-items: start;
-            }
-            .admin-grid {
-                grid-template-columns: repeat(4, 1fr); /* 4 bwat stat kòt a kòt sou PC */
-            }
-            .stat-card.livecash {
-                grid-column: span 4; /* Gwo bwat kach la ap pran tout liy anba a */
-            }
-        }
-    </style>
+    <!-- Koneksyon ak fichye CSS separe a -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -527,11 +69,10 @@
         </div>
     </header>
 
-    <!-- ONGLÈ 1: LAVANT BWASON (Layout divize pou laptop) -->
+    <!-- ONGLÈ 1: LAVANT BWASON -->
     <div id="page-pos" class="page active">
         <div class="pos-layout">
             
-            <!-- KOLÒN GÒCH: PWODWI AK CHÈCHÈ -->
             <div class="left-column">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                     <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(30, 58, 138, 0.05);">
@@ -552,7 +93,6 @@
                 <div class="products-grid" id="products-container"></div>
             </div>
 
-            <!-- KOLÒN DWA: FAKTI (Ap kòt a kòt sou laptop, anba sou telefòn) -->
             <div class="right-column">
                 <h2 class="section-title">📝 Fakti Kliyan</h2>
                 <div class="card">
@@ -765,7 +305,29 @@
         </div>
     </div>
 
-    <script>
+    <!-- INTEGRASYON SCRIPT FIREBASE AK LOJIK JAVASCRIPT OU -->
+    <script type="module">
+        // 1. Enpòte modil Firebase Realtime Database
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Konfigirasyon Firebase ou (Ranplase ak vrè kòd pwojè w la lè w prè)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Inisyalize aplikasyon Firebase la
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // --- ATANSYON: Kòd ki anba yo se tout lojik ou a nèt san okenn chanjman ---
+
         let inventory = [
             { id: 1, name: "Ti Fritop Haiti", img: "https://images.unsplash.com/photo-1613967193442-19cfb7e05bc5?w=200", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
             { id: 2, name: "Cola Real Haiti", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
@@ -786,7 +348,7 @@
         let verifiedSections = { natcash: false, bwason: false };
         let currentVerifyingType = ""; 
 
-        function showPage(pageId) {
+        window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
@@ -803,7 +365,7 @@
             }
         }
 
-        function triggerPageSecurity(pageId) {
+        window.triggerPageSecurity = function(pageId) {
             if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
                 currentVerifyingType = "natcash";
                 openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
@@ -818,7 +380,7 @@
             showPage(pageId);
         }
 
-        function openVerificationModal(title, msg) {
+        window.openVerificationModal = function(title, msg) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = msg;
             document.getElementById('dispute-section').style.display = 'none';
@@ -826,7 +388,7 @@
             document.getElementById('verification-popup').style.display = 'flex';
         }
 
-        function acceptFonDeKes() {
+        window.acceptFonDeKes = function() {
             if (currentVerifyingType === "natcash") {
                 verifiedSections.natcash = true;
                 physicalCashBalance += adminFonDeKes.natcash; 
@@ -840,13 +402,13 @@
             updateAdminDashboard();
         }
 
-        function showDisputeInput() {
+        window.showDisputeInput = function() {
             document.getElementById('modal-initial-btns').style.display = 'none';
             document.getElementById('dispute-section').style.display = 'block';
             document.getElementById('disputed-amount-input').value = '';
         }
 
-        function submitDispute() {
+        window.submitDispute = function() {
             let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
             if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
 
@@ -875,17 +437,17 @@
             updateAdminDashboard();
         }
 
-        function openExpenseModal() {
+        window.openExpenseModal = function() {
             document.getElementById('expense-amount').value = '';
             document.getElementById('expense-reason').value = '';
             document.getElementById('expense-popup').style.display = 'flex';
         }
 
-        function closeExpenseModalOutside(event) {
+        window.closeExpenseModalOutside = function(event) {
             document.getElementById('expense-popup').style.display = 'none';
         }
 
-        function submitExpense() {
+        window.submitExpense = function() {
             let amt = parseFloat(document.getElementById('expense-amount').value);
             let reason = document.getElementById('expense-reason').value.trim();
 
@@ -905,12 +467,12 @@
             updateAdminDashboard();
         }
 
-        function openCloseKesModal() {
+        window.openCloseKesModal = function() {
             document.getElementById('vandes-counted-cash').value = '';
             document.getElementById('close-kes-popup').style.display = 'flex';
         }
 
-        function submitCloseKesBlind() {
+        window.submitCloseKesBlind = function() {
             let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
             if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
 
@@ -933,7 +495,7 @@
             alert("🔒 Yo voye rapò fèmti kès la bay Admin nan.");
         }
 
-        function saveFonDeKesFromAdmin() {
+        window.saveFonDeKesFromAdmin = function() {
             adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
             adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
             adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
@@ -943,7 +505,7 @@
             alert(`Sove! Vandè a ap gen pou l verifye yo.`);
         }
 
-        function checkAdminAuth() {
+        window.checkAdminAuth = function() {
             let pass = document.getElementById('admin-pass-input').value;
             if(pass === "1234") {
                 isAdminAuthenticated = true;
@@ -958,13 +520,13 @@
             document.getElementById('admin-pass-input').value = '';
         }
 
-        function lockAdmin() {
+        window.lockAdmin = function() {
             isAdminAuthenticated = false;
             document.getElementById('admin-content').style.display = 'none';
             document.getElementById('admin-auth').style.display = 'flex';
         }
 
-        function showSubPage(subId) {
+        window.showSubPage = function(subId) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
             
@@ -1013,7 +575,7 @@
             });
         }
 
-        function moveProductToFrizer() {
+        window.moveProductToFrizer = function() {
             let prodId = parseInt(document.getElementById('frizer-select-prod').value);
             let type = document.getElementById('frizer-select-type').value;
             let qty = parseInt(document.getElementById('frizer-qty').value);
@@ -1039,7 +601,7 @@
             });
         }
 
-        function reportGasteProduct() {
+        window.reportGasteProduct = function() {
             let prodId = parseInt(document.getElementById('gaste-select-prod').value);
             let qty = parseInt(document.getElementById('gaste-qty').value);
             if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
@@ -1050,7 +612,7 @@
             updateAdminDashboard();
         }
 
-        function filterProducts() {
+        window.filterProducts = function() {
             let filterValue = document.getElementById('search-box').value.toLowerCase();
             document.querySelectorAll('.prod-card').forEach(card => {
                 let name = card.getAttribute('data-name');
@@ -1058,7 +620,7 @@
             });
         }
 
-        function toggleTheme() {
+        window.toggleTheme = function() {
             const root = document.documentElement;
             const btn = document.getElementById('theme-btn');
             if(currentTheme === "light") {
@@ -1070,7 +632,7 @@
             }
         }
 
-        function addToCart(prodId, type) {
+        window.addToCart = function(prodId, type) {
             let p = inventory.find(item => item.id === prodId);
             let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
             let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
@@ -1085,7 +647,7 @@
             renderCart();
         }
 
-        function removeFromCart(uniqueId) {
+        window.removeFromCart = function(uniqueId) {
             if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
                 currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
                 renderCart();
@@ -1109,7 +671,7 @@
             document.getElementById('bill-total-display').innerText = total + " HTG";
         }
 
-        function checkoutSale() {
+        window.checkoutSale = function() {
             if(currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
             let billTotal = 0; let billProfit = 0;
             let timeStr = new Date().toLocaleTimeString();
@@ -1136,7 +698,7 @@
             currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
         }
 
-        function processNatCash(type) {
+        window.processNatCash = function(type) {
             let amountInput = document.getElementById('nat-amount');
             let amt = parseFloat(amountInput.value);
             if(isNaN(amt) || amt <= 0) return alert("Antre yon montan valab!");
@@ -1165,7 +727,7 @@
             amountInput.value = ''; updateAdminDashboard();
         }
 
-        function updateNatBalanceFromAdmin() {
+        window.updateNatBalanceFromAdmin = function() {
             let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
             if(isNaN(val) || val < 0) return alert("Antre chif valab!");
             natCashBalance = val; document.getElementById('admin-set-nat-balance').value = '';
@@ -1188,7 +750,7 @@
             document.getElementById('stat-stock-value').innerText = totalStockVal.toLocaleString() + " G";
         }
 
-        function submitRestock() {
+        window.submitRestock = function() {
             let prodId = parseInt(document.getElementById('restock-select').value);
             let qty = parseInt(document.getElementById('restock-qty').value);
             if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
@@ -1197,6 +759,7 @@
             renderProducts();
         }
 
+        // Kòmanse afiche pwodwi yo lè paj la louvri
         renderProducts();
     </script>
 </body>
