@@ -1,459 +1,526 @@
-    <script type="module">
-        // 1. Enpòte modil Firebase Realtime Database
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+// 1. Enpòte modil Firebase Realtime Database
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Konfigirasyon Firebase ou (Ranplase ak vrè kòd pwojè w la lè w prè)
- const firebaseConfig = {
-  apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
-  authDomain: "bwdepot-61214.firebaseapp.com",
-  databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-  projectId: "bwdepot-61214",
-  storageBucket: "bwdepot-61214.firebasestorage.app",
-  messagingSenderId: "624010872324",
-  appId: "1:624010872324:web:0b0565c3872b3caccd5751",
-  measurementId: "G-8VEN9QQF7B"
+// Konfigirasyon Firebase ou
+const firebaseConfig = {
+    apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
+    authDomain: "bwdepot-61214.firebaseapp.com",
+    databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
+    projectId: "bwdepot-61214",
+    storageBucket: "bwdepot-61214.firebasestorage.app",
+    messagingSenderId: "624010872324",
+    appId: "1:624010872324:web:0b0565c3872b3caccd5751",
+    measurementId: "G-8VEN9QQF7B"
 };
 
-        // Inisyalize aplikasyon Firebase la
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+// Inisyalize aplikasyon Firebase la
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-        // --- ATANSYON: Kòd ki anba yo se tout lojik ou a nèt san okenn chanjman ---
+// --- DONE INIASYAL YO ---
+let inventory = [
+    { id: 1, name: "Ti Fritop Haiti", img: "https://images.unsplash.com/photo-1613967193442-19cfb7e05bc5?w=200", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
+    { id: 2, name: "Cola Real Haiti", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 3, name: "Couronne Haiti", img: "https://images.unsplash.com/photo-1527960656366-ee2a999e32e6?w=200", stockGrenn: 120, stockFrizerGrenn: 12, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } },
+    { id: 4, name: "Robusto Haiti", img: "https://images.unsplash.com/photo-1603532616252-0566042456ec?w=200", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 850, kes: 1700 }, buyingPrice: { detail: 70, demi: 600, kes: 1200 } },
+    { id: 5, name: "Fanta Haiti", img: "https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?w=200", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } }
+];
 
-        let inventory = [
-            { id: 1, name: "Ti Fritop Haiti", img: "https://images.unsplash.com/photo-1613967193442-19cfb7e05bc5?w=200", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
-            { id: 2, name: "Cola Real Haiti", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-            { id: 3, name: "Couronne Haiti", img: "https://images.unsplash.com/photo-1527960656366-ee2a999e32e6?w=200", stockGrenn: 120, stockFrizerGrenn: 12, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } },
-            { id: 4, name: "Robusto Haiti", img: "https://images.unsplash.com/photo-1603532616252-0566042456ec?w=200", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 850, kes: 1700 }, buyingPrice: { detail: 70, demi: 600, kes: 1200 } },
-            { id: 5, name: "Fanta Haiti", img: "https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?w=200", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } }
-        ];
+let currentCart = [];
+let totalRevenue = 0;
+let totalProfit = 0;
+let natCashBalance = 5000; 
+let physicalCashBalance = 0; 
+let currentTheme = "light";
+let isAdminAuthenticated = false;
 
-        let currentCart = [];
-        let totalRevenue = 0;
-        let totalProfit = 0;
-        let natCashBalance = 5000; 
-        let physicalCashBalance = 0; 
-        let currentTheme = "light";
-        let isAdminAuthenticated = false;
+let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
+let verifiedSections = { natcash: false, bwason: false };
+let currentVerifyingType = ""; 
 
-        let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
-        let verifiedSections = { natcash: false, bwason: false };
-        let currentVerifyingType = ""; 
+// --- FONKSYON POU SOVE DONE YO NAN FIREBASE ---
+function saveAppStateToFirebase() {
+    set(ref(database, 'appState'), {
+        inventory: inventory,
+        totalRevenue: totalRevenue,
+        totalProfit: totalProfit,
+        natCashBalance: natCashBalance,
+        physicalCashBalance: physicalCashBalance,
+        adminFonDeKes: adminFonDeKes,
+        verifiedSections: verifiedSections,
+        adminExpenseLogs: document.getElementById('admin-expense-logs')?.innerHTML || "",
+        logsAnGwo: document.getElementById('logs-an-gwo')?.innerHTML || "",
+        logsAnDetay: document.getElementById('logs-an-detay')?.innerHTML || "",
+        posNatLogs: document.getElementById('pos-nat-logs')?.innerHTML || "",
+        adminNatLogs: document.getElementById('admin-nat-logs')?.innerHTML || "",
+        adminDisputeAlert: document.getElementById('admin-dispute-alert')?.style.display || "none",
+        adminDisputeText: document.getElementById('admin-dispute-text')?.innerText || "",
+        adminCloseAlert: document.getElementById('admin-close-alert')?.style.display || "none",
+        adminCloseText: document.getElementById('admin-close-text')?.innerText || ""
+    });
+}
 
-        window.showPage = function(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            document.getElementById(`nav-${pageId}`).classList.add('active');
-
-            if(pageId === 'pos') renderProducts();
-            if(pageId === 'admin') {
-                if(isAdminAuthenticated) {
-                    updateAdminDashboard();
-                    populateAdminSelects();
-                    renderFrizerStockTable();
-                }
-            }
+// --- CHAJE DONE YO DEPI NAN FIREBASE LÈ PAJ LA LOUVRI ---
+onValue(ref(database, 'appState'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        if (data.inventory) inventory = data.inventory;
+        totalRevenue = data.totalRevenue || 0;
+        totalProfit = data.totalProfit || 0;
+        natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
+        physicalCashBalance = data.physicalCashBalance || 0;
+        if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
+        if (data.verifiedSections) verifiedSections = data.verifiedSections;
+        
+        // Retounen html logs yo jan yo te ye a
+        if (data.adminExpenseLogs && document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = data.adminExpenseLogs;
+        if (data.logsAnGwo && document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = data.logsAnGwo;
+        if (data.logsAnDetay && document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = data.logsAnDetay;
+        if (data.posNatLogs && document.getElementById('pos-nat-logs')) document.getElementById('pos-nat-logs').innerHTML = data.posNatLogs;
+        if (data.adminNatLogs && document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = data.adminNatLogs;
+        
+        // Alèt yo
+        if (document.getElementById('admin-dispute-alert')) {
+            document.getElementById('admin-dispute-alert').style.display = data.adminDisputeAlert || "none";
+            document.getElementById('admin-dispute-text').innerText = data.adminDisputeText || "";
         }
-
-        window.triggerPageSecurity = function(pageId) {
-            if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
-                currentVerifyingType = "natcash";
-                openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
-                return;
-            }
-            if (pageId === 'pos' && !verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
-                currentVerifyingType = "bwason";
-                let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
-                openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
-                return;
-            }
-            showPage(pageId);
+        if (document.getElementById('admin-close-alert')) {
+            document.getElementById('admin-close-alert').style.display = data.adminCloseAlert || "none";
+            document.getElementById('admin-close-text').innerText = data.adminCloseText || "";
         }
+    }
+    renderProducts();
+    updateAdminDashboard();
+});
 
-        window.openVerificationModal = function(title, msg) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-msg').innerText = msg;
-            document.getElementById('dispute-section').style.display = 'none';
-            document.getElementById('modal-initial-btns').style.display = 'flex';
-            document.getElementById('verification-popup').style.display = 'flex';
-        }
+// --- APÈL LÒT LÒJIK YO ---
 
-        window.acceptFonDeKes = function() {
-            if (currentVerifyingType === "natcash") {
-                verifiedSections.natcash = true;
-                physicalCashBalance += adminFonDeKes.natcash; 
-                showPage('natcash-tab');
-            } else if (currentVerifyingType === "bwason") {
-                verifiedSections.bwason = true;
-                physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
-                showPage('pos');
-            }
-            document.getElementById('verification-popup').style.display = 'none';
+window.showPage = function(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(`page-${pageId}`).classList.add('active');
+    document.getElementById(`nav-${pageId}`).classList.add('active');
+
+    if(pageId === 'pos') renderProducts();
+    if(pageId === 'admin') {
+        if(isAdminAuthenticated) {
             updateAdminDashboard();
+            populateAdminSelects();
+            renderFrizerStockTable();
         }
+    }
+}
 
-        window.showDisputeInput = function() {
-            document.getElementById('modal-initial-btns').style.display = 'none';
-            document.getElementById('dispute-section').style.display = 'block';
-            document.getElementById('disputed-amount-input').value = '';
-        }
+window.triggerPageSecurity = function(pageId) {
+    if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
+        currentVerifyingType = "natcash";
+        openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
+        return;
+    }
+    if (pageId === 'pos' && !verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
+        currentVerifyingType = "bwason";
+        let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
+        openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
+        return;
+    }
+    showPage(pageId);
+}
 
-        window.submitDispute = function() {
-            let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
-            if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
+window.openVerificationModal = function(title, msg) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-msg').innerText = msg;
+    document.getElementById('dispute-section').style.display = 'none';
+    document.getElementById('modal-initial-btns').style.display = 'flex';
+    document.getElementById('verification-popup').style.display = 'flex';
+}
 
-            let adminAmountExpected = 0;
-            let sectionName = "";
+window.acceptFonDeKes = function() {
+    if (currentVerifyingType === "natcash") {
+        verifiedSections.natcash = true;
+        physicalCashBalance += adminFonDeKes.natcash; 
+        showPage('natcash-tab');
+    } else if (currentVerifyingType === "bwason") {
+        verifiedSections.bwason = true;
+        physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
+        showPage('pos');
+    }
+    document.getElementById('verification-popup').style.display = 'none';
+    updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            if (currentVerifyingType === "natcash") {
-                adminAmountExpected = adminFonDeKes.natcash;
-                sectionName = "NatCash";
-                verifiedSections.natcash = true; 
-                physicalCashBalance += realAmount;
-                showPage('natcash-tab');
-            } else if (currentVerifyingType === "bwason") {
-                adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
-                sectionName = "Vant Bwason (An gwo + Detay)";
-                verifiedSections.bwason = true;
-                physicalCashBalance += realAmount;
-                showPage('pos');
-            }
+window.showDisputeInput = function() {
+    document.getElementById('modal-initial-btns').style.display = 'none';
+    document.getElementById('dispute-section').style.display = 'block';
+    document.getElementById('disputed-amount-input').value = '';
+}
 
-            document.getElementById('admin-dispute-alert').style.display = "block";
-            document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud, men li deklare li jwenn ${realAmount} Goud nan kès la.`;
+window.submitDispute = function() {
+    let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
+    if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
 
-            document.getElementById('verification-popup').style.display = 'none';
-            alert("⚠️ Yo voye kontestasyon an bay Admin nan.");
-            updateAdminDashboard();
-        }
+    let adminAmountExpected = 0;
+    let sectionName = "";
 
-        window.openExpenseModal = function() {
-            document.getElementById('expense-amount').value = '';
-            document.getElementById('expense-reason').value = '';
-            document.getElementById('expense-popup').style.display = 'flex';
-        }
+    if (currentVerifyingType === "natcash") {
+        adminAmountExpected = adminFonDeKes.natcash;
+        sectionName = "NatCash";
+        verifiedSections.natcash = true; 
+        physicalCashBalance += realAmount;
+        showPage('natcash-tab');
+    } else if (currentVerifyingType === "bwason") {
+        adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
+        sectionName = "Vant Bwason (An gwo + Detay)";
+        verifiedSections.bwason = true;
+        physicalCashBalance += realAmount;
+        showPage('pos');
+    }
 
-        window.closeExpenseModalOutside = function(event) {
-            document.getElementById('expense-popup').style.display = 'none';
-        }
+    document.getElementById('admin-dispute-alert').style.display = "block";
+    document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud, men li deklare li jwenn ${realAmount} Goud nan kès la.`;
 
-        window.submitExpense = function() {
-            let amt = parseFloat(document.getElementById('expense-amount').value);
-            let reason = document.getElementById('expense-reason').value.trim();
+    document.getElementById('verification-popup').style.display = 'none';
+    alert("⚠️ Yo voye kontestasyon an bay Admin nan.");
+    updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            if (isNaN(amt) || amt <= 0) return alert("Tanpri antre yon montan valab!");
-            if (reason === "") return alert("Tanpri ekri rezon depans lan!");
-            if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
+window.openExpenseModal = function() {
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-reason').value = '';
+    document.getElementById('expense-popup').style.display = 'flex';
+}
 
-            physicalCashBalance -= amt;
-            
-            let timeStr = new Date().toLocaleTimeString();
-            let expLogBox = document.getElementById('admin-expense-logs');
-            if (expLogBox.innerHTML.includes("Pa gen depans")) expLogBox.innerHTML = '';
-            expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud : ${reason}<br>` + expLogBox.innerHTML;
+window.closeExpenseModalOutside = function(event) {
+    document.getElementById('expense-popup').style.display = 'none';
+}
 
-            document.getElementById('expense-popup').style.display = 'none';
-            alert(`✅ Depans pou "${reason}" (${amt} HTG) anrejistre.`);
-            updateAdminDashboard();
-        }
+window.submitExpense = function() {
+    let amt = parseFloat(document.getElementById('expense-amount').value);
+    let reason = document.getElementById('expense-reason').value.trim();
 
-        window.openCloseKesModal = function() {
-            document.getElementById('vandes-counted-cash').value = '';
-            document.getElementById('close-kes-popup').style.display = 'flex';
-        }
+    if (isNaN(amt) || amt <= 0) return alert("Tanpri antre yon montan valab!");
+    if (reason === "") return alert("Tanpri ekri rezon depans lan!");
+    if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
 
-        window.submitCloseKesBlind = function() {
-            let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
-            if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
+    physicalCashBalance -= amt;
+    
+    let timeStr = new Date().toLocaleTimeString();
+    let expLogBox = document.getElementById('admin-expense-logs');
+    if (expLogBox.innerHTML.includes("Pa gen depans")) expLogBox.innerHTML = '';
+    expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud : ${reason}<br>` + expLogBox.innerHTML;
 
-            let systemExpected = physicalCashBalance;
-            let eka = counted - systemExpected;
-            let rapòMesaj = "";
+    document.getElementById('expense-popup').style.display = 'none';
+    alert(`✅ Depans pou "${reason}" (${amt} HTG) anrejistre.`);
+    updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            if (eka === 0) {
-                rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\nEka: 0 Goud.`;
-            } else if (eka < 0) {
-                rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔴 MANKE: ${Math.abs(eka)} Goud!`;
-            } else {
-                rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔵 ANPLIS: ${eka} Goud!`;
-            }
+window.openCloseKesModal = function() {
+    document.getElementById('vandes-counted-cash').value = '';
+    document.getElementById('close-kes-popup').style.display = 'flex';
+}
 
-            document.getElementById('admin-close-alert').style.display = "block";
-            document.getElementById('admin-close-text').innerText = rapòMesaj;
+window.submitCloseKesBlind = function() {
+    let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
+    if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
 
-            document.getElementById('close-kes-popup').style.display = 'none';
-            alert("🔒 Yo voye rapò fèmti kès la bay Admin nan.");
-        }
+    let systemExpected = physicalCashBalance;
+    let eka = counted - systemExpected;
+    let rapòMesaj = "";
 
-        window.saveFonDeKesFromAdmin = function() {
-            adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
-            adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
-            adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
+    if (eka === 0) {
+        rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\nEka: 0 Goud.`;
+    } else if (eka < 0) {
+        rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔴 MANKE: ${Math.abs(eka)} Goud!`;
+    } else {
+        rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔵 ANPLIS: ${eka} Goud!`;
+    }
 
-            verifiedSections.natcash = false;
-            verifiedSections.bwason = false;
-            alert(`Sove! Vandè a ap gen pou l verifye yo.`);
-        }
+    document.getElementById('admin-close-alert').style.display = "block";
+    document.getElementById('admin-close-text').innerText = rapòMesaj;
 
-        window.checkAdminAuth = function() {
-            let pass = document.getElementById('admin-pass-input').value;
-            if(pass === "1234") {
-                isAdminAuthenticated = true;
-                document.getElementById('admin-auth').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                updateAdminDashboard();
-                populateAdminSelects();
-                renderFrizerStockTable();
-            } else {
-                alert("❌ Modpas Kòd Admin Enkòrèk!");
-            }
-            document.getElementById('admin-pass-input').value = '';
-        }
+    document.getElementById('close-kes-popup').style.display = 'none';
+    alert("🔒 Yo voye rapò fèmti kès la bay Admin nan.");
+    saveAppStateToFirebase();
+}
 
-        window.lockAdmin = function() {
-            isAdminAuthenticated = false;
-            document.getElementById('admin-content').style.display = 'none';
-            document.getElementById('admin-auth').style.display = 'flex';
-        }
+window.saveFonDeKesFromAdmin = function() {
+    adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
+    adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
+    adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
 
-        window.showSubPage = function(subId) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(`sub-page-${subId}`).classList.add('active');
-            document.getElementById(`sub-nav-${subId}`).classList.add('active');
-        }
+    verifiedSections.natcash = false;
+    verifiedSections.bwason = false;
+    alert(`Sove! Vandè a ap gen pou l verifye yo.`);
+    saveAppStateToFirebase();
+}
 
-        function renderProducts() {
-            const container = document.getElementById('products-container');
-            container.innerHTML = '';
-            
-            inventory.forEach(p => {
-                let isLowStock = p.stockGrenn < 24;
-                let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
-                
-                container.innerHTML += `
-                    <div class="prod-card" data-name="${p.name.toLowerCase()}">
-                        ${alertBadge}
-                        <img src="${p.img}" alt="${p.name}">
-                        <div class="prod-info">
-                            <div class="prod-name">${p.name}</div>
-                            <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
-                            <div class="type-selector">
-                                <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g)</button>
-                                <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g)</button>
-                            </div>
-                            <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g)</button>
-                        </div>
+window.checkAdminAuth = function() {
+    let pass = document.getElementById('admin-pass-input').value;
+    if(pass === "1234") {
+        isAdminAuthenticated = true;
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+        updateAdminDashboard();
+        populateAdminSelects();
+        renderFrizerStockTable();
+    } else {
+        alert("❌ Modpas Kòd Admin Enkòrèk!");
+    }
+    document.getElementById('admin-pass-input').value = '';
+}
+
+window.lockAdmin = function() {
+    isAdminAuthenticated = false;
+    document.getElementById('admin-content').style.display = 'none';
+    document.getElementById('admin-auth').style.display = 'flex';
+}
+
+window.showSubPage = function(subId) {
+    document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(`sub-page-${subId}`).classList.add('active');
+    document.getElementById(`sub-nav-${subId}`).classList.add('active');
+}
+
+function renderProducts() {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    inventory.forEach(p => {
+        let isLowStock = p.stockGrenn < 24;
+        let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
+        
+        container.innerHTML += `
+            <div class="prod-card" data-name="${p.name.toLowerCase()}">
+                ${alertBadge}
+                <img src="${p.img}" alt="${p.name}">
+                <div class="prod-info">
+                    <div class="prod-name">${p.name}</div>
+                    <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
+                    <div class="type-selector">
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g)</button>
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g)</button>
                     </div>
-                `;
-            });
+                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g)</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function populateAdminSelects() {
+    const restockSelect = document.getElementById('restock-select');
+    const frizerSelect = document.getElementById('frizer-select-prod');
+    const gasteSelect = document.getElementById('gaste-select-prod');
+
+    if (!restockSelect) return;
+    restockSelect.innerHTML = ''; frizerSelect.innerHTML = ''; gasteSelect.innerHTML = '';
+
+    inventory.forEach(p => {
+        let optionHTML = `<option value="${p.id}">${p.name}</option>`;
+        restockSelect.innerHTML += optionHTML;
+        frizerSelect.innerHTML += optionHTML;
+        gasteSelect.innerHTML += optionHTML;
+    });
+}
+
+window.moveProductToFrizer = function() {
+    let prodId = parseInt(document.getElementById('frizer-select-prod').value);
+    let type = document.getElementById('frizer-select-type').value;
+    let qty = parseInt(document.getElementById('frizer-qty').value);
+
+    if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite ki valab!");
+
+    let multiplier = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+    let totalGrennToMove = qty * multiplier;
+    let p = inventory.find(item => item.id === prodId);
+
+    if(p.stockGrenn < totalGrennToMove) return alert(`⚠️ Pa gen ase stòk nan depo!`);
+
+    p.stockGrenn -= totalGrennToMove; p.stockFrizerGrenn += totalGrennToMove;
+    alert(`❄️ Siksè! ${totalGrennToMove} grenn deplase.`);
+    renderFrizerStockTable(); updateAdminDashboard();
+    saveAppStateToFirebase();
+}
+
+function renderFrizerStockTable() {
+    const tbody = document.getElementById('frizer-stock-rows');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    inventory.forEach(p => {
+        tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style="color:var(--purple); font-weight:bold;">${p.stockFrizerGrenn}</span> grenn</td></tr>`;
+    });
+}
+
+window.reportGasteProduct = function() {
+    let prodId = parseInt(document.getElementById('gaste-select-prod').value);
+    let qty = parseInt(document.getElementById('gaste-qty').value);
+    if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
+    let p = inventory.find(prod => prod.id === prodId);
+    if(p.stockGrenn < qty) return alert(`⚠️ Pa gen ase stòk!`);
+    p.stockGrenn -= qty;
+    alert(`💥 Yo retire ${qty} grenn koule.`);
+    updateAdminDashboard();
+    saveAppStateToFirebase();
+}
+
+window.filterProducts = function() {
+    let filterValue = document.getElementById('search-box').value.toLowerCase();
+    document.querySelectorAll('.prod-card').forEach(card => {
+        let name = card.getAttribute('data-name');
+        card.style.display = name.includes(filterValue) ? "flex" : "none";
+    });
+}
+
+window.toggleTheme = function() {
+    const root = document.documentElement;
+    const btn = document.getElementById('theme-btn');
+    if(currentTheme === "light") {
+        root.setAttribute('data-theme', 'dark');
+        btn.innerText = "🌙 Nwit"; currentTheme = "dark";
+    } else {
+        root.removeAttribute('data-theme');
+        btn.innerText = "☀️ Lajounen"; currentTheme = "light";
+    }
+}
+
+window.addToCart = function(prodId, type) {
+    let p = inventory.find(item => item.id === prodId);
+    let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
+    let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+
+    if(type === 'detail') {
+        if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
+    } else {
+        if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
+    }
+
+    currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
+    renderCart();
+}
+
+window.removeFromCart = function(uniqueId) {
+    if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
+        currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
+        renderCart();
+    } else {
+        alert("❌ Kòd enkòrèk!");
+    }
+}
+
+function renderCart() {
+    const tbody = document.getElementById('cart-rows');
+    if (!tbody) return;
+    tbody.innerHTML = ''; let total = 0;
+    currentCart.forEach(item => {
+        total += item.price;
+        tbody.innerHTML += `<tr>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.labelType}</td>
+            <td><strong>${item.price} G</strong></td>
+            <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
+        </tr>`;
+    });
+    document.getElementById('bill-total-display').innerText = total + " HTG";
+}
+
+window.checkoutSale = function() {
+    if(currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+    let billTotal = 0; let billProfit = 0;
+    let timeStr = new Date().toLocaleTimeString();
+    let logGwoBox = document.getElementById('logs-an-gwo');
+    let logDetayBox = document.getElementById('logs-an-detay');
+
+    if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
+    if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
+
+    currentCart.forEach(item => {
+        let p = inventory.find(prod => prod.id === item.prodId);
+        if(item.type === 'detail') {
+            p.stockFrizerGrenn -= item.qtyNeeded;
+            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G<br>` + logDetayBox.innerHTML;
+        } else {
+            p.stockGrenn -= item.qtyNeeded;
+            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G<br>` + logGwoBox.innerHTML;
         }
+        billTotal += item.price; billProfit += (item.price - item.buyPrice);
+    });
 
-        function populateAdminSelects() {
-            const restockSelect = document.getElementById('restock-select');
-            const frizerSelect = document.getElementById('frizer-select-prod');
-            const gasteSelect = document.getElementById('gaste-select-prod');
+    totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
+    alert(`✅ Lavant anrejistre (${billTotal} HTG).`);
+    currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            restockSelect.innerHTML = ''; frizerSelect.innerHTML = ''; gasteSelect.innerHTML = '';
+window.processNatCash = function(type) {
+    let amountInput = document.getElementById('nat-amount');
+    let amt = parseFloat(amountInput.value);
+    if(isNaN(amt) || amt <= 0) return alert("Antre yon montan valab!");
+    let timeStr = new Date().toLocaleTimeString();
+    let safeLog = ""; let adminLog = ""; 
 
-            inventory.forEach(p => {
-                let optionHTML = `<option value="${p.id}">${p.name}</option>`;
-                restockSelect.innerHTML += optionHTML;
-                frizerSelect.innerHTML += optionHTML;
-                gasteSelect.innerHTML += optionHTML;
-            });
-        }
+    if(type === 'depo') {
+        natCashBalance += amt; physicalCashBalance += amt;   
+        safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG (Pran Kach)`;
+        adminLog = `[${timeStr}] 📥 DEPO: Kat +${amt} HTG. Kach +${amt}g.`;
+    } else if(type === 'retre') {
+        if(physicalCashBalance < amt && !confirm("⚠️ Pa gen ase kòb fizik nan kès, kontinye?")) return;
+        natCashBalance -= amt; physicalCashBalance -= amt;   
+        safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG (Remèt Kach)`;
+        adminLog = `[${timeStr}] 📤 RETRÈ: Kat -${amt} HTG. Kach -${amt}g.`;
+    }
 
-        window.moveProductToFrizer = function() {
-            let prodId = parseInt(document.getElementById('frizer-select-prod').value);
-            let type = document.getElementById('frizer-select-type').value;
-            let qty = parseInt(document.getElementById('frizer-qty').value);
+    const posLogBox = document.getElementById('pos-nat-logs');
+    if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
+    posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
 
-            if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite ki valab!");
+    const adminLogBox = document.getElementById('admin-nat-logs');
+    if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
+    adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
 
-            let multiplier = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
-            let totalGrennToMove = qty * multiplier;
-            let p = inventory.find(item => item.id === prodId);
+    amountInput.value = ''; updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            if(p.stockGrenn < totalGrennToMove) return alert(`⚠️ Pa gen ase stòk nan depo!`);
+window.updateNatBalanceFromAdmin = function() {
+    let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
+    if(isNaN(val) || val < 0) return alert("Antre chif valab!");
+    natCashBalance = val; document.getElementById('admin-set-nat-balance').value = '';
+    updateAdminDashboard();
+    saveAppStateToFirebase();
+}
 
-            p.stockGrenn -= totalGrennToMove; p.stockFrizerGrenn += totalGrennToMove;
-            alert(`❄️ Siksè! ${totalGrennToMove} grenn deplase.`);
-            renderFrizerStockTable(); updateAdminDashboard();
-        }
+function updateAdminDashboard() {
+    if(document.getElementById('pos-cash-display')) document.getElementById('pos-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
+    if(document.getElementById('vandes-natcash-display')) document.getElementById('vandes-natcash-display').innerText = natCashBalance.toLocaleString() + " HTG";
+    if(document.getElementById('vandes-cash-display')) document.getElementById('vandes-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
+    if(document.getElementById('vandes-live-cash')) document.getElementById('vandes-live-cash').innerText = physicalCashBalance.toLocaleString() + " HTG";
 
-        function renderFrizerStockTable() {
-            const tbody = document.getElementById('frizer-stock-rows');
-            tbody.innerHTML = '';
-            inventory.forEach(p => {
-                tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style="color:var(--purple); font-weight:bold;">${p.stockFrizerGrenn}</span> grenn</td></tr>`;
-            });
-        }
+    if(!isAdminAuthenticated) return;
+    if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " G";
+    if(document.getElementById('stat-profit')) document.getElementById('stat-profit').innerText = totalProfit.toLocaleString() + " G";
+    if(document.getElementById('stat-nat-balance')) document.getElementById('stat-nat-balance').innerText = natCashBalance.toLocaleString() + " G";
 
-        window.reportGasteProduct = function() {
-            let prodId = parseInt(document.getElementById('gaste-select-prod').value);
-            let qty = parseInt(document.getElementById('gaste-qty').value);
-            if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
-            let p = inventory.find(prod => prod.id === prodId);
-            if(p.stockGrenn < qty) return alert(`⚠️ Pa gen ase stòk!`);
-            p.stockGrenn -= qty;
-            alert(`💥 Yo retire ${qty} grenn koule.`);
-            updateAdminDashboard();
-        }
+    let totalStockVal = 0;
+    inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
+    if(document.getElementById('stat-stock-value')) document.getElementById('stat-stock-value').innerText = totalStockVal.toLocaleString() + " G";
+}
 
-        window.filterProducts = function() {
-            let filterValue = document.getElementById('search-box').value.toLowerCase();
-            document.querySelectorAll('.prod-card').forEach(card => {
-                let name = card.getAttribute('data-name');
-                card.style.display = name.includes(filterValue) ? "flex" : "none";
-            });
-        }
+window.submitRestock = function() {
+    let prodId = parseInt(document.getElementById('restock-select').value);
+    let qty = parseInt(document.getElementById('restock-qty').value);
+    if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
+    inventory.find(prod => prod.id === prodId).stockGrenn += qty;
+    document.getElementById('restock-qty').value = '';
+    renderProducts();
+    saveAppStateToFirebase();
+}
 
-        window.toggleTheme = function() {
-            const root = document.documentElement;
-            const btn = document.getElementById('theme-btn');
-            if(currentTheme === "light") {
-                root.setAttribute('data-theme', 'dark');
-                btn.innerText = "🌙 Nwit"; currentTheme = "dark";
-            } else {
-                root.removeAttribute('data-theme');
-                btn.innerText = "☀️ Lajounen"; currentTheme = "light";
-            }
-        }
-
-        window.addToCart = function(prodId, type) {
-            let p = inventory.find(item => item.id === prodId);
-            let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
-            let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
-
-            if(type === 'detail') {
-                if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
-            } else {
-                if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
-            }
-
-            currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
-            renderCart();
-        }
-
-        window.removeFromCart = function(uniqueId) {
-            if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
-                currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
-                renderCart();
-            } else {
-                alert("❌ Kòd enkòrèk!");
-            }
-        }
-
-        function renderCart() {
-            const tbody = document.getElementById('cart-rows');
-            tbody.innerHTML = ''; let total = 0;
-            currentCart.forEach(item => {
-                total += item.price;
-                tbody.innerHTML += `<tr>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.labelType}</td>
-                    <td><strong>${item.price} G</strong></td>
-                    <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
-                </tr>`;
-            });
-            document.getElementById('bill-total-display').innerText = total + " HTG";
-        }
-
-        window.checkoutSale = function() {
-            if(currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
-            let billTotal = 0; let billProfit = 0;
-            let timeStr = new Date().toLocaleTimeString();
-            let logGwoBox = document.getElementById('logs-an-gwo');
-            let logDetayBox = document.getElementById('logs-an-detay');
-
-            if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
-            if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
-
-            currentCart.forEach(item => {
-                let p = inventory.find(prod => prod.id === item.prodId);
-                if(item.type === 'detail') {
-                    p.stockFrizerGrenn -= item.qtyNeeded;
-                    logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G<br>` + logDetayBox.innerHTML;
-                } else {
-                    p.stockGrenn -= item.qtyNeeded;
-                    logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G<br>` + logGwoBox.innerHTML;
-                }
-                billTotal += item.price; billProfit += (item.price - item.buyPrice);
-            });
-
-            totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
-            alert(`✅ Lavant anrejistre (${billTotal} HTG).`);
-            currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
-        }
-
-        window.processNatCash = function(type) {
-            let amountInput = document.getElementById('nat-amount');
-            let amt = parseFloat(amountInput.value);
-            if(isNaN(amt) || amt <= 0) return alert("Antre yon montan valab!");
-            let timeStr = new Date().toLocaleTimeString();
-            let safeLog = ""; let adminLog = ""; 
-
-            if(type === 'depo') {
-                natCashBalance += amt; physicalCashBalance += amt;   
-                safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG (Pran Kach)`;
-                adminLog = `[${timeStr}] 📥 DEPO: Kat +${amt} HTG. Kach +${amt}g.`;
-            } else if(type === 'retre') {
-                if(physicalCashBalance < amt && !confirm("⚠️ Pa gen ase kòb fizik nan kès, kontinye?")) return;
-                natCashBalance -= amt; physicalCashBalance -= amt;   
-                safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG (Remèt Kach)`;
-                adminLog = `[${timeStr}] 📤 RETRÈ: Kat -${amt} HTG. Kach -${amt}g.`;
-            }
-
-            const posLogBox = document.getElementById('pos-nat-logs');
-            if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
-            posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
-
-            const adminLogBox = document.getElementById('admin-nat-logs');
-            if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
-            adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
-
-            amountInput.value = ''; updateAdminDashboard();
-        }
-
-        window.updateNatBalanceFromAdmin = function() {
-            let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
-            if(isNaN(val) || val < 0) return alert("Antre chif valab!");
-            natCashBalance = val; document.getElementById('admin-set-nat-balance').value = '';
-            updateAdminDashboard();
-        }
-
-        function updateAdminDashboard() {
-            document.getElementById('pos-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
-            document.getElementById('vandes-natcash-display').innerText = natCashBalance.toLocaleString() + " HTG";
-            document.getElementById('vandes-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
-            document.getElementById('vandes-live-cash').innerText = physicalCashBalance.toLocaleString() + " HTG";
-
-            if(!isAdminAuthenticated) return;
-            document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " G";
-            document.getElementById('stat-profit').innerText = totalProfit.toLocaleString() + " G";
-            document.getElementById('stat-nat-balance').innerText = natCashBalance.toLocaleString() + " G";
-
-            let totalStockVal = 0;
-            inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
-            document.getElementById('stat-stock-value').innerText = totalStockVal.toLocaleString() + " G";
-        }
-
-        window.submitRestock = function() {
-            let prodId = parseInt(document.getElementById('restock-select').value);
-            let qty = parseInt(document.getElementById('restock-qty').value);
-            if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
-            inventory.find(prod => prod.id === prodId).stockGrenn += qty;
-            document.getElementById('restock-qty').value = '';
-            renderProducts();
-        }
-
-        // Kòmanse afiche pwodwi yo lè paj la louvri
-        renderProducts();
-    </script>
-</body>
-</html>
+// Premye afichaj lè sistèm lan lise
+renderProducts();
