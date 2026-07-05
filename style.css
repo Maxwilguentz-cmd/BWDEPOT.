@@ -445,3 +445,33 @@ nav button.active {
         grid-column: span 4;
     }
 }
+
+/* ==========================================
+   TI ROUCH SEKIRITE AK OPTIMIZASYON AJOUTE 
+   ========================================== */
+
+/* Kache scrollbar lè sub-tabs yo anpil sou mobil pou l rete pwòp */
+.admin-sub-tabs::-webkit-scrollbar {
+    display: none;
+}
+.admin-sub-tabs {
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
+}
+
+/* Evite tèks nan panèl kilt la kraze layout si non an twò long */
+.cart-table td {
+    word-break: break-word;
+}
+
+/* Efè vizyèl lè moun klike sou bouton yo pou sistèm nan pa parèt friz */
+.btn-main:active, .btn-sell:active, .type-btn:active, .theme-toggle:active, .sub-tab-btn:active, .btn-modal-yes:active, .btn-modal-no:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+}
+
+/* Bay input ak select yo yon ti koulè ble klè lè y ap ekri ladan yo (focus) */
+.search-input:focus, .input-text:focus, .select-style:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
