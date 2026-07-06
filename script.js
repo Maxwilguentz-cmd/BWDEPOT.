@@ -141,7 +141,10 @@ window.triggerPageSecurity = function(pageId) {
         openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG (S${totalBwasonFon / 5})** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
         return;
     }
-    showPage(pageId);
+    
+    // KORÈKSYON PAJ BLANCH: Si id a se 'natcash-tab', nou voye id reyèl la bay showPage ('natcash')
+    let actualPageId = pageId === 'natcash-tab' ? 'natcash' : pageId;
+    showPage(actualPageId);
 }
 
 window.openVerificationModal = function(title, msg) {
@@ -156,7 +159,7 @@ window.acceptFonDeKes = function() {
     if (currentVerifyingType === "natcash") {
         verifiedSections.natcash = true;
         physicalCashBalance += adminFonDeKes.natcash; 
-        showPage('natcash-tab');
+        showPage('natcash'); // KORÈKSYON LA TOU
     } else if (currentVerifyingType === "bwason") {
         verifiedSections.bwason = true;
         physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
@@ -185,7 +188,7 @@ window.submitDispute = function() {
         sectionName = "NatCash";
         verifiedSections.natcash = true; 
         physicalCashBalance += realAmount;
-        showPage('natcash-tab');
+        showPage('natcash'); // KORÈKSYON LA TOU
     } else if (currentVerifyingType === "bwason") {
         adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
         sectionName = "Vant Bwason (An gwo + Detay)";
