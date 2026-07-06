@@ -1,539 +1,422 @@
-// 1. Enpòte modil Firebase Realtime Database 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-// Konfigirasyon Firebase ou 
-const firebaseConfig = {
-    apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
-    authDomain: "bwdepot-61214.firebaseapp.com",
-    databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-    projectId: "bwdepot-61214",
-    storageBucket: "bwdepot-61214.firebasestorage.app",
-    messagingSenderId: "624010872324",
-    appId: "1:624010872324:web:0b0565c3872b3caccd5751",
-    measurementId: "G-8VEN9QQF7B"
+// ==========================================
+// 1. STATE GLOBAL POU SITIYASYON KÈS LA
+// ==========================================
+const AppState = {
+    products: [
+        { id: 1, name: "Netflix Premium 1 Mwa", price: 150, stock: 12, image: "https://via.placeholder.com/95" },
+        { id: 2, name: "Free Fire 100 Diamonds", price: 130, stock: 3, image: "https://via.placeholder.com/95" },
+        { id: 3, name: "PUBG Mobile 60 UC", price: 120, stock: 25, image: "https://via.placeholder.com/95" }
+    ],
+    cart: [],
+    // Finans ak Kontwòl
+    fondDeCaisse: 2000,      // Lajan ki te nan kès la lè l t ap louvri
+    ventesCash: 0,           // Total lavant an kach
+    ventesNatcash: 0,        // Total lavant pa Natcash
+    depenses: 0,             // Total depans ki fèt
+    liveCash: 2000,          // Fond de Caisse + Ventes Cash - Depenses
+    systemTotalCalculated: 2000, // Sa sistèm nan kalkile (Fond + Tout Lavant - Depans)
+    
+    // Sekirite ak Eta Kès
+    isLocked: false,
+    currentTheme: "light"
 };
 
-// Inisyalize aplikasyon Firebase la
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-// --- DONE INIASYAL YO ---
-let inventory = [
-    { id: 1, name: "Ti Fritop Haiti", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
-    { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 55, demi: 400, kes: 800 } },
-    { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 75, demi: 550, kes: 1100 } },
-    { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 35, demi: 300, kes: 600 } },
-    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 160, demi: 1600, kes: 3200 } },
-    { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 35, demi: 380, kes: 750 } },
-    { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 55, demi: 500, kes: 1000 } },
-    { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 70, demi: 850, kes: 1700 } },
-    { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1300, kes: 2600 }, buyingPrice: { detail: 95, demi: 1000, kes: 2000 } },
-    { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 95, demi: 950, kes: 1900 } },
-    { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 35, demi: 380, kes: 750 } },
-    { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } }
-];
-
-let currentCart = [];
-let totalRevenue = 0;
-let totalProfit = 0;
-let natCashBalance = 5000; 
-let physicalCashBalance = 0; 
-let currentTheme = "light";
-let isAdminAuthenticated = false;
-
-let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
-let verifiedSections = { natcash: false, bwason: false };
-let currentVerifyingType = ""; 
-
-// --- FONKSYON POU SOVE DONE YO NAN FIREBASE ---
-function saveAppStateToFirebase() {
-    set(ref(database, 'appState'), {
-        inventory: inventory,
-        totalRevenue: totalRevenue,
-        totalProfit: totalProfit,
-        natCashBalance: natCashBalance,
-        physicalCashBalance: physicalCashBalance,
-        adminFonDeKes: adminFonDeKes,
-        verifiedSections: verifiedSections,
-        adminExpenseLogs: document.getElementById('admin-expense-logs')?.innerHTML || "",
-        logsAnGwo: document.getElementById('logs-an-gwo')?.innerHTML || "",
-        logsAnDetay: document.getElementById('logs-an-detay')?.innerHTML || "",
-        posNatLogs: document.getElementById('pos-nat-logs')?.innerHTML || "",
-        adminNatLogs: document.getElementById('admin-nat-logs')?.innerHTML || "",
-        adminDisputeAlert: document.getElementById('admin-dispute-alert')?.style.display || "none",
-        adminDisputeText: document.getElementById('admin-dispute-text')?.innerText || "",
-        adminCloseAlert: document.getElementById('admin-close-alert')?.style.display || "none",
-        adminCloseText: document.getElementById('admin-close-text')?.innerText || ""
-    });
-}
-
-// --- CHAJE DONE YO DEPI NAN FIREBASE LÈ PAJ LA LOUVRI ---
-onValue(ref(database, 'appState'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        if (data.inventory) inventory = data.inventory;
-        totalRevenue = data.totalRevenue || 0;
-        totalProfit = data.totalProfit || 0;
-        natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
-        physicalCashBalance = data.physicalCashBalance || 0;
-        if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
-        if (data.verifiedSections) verifiedSections = data.verifiedSections;
-        
-        // Retounen html logs yo jan yo te ye a
-        if (data.adminExpenseLogs && document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = data.adminExpenseLogs;
-        if (data.logsAnGwo && document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = data.logsAnGwo;
-        if (data.logsAnDetay && document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = data.logsAnDetay;
-        if (data.posNatLogs && document.getElementById('pos-nat-logs')) document.getElementById('pos-nat-logs').innerHTML = data.posNatLogs;
-        if (data.adminNatLogs && document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = data.adminNatLogs;
-        
-        // Alèt yo
-        if (document.getElementById('admin-dispute-alert')) {
-            document.getElementById('admin-dispute-alert').style.display = data.adminDisputeAlert || "none";
-            document.getElementById('admin-dispute-text').innerText = data.adminDisputeText || "";
-        }
-        if (document.getElementById('admin-close-alert')) {
-            document.getElementById('admin-close-alert').style.display = data.adminCloseAlert || "none";
-            document.getElementById('admin-close-text').innerText = data.adminCloseText || "";
-        }
-    }
-    renderProducts();
-    updateAdminDashboard();
+// ==========================================
+// 2. INICIALIZASYON AK NAVIGASYON
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    initApp();
+    setupEventListeners();
 });
 
-// --- APÈL LÒT LÒJIK YO ---
+function initApp() {
+    renderProducts();
+    updateFinancialDOM();
+    logSystem("Sistèm BWdepo Premium demare ak siksè.");
+}
 
-window.showPage = function(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+function setupEventListeners() {
+    // Navigasyon Prensipal
+    document.querySelectorAll("nav button").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            if (AppState.isLocked) {
+                alert("Kès la fèmen! Admin dwe verifye l pou l ka debloke.");
+                return;
+            }
+            const pageId = e.target.getAttribute("onclick")?.match(/'([^']+)'/)?.[1];
+            if (pageId) switchPage(pageId);
+        });
+    });
 
-    document.getElementById(`page-${pageId}`).classList.add('active');
-    document.getElementById(`nav-${pageId}`).classList.add('active');
+    // Navigasyon Sub-Tabs Admin
+    document.querySelectorAll(".sub-tab-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const subPageId = e.target.getAttribute("onclick")?.match(/'([^']+)'/)?.[1];
+            if (subPageId) switchSubPage(subPageId, e.target);
+        });
+    });
 
-    if(pageId === 'pos') renderProducts();
-    if(pageId === 'admin') {
-        if(isAdminAuthenticated) {
-            updateAdminDashboard();
-            populateAdminSelects();
-            renderFrizerStockTable();
-        }
+    // Search input
+    const searchInp = document.querySelector(".search-input");
+    if (searchInp) {
+        searchInp.addEventListener("input", (e) => renderProducts(e.target.value));
     }
 }
 
-window.triggerPageSecurity = function(pageId) {
-    if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
-        currentVerifyingType = "natcash";
-        openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG (S${adminFonDeKes.natcash / 5})** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
-        return;
-    }
-    if (pageId === 'pos' && !verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
-        currentVerifyingType = "bwason";
-        let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
-        openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG (S${totalBwasonFon / 5})** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
-        return;
-    }
-    showPage(pageId);
-}
-
-window.openVerificationModal = function(title, msg) {
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-msg').innerText = msg;
-    document.getElementById('dispute-section').style.display = 'none';
-    document.getElementById('modal-initial-btns').style.display = 'flex';
-    document.getElementById('verification-popup').style.display = 'flex';
-}
-
-window.acceptFonDeKes = function() {
-    if (currentVerifyingType === "natcash") {
-        verifiedSections.natcash = true;
-        physicalCashBalance += adminFonDeKes.natcash; 
-        showPage('natcash-tab');
-    } else if (currentVerifyingType === "bwason") {
-        verifiedSections.bwason = true;
-        physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
-        showPage('pos');
-    }
-    document.getElementById('verification-popup').style.display = 'none';
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.showDisputeInput = function() {
-    document.getElementById('modal-initial-btns').style.display = 'none';
-    document.getElementById('dispute-section').style.display = 'block';
-    document.getElementById('disputed-amount-input').value = '';
-}
-
-window.submitDispute = function() {
-    let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
-    if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
-
-    let adminAmountExpected = 0;
-    let sectionName = "";
-
-    if (currentVerifyingType === "natcash") {
-        adminAmountExpected = adminFonDeKes.natcash;
-        sectionName = "NatCash";
-        verifiedSections.natcash = true; 
-        physicalCashBalance += realAmount;
-        showPage('natcash-tab');
-    } else if (currentVerifyingType === "bwason") {
-        adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
-        sectionName = "Vant Bwason (An gwo + Detay)";
-        verifiedSections.bwason = true;
-        physicalCashBalance += realAmount;
-        showPage('pos');
-    }
-
-    document.getElementById('admin-dispute-alert').style.display = "block";
-    document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud (S${adminAmountExpected / 5}), men li deklare li jwenn ${realAmount} Goud (S${realAmount / 5}) nan kès la.`;
-
-    document.getElementById('verification-popup').style.display = 'none';
-    alert("⚠️ Yo voye kontestasyon an bay Admin nan.");
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.openExpenseModal = function() {
-    document.getElementById('expense-amount').value = '';
-    document.getElementById('expense-reason').value = '';
-    document.getElementById('expense-popup').style.display = 'flex';
-}
-
-window.closeExpenseModalOutside = function(event) {
-    document.getElementById('expense-popup').style.display = 'none';
-}
-
-window.submitExpense = function() {
-    let amt = parseFloat(document.getElementById('expense-amount').value);
-    let reason = document.getElementById('expense-reason').value.trim();
-
-    if (isNaN(amt) || amt <= 0) return alert("Tanpri antre yon montan valab!");
-    if (reason === "") return alert("Tanpri ekri rezon depans lan!");
-    if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
-
-    physicalCashBalance -= amt;
+function switchPage(pageId) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
     
-    let timeStr = new Date().toLocaleTimeString();
-    let expLogBox = document.getElementById('admin-expense-logs');
-    if (expLogBox.innerHTML.includes("Pa gen depans")) expLogBox.innerHTML = '';
-    expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud (S${amt / 5}) : ${reason}<br>` + expLogBox.innerHTML;
-
-    document.getElementById('expense-popup').style.display = 'none';
-    alert(`✅ Depans pou "${reason}" (${amt} HTG / S${amt / 5}) anrejistre.`);
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.openCloseKesModal = function() {
-    document.getElementById('vandes-counted-cash').value = '';
-    document.getElementById('close-kes-popup').style.display = 'flex';
-}
-
-window.submitCloseKesBlind = function() {
-    let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
-    if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
-
-    let systemExpected = physicalCashBalance;
-    let eka = counted - systemExpected;
-    let rapòMesaj = "";
-
-    if (eka === 0) {
-        rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\nEka: 0 Goud.`;
-    } else if (eka < 0) {
-        rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\n🔴 MANKE: ${Math.abs(eka)} Goud (S${Math.abs(eka) / 5})!`;
-    } else {
-        rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\n🔵 ANPLIS: ${eka} Goud (S${eka / 5})!`;
-    }
-
-    document.getElementById('admin-close-alert').style.display = "block";
-    document.getElementById('admin-close-text').innerText = rapòMesaj;
-
-    document.getElementById('close-kes-popup').style.display = 'none';
-    alert("🔒 Yo voye rapò fèmti kès la bay Admin nan.");
-    saveAppStateToFirebase();
-}
-
-window.saveFonDeKesFromAdmin = function() {
-    adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
-    adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
-    adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
-
-    verifiedSections.natcash = false;
-    verifiedSections.bwason = false;
-    alert(`Sove! Vandè a ap gen pou l verifye yo.`);
-    saveAppStateToFirebase();
-}
-
-window.checkAdminAuth = function() {
-    let pass = document.getElementById('admin-pass-input').value;
-    if(pass === "1234") {
-        isAdminAuthenticated = true;
-        document.getElementById('admin-auth').style.display = 'none';
-        document.getElementById('admin-content').style.display = 'block';
-        updateAdminDashboard();
-        populateAdminSelects();
-        renderFrizerStockTable();
-    } else {
-        alert("❌ Modpas Kòd Admin Enkòrèk!");
-    }
-    document.getElementById('admin-pass-input').value = '';
-}
-
-window.lockAdmin = function() {
-    isAdminAuthenticated = false;
-    document.getElementById('admin-content').style.display = 'none';
-    document.getElementById('admin-auth').style.display = 'flex';
-}
-
-window.showSubPage = function(subId) {
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) targetPage.classList.add("active");
     
-    document.getElementById(`sub-page-${subId}`).classList.add('active');
-    document.getElementById(`sub-nav-${subId}`).classList.add('active');
+    // Mete bouton navigasyon an active
+    const activeBtn = Array.from(document.querySelectorAll("nav button")).find(b => b.innerHTML.toLowerCase().includes(pageId === 'pos-page' ? 'pos' : 'admin'));
+    if (activeBtn) activeBtn.classList.add("active");
 }
 
-function renderProducts() {
-    const container = document.getElementById('products-container');
-    if (!container) return;
-    container.innerHTML = '';
+function switchSubPage(subPageId, activeBtn) {
+    document.querySelectorAll(".sub-page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".sub-tab-btn").forEach(b => b.classList.remove("active"));
     
-    inventory.forEach(p => {
-        let isLowStock = p.stockGrenn < 24;
-        let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
-        
-        container.innerHTML += `
-            <div class="prod-card" data-name="${p.name.toLowerCase()}">
-                ${alertBadge}
-                <img src="${p.img}" alt="${p.name}">
-                <div class="prod-info">
-                    <div class="prod-name">${p.name}</div>
-                    <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
-                    <div class="type-selector">
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.detail / 5}</span>)</button>
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.demi / 5}</span>)</button>
-                    </div>
-                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g <span style="font-size:11px;font-weight:normal;opacity:0.8;">/ S${p.prices.kes / 5}</span>)</button>
+    const targetSubPage = document.getElementById(subPageId);
+    if (targetSubPage) targetSubPage.classList.add("active");
+    if (activeBtn) activeBtn.classList.add("active");
+}
+
+// ==========================================
+// 3. LOGIK INTEGRAL POU LAVANT (POS)
+// ==========================================
+function renderProducts(filterText = "") {
+    const grid = document.querySelector(".products-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    const filtered = AppState.products.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()));
+
+    filtered.forEach(p => {
+        const hasLowStock = p.stock <= 5;
+        const prodCard = document.createElement("div");
+        prodCard.className = "prod-card";
+        prodCard.innerHTML = `
+            ${hasLowStock ? `<span class="stock-alert">ALÈT STOCK: ${p.stock}</span>` : ''}
+            <img src="${p.image}" alt="${p.name}">
+            <div class="prod-info">
+                <div class="prod-name">${p.name}</div>
+                <div class="prod-stock">Stock: ${p.stock} inite</div>
+                <div class="type-selector">
+                    <button class="type-btn" onclick="addToCart(${p.id}, 'cash')">Kach: ${p.price} HTG</button>
+                    <button class="type-btn" style="border-color: var(--natcash); color: var(--natcash);" onclick="addToCart(${p.id}, 'natcash')">Natcash: ${p.price} HTG</button>
                 </div>
             </div>
         `;
+        grid.appendChild(prodCard);
     });
 }
 
-function populateAdminSelects() {
-    const restockSelect = document.getElementById('restock-select');
-    const frizerSelect = document.getElementById('frizer-select-prod');
-    const gasteSelect = document.getElementById('gaste-select-prod');
-
-    if (!restockSelect) return;
-    restockSelect.innerHTML = ''; frizerSelect.innerHTML = ''; gasteSelect.innerHTML = '';
-
-    inventory.forEach(p => {
-        let optionHTML = `<option value="${p.id}">${p.name}</option>`;
-        restockSelect.innerHTML += optionHTML;
-        frizerSelect.innerHTML += optionHTML;
-        gasteSelect.innerHTML += optionHTML;
-    });
-}
-
-window.moveProductToFrizer = function() {
-    let prodId = parseInt(document.getElementById('frizer-select-prod').value);
-    let type = document.getElementById('frizer-select-type').value;
-    let qty = parseInt(document.getElementById('frizer-qty').value);
-
-    if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite ki valab!");
-
-    let multiplier = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
-    let totalGrennToMove = qty * multiplier;
-    let p = inventory.find(item => item.id === prodId);
-
-    if(p.stockGrenn < totalGrennToMove) return alert(`⚠️ Pa gen ase stòk nan depo!`);
-
-    p.stockGrenn -= totalGrennToMove; p.stockFrizerGrenn += totalGrennToMove;
-    alert(`❄️ Siksè! ${totalGrennToMove} grenn deplase.`);
-    renderFrizerStockTable(); updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-function renderFrizerStockTable() {
-    const tbody = document.getElementById('frizer-stock-rows');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    inventory.forEach(p => {
-        tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style="color:var(--purple); font-weight:bold;">${p.stockFrizerGrenn}</span> grenn</td></tr>`;
-    });
-}
-
-window.reportGasteProduct = function() {
-    let prodId = parseInt(document.getElementById('gaste-select-prod').value);
-    let qty = parseInt(document.getElementById('gaste-qty').value);
-    if(isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
-    let p = inventory.find(prod => prod.id === prodId);
-    if(p.stockGrenn < qty) return alert(`⚠️ Pa gen ase stòk!`);
-    p.stockGrenn -= qty;
-    alert(`💥 Yo retire ${qty} grenn koule.`);
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.filterProducts = function() {
-    let filterValue = document.getElementById('search-box').value.toLowerCase();
-    document.querySelectorAll('.prod-card').forEach(card => {
-        let name = card.getAttribute('data-name');
-        card.style.display = name.includes(filterValue) ? "flex" : "none";
-    });
-}
-
-window.toggleTheme = function() {
-    const root = document.documentElement;
-    const btn = document.getElementById('theme-btn');
-    if(currentTheme === "light") {
-        root.setAttribute('data-theme', 'dark');
-        btn.innerText = "🌙 Nwit"; currentTheme = "dark";
-    } else {
-        root.removeAttribute('data-theme');
-        btn.innerText = "☀️ Lajounen"; currentTheme = "light";
-    }
-}
-
-window.addToCart = function(prodId, type) {
-    let p = inventory.find(item => item.id === prodId);
-    let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
-    let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
-
-    if(type === 'detail') {
-        if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
-    } else {
-        if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
+function addToCart(productId, paymentMethod) {
+    if (AppState.isLocked) return;
+    const product = AppState.products.find(p => p.id === productId);
+    
+    if (!product || product.stock <= 0) {
+        alert("Pwodwi sa a pa gen ase stock nan depo a!");
+        return;
     }
 
-    currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
+    // Tcheke si item nan deja nan panyen an ak menm metòd peman an
+    const cartItem = AppState.cart.find(item => item.product.id === productId && item.method === paymentMethod);
+
+    if (cartItem) {
+        if (cartItem.qty >= product.stock) {
+            alert("Ou pa ka vann plis pase stock ki disponib la!");
+            return;
+        }
+        cartItem.qty++;
+    } else {
+        AppState.cart.push({ product, qty: 1, method: paymentMethod });
+    }
+
     renderCart();
 }
 
-window.removeFromCart = function(uniqueId) {
-    if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
-        currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
-        renderCart();
-    } else {
-        alert("❌ Kòd enkòrèk!");
-    }
-}
-
 function renderCart() {
-    const tbody = document.getElementById('cart-rows');
+    const tbody = document.querySelector(".cart-table tbody");
+    const totalLabel = document.getElementById("bill-total");
     if (!tbody) return;
-    tbody.innerHTML = ''; let total = 0;
-    currentCart.forEach(item => {
-        total += item.price;
-        tbody.innerHTML += `<tr>
-            <td><strong>${item.name}</strong></td>
-            <td>${item.labelType}</td>
-            <td><strong>${item.price} G <span style="font-size:10px;font-weight:normal;opacity:0.7;">(S${item.price / 5})</span></strong></td>
-            <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
-        </tr>`;
-    });
-    document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
-}
+    
+    tbody.innerHTML = "";
+    let total = 0;
 
-window.checkoutSale = function() {
-    if(currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
-    let billTotal = 0; let billProfit = 0;
-    let timeStr = new Date().toLocaleTimeString();
-    let logGwoBox = document.getElementById('logs-an-gwo');
-    let logDetayBox = document.getElementById('logs-an-detay');
+    AppState.cart.forEach((item, index) => {
+        const subtotal = item.product.price * item.qty;
+        total += subtotal;
 
-    if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
-    if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
-
-    currentCart.forEach(item => {
-        let p = inventory.find(prod => prod.id === item.prodId);
-        if(item.type === 'detail') {
-            p.stockFrizerGrenn -= item.qtyNeeded;
-            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
-        } else {
-            p.stockGrenn -= item.qtyNeeded;
-            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
-        }
-        billTotal += item.price; billProfit += (item.price - item.buyPrice);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${item.product.name} <br> <small style="color: ${item.method === 'natcash' ? 'var(--natcash)' : 'var(--text-muted)'}; font-weight: bold;">[${item.method.toUpperCase()}]</small></td>
+            <td>
+                <input type="number" value="${item.qty}" min="1" max="${item.product.stock}" style="width: 50px; padding: 4px; border-radius: 4px; border: 1px solid var(--border);" onchange="updateCartQty(${index}, this.value)">
+            </td>
+            <td>${subtotal} HTG</td>
+            <td><button onclick="removeFromCart(${index})" style="background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer;">X</button></td>
+        `;
+        tbody.appendChild(row);
     });
 
-    totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
-    alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
-    currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
-    saveAppStateToFirebase();
+    if (totalLabel) totalLabel.innerText = `${total} HTG`;
 }
 
-window.processNatCash = function(type) {
-    let amountInput = document.getElementById('nat-amount');
-    let amt = parseFloat(amountInput.value);
-    if(isNaN(amt) || amt <= 0) return alert("Antre yon montan valab!");
-    let timeStr = new Date().toLocaleTimeString();
-    let safeLog = ""; let adminLog = ""; 
+function updateCartQty(index, val) {
+    const item = AppState.cart[index];
+    const newQty = parseInt(val);
+    if (newQty > item.product.stock) {
+        alert("Kantite sa a depase stock ki gen nan depo a!");
+        item.qty = item.product.stock;
+    } else if (newQty <= 0) {
+        removeFromCart(index);
+        return;
+    } else {
+        item.qty = newQty;
+    }
+    renderCart();
+}
 
-    if(type === 'depo') {
-        if(natCashBalance < amt) return alert("⚠️ Pa gen ase balans NatCash sou kont lan pou fè depo sa a!");
-        
-        natCashBalance -= amt; 
-        physicalCashBalance += amt;   
-        safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG / S${amt / 5} (Pran Kach)`;
-        adminLog = `[${timeStr}] 📥 DEPO: NatCash -${amt} G. Kach +${amt}g (S${amt / 5}).`;
+function removeFromCart(index) {
+    AppState.cart.splice(index, 1);
+    renderCart();
+}
 
-    } else if(type === 'retre') {
-        if(physicalCashBalance < amt && !confirm("⚠️ Pa gen ase kòb fizik nan kès, kontinye?")) return;
-        
-        natCashBalance += amt; 
-        physicalCashBalance -= amt;   
-        safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG / S${amt / 5} (Remèt Kach)`;
-        adminLog = `[${timeStr}] 📤 RETRÈ: NatCash +${amt} G. Kach -${amt}g (S${amt / 5}).`;
+function validerVente() {
+    if (AppState.cart.length === 0) {
+        alert("Panyen an vid! Ajoute pwodwi anvan ou valide.");
+        return;
     }
 
-    const posLogBox = document.getElementById('pos-nat-logs');
-    if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
-    posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
+    AppState.cart.forEach(item => {
+        // Diminye stock la
+        item.product.stock -= item.qty;
+        const totalAmount = item.product.price * item.qty;
 
-    const adminLogBox = document.getElementById('admin-nat-logs');
-    if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
-    adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
+        if (item.method === "cash") {
+            AppState.ventesCash += totalAmount;
+        } else {
+            AppState.ventesNatcash += totalAmount;
+        }
+        
+        logSystem(`Vann: ${item.qty} ${item.product.name} pa ${item.method.toUpperCase()} (${totalAmount} HTG)`);
+    });
 
-    amountInput.value = ''; updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.updateNatBalanceFromAdmin = function() {
-    let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
-    if(isNaN(val) || val < 0) return alert("Antre chif valab!");
-    natCashBalance = val; document.getElementById('admin-set-nat-balance').value = '';
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-function updateAdminDashboard() {
-    if(document.getElementById('pos-cash-display')) document.getElementById('pos-cash-display').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
-    if(document.getElementById('vandes-natcash-display')) document.getElementById('vandes-natcash-display').innerHTML = natCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (natCashBalance / 5).toLocaleString() + "]</span>";
-    if(document.getElementById('vandes-cash-display')) document.getElementById('vandes-cash-display').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
-    if(document.getElementById('vandes-live-cash')) document.getElementById('vandes-live-cash').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
-
-    if(!isAdminAuthenticated) return;
-    if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerHTML = totalRevenue.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalRevenue / 5).toLocaleString() + "]</span>";
-    if(document.getElementById('stat-profit')) document.getElementById('stat-profit').innerHTML = totalProfit.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalProfit / 5).toLocaleString() + "]</span>";
-    if(document.getElementById('stat-nat-balance')) document.getElementById('stat-nat-balance').innerHTML = natCashBalance.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (natCashBalance / 5).toLocaleString() + "]</span>";
-
-    let totalStockVal = 0;
-    inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
-    if(document.getElementById('stat-stock-value')) document.getElementById('stat-stock-value').innerHTML = totalStockVal.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalStockVal / 5).toLocaleString() + "]</span>";
-}
-
-window.submitRestock = function() {
-    let prodId = parseInt(document.getElementById('restock-select').value);
-    let qty = parseInt(document.getElementById('restock-qty').value);
-    if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
-    inventory.find(prod => prod.id === prodId).stockGrenn += qty;
-    document.getElementById('restock-qty').value = '';
+    AppState.cart = [];
+    renderCart();
     renderProducts();
-    saveAppStateToFirebase();
+    recalculateFinances();
 }
 
-// Premye afichaj lè sistèm lan lise
-renderProducts();
+// ==========================================
+// 4. LOJIK ENTEGRAL POU KALKIL FINANS YO
+// ==========================================
+function recalculateFinances() {
+    // Live Cash = Fond de caisse + Lavant Kach - Depans
+    AppState.liveCash = AppState.fondDeCaisse + AppState.ventesCash - AppState.depenses;
+    
+    // System Total Calculated = Fond de caisse + Tout Lavant Net (Kach + Natcash) - Depans
+    AppState.systemTotalCalculated = AppState.fondDeCaisse + AppState.ventesCash + AppState.ventesNatcash - AppState.depenses;
+    
+    updateFinancialDOM();
+}
+
+function updateFinancialDOM() {
+    // Mete done yo nan Stat Cards yo nan panèl admin nan
+    setDOMText("stat-revenue", `${AppState.ventesCash + AppState.ventesNatcash} HTG`);
+    setDOMText("stat-profit", `${(AppState.ventesCash + AppState.ventesNatcash) * 0.2} HTG`); // Simulation 20% pwofi
+    setDOMText("stat-stock", `${AppState.products.reduce((acc, p) => acc + p.stock, 0)} Pcs`);
+    setDOMText("stat-natcash", `${AppState.ventesNatcash} HTG`);
+    setDOMText("stat-livecash", `${AppState.liveCash} HTG`);
+}
+
+function setDOMText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
+
+// ==========================================
+// 5. FONKSYON POU 3 MODAL YO (LOUVRI / KACHE)
+// ==========================================
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add("active");
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove("active");
+}
+
+// --- MODAL DEPANS ---
+function enregistrerDepense() {
+    const motif = document.getElementById("depense-motif")?.value.trim();
+    const montant = parseFloat(document.getElementById("depense-montant")?.value);
+
+    if (!motif || isNaN(montant) || montant <= 0) {
+        alert("Tanpri ranpli tout jaden yo ak chif ki valab!");
+        return;
+    }
+
+    if (montant > AppState.liveCash) {
+        alert("Eksè de kès! Ou pa gen ase lajan kach nan kès la pou depans sa a.");
+        return;
+    }
+
+    AppState.depenses += montant;
+    logSystem(`Depans: ${motif} (-${montant} HTG)`);
+    
+    // Reyinisyalize fòm nan epi fèmen modal la
+    document.getElementById("depense-motif").value = "";
+    document.getElementById("depense-montant").value = "";
+    closeModal("modal-depense");
+    
+    recalculateFinances();
+}
+
+// --- MODAL FÈMTI KÈS AVÈG ---
+function soumettreFermetureAveugle() {
+    const cashDeclared = parseFloat(document.getElementById("aveugle-cash")?.value);
+    const natcashDeclared = parseFloat(document.getElementById("aveugle-natcash")?.value);
+
+    if (isNaN(cashDeclared) || isNaN(natcashDeclared) || cashDeclared < 0 || natcashDeclared < 0) {
+        alert("Tanpri antre montan ki kòrèk!");
+        return;
+    }
+
+    // Sove deklarasyon an nan kachèt pou admin ka wè l
+    AppState.declaredCashByStaff = cashDeclared;
+    AppState.declaredNatcashByStaff = natcashDeclared;
+
+    // Bloke sistèm nan nèt pou sekirite
+    AppState.isLocked = true;
+    closeModal("modal-fermture-aveugle");
+    
+    logSystem(`Kès Fèmen pa Staff la. Deklare Kach: ${cashDeclared} HTG | Natcash: ${natcashDeclared} HTG.`);
+    
+    // Voye moun nan sou ekran blokaj la otomatikman
+    showLockScreen();
+}
+
+function showLockScreen() {
+    const posLayout = document.querySelector(".pos-layout");
+    if (posLayout) {
+        posLayout.innerHTML = `
+            <div class="card lock-screen">
+                <h2 style="color: var(--danger); font-size: 24px; margin-bottom: 10px;">🔒 KÈS SA A BLOKE</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Staff la fin deklare fèmtu kès la. Yon administratè dwe mete modpas li pou verifye bwat la.</p>
+                <button class="btn-main" style="background-color: var(--purple); max-width: 250px;" onclick="ouvrirVerificationAdmin()">Verifye Kès Kounye a</button>
+            </div>
+        `;
+    }
+    switchPage("pos-page");
+}
+
+// --- MODAL VERIFIKASYON ADMIN (AK DISPIT) ---
+function ouvrirVerificationAdmin() {
+    // Mete tèks yo daprè sa ki te kalkile nan sistèm nan vs sa moun nan te antre avèg la
+    document.getElementById("v-system-total").innerText = `${AppState.systemTotalCalculated} HTG`;
+    document.getElementById("v-staff-cash").innerText = `${AppState.declaredCashByStaff} HTG`;
+    document.getElementById("v-staff-natcash").innerText = `${AppState.declaredNatcashByStaff} HTG`;
+
+    // Kalkile diferans yo pou sistèm nan konnen si gen dispit
+    const systemExpectedCash = AppState.fondDeCaisse + AppState.ventesCash - AppState.depenses;
+    const systemExpectedNatcash = AppState.ventesNatcash;
+
+    const cashDiff = AppState.declaredCashByStaff - systemExpectedCash;
+    const natcashDiff = AppState.declaredNatcashByStaff - systemExpectedNatcash;
+
+    const disputeBox = document.getElementById("dispute-box");
+    const disputeReason = document.getElementById("dispute-reason");
+
+    if (cashDiff !== 0 || natcashDiff !== 0) {
+        // Gen erè nan sa manb kès la te konte a! Louvri bwat dispit la
+        if (disputeBox) disputeBox.style.display = "block";
+        if (disputeReason) {
+            disputeReason.innerHTML = `
+                <strong style="color: var(--danger);">Diferans Jwenn:</strong><br>
+                Kach nan men: ${cashDiff > 0 ? '+' : ''}${cashDiff} HTG ${cashDiff < 0 ? '(Mank)' : '(Souton)'}<br>
+                Natcash: ${natcashDiff > 0 ? '+' : ''}${natcashDiff} HTG
+            `;
+        }
+        logSystem("Alèt: Dispit detekte nan verifikasyon kès la!");
+    } else {
+        // Tout bagay parèy pwa pou pwa
+        if (disputeBox) disputeBox.style.display = "none";
+        if (disputeReason) disputeReason.innerHTML = `<span style="color: var(--accent); font-weight:bold;">✓ Tout chif yo egzak pwa pou pwa!</span>`;
+    }
+
+    openModal("modal-verification");
+}
+
+function finaliserVerification(isApproved) {
+    const passwordInp = document.getElementById("admin-password")?.value;
+    
+    // Sekirite senp: modpas la se "admin123"
+    if (passwordInp !== "admin123") {
+        alert("Modpas Administratè a enkòrèk!");
+        return;
+    }
+
+    if (isApproved) {
+        alert("Kès verifye epi apwouve ak siksè!");
+        logSystem("Admin apwouve fèmti kès la. Reyinisyalizasyon.");
+        resetSystemForNextShift();
+    } else {
+        alert("Dispit anrejistre pou kontwòl anplis. Sistèm nan ap debloke.");
+        logSystem("Fèmti kès fini ak yon dispit louvri nan achiv yo.");
+        resetSystemForNextShift();
+    }
+
+    // Netwaye fòm modpas la epi fèmen modal la
+    document.getElementById("admin-password").value = "";
+    closeModal("modal-verification");
+}
+
+function resetSystemForNextShift() {
+    // Reyinisyalize eta kès la pou lòt moun ka travay
+    AppState.ventesCash = 0;
+    AppState.ventesNatcash = 0;
+    AppState.depenses = 0;
+    AppState.cart = [];
+    AppState.isLocked = false;
+    
+    // Reload paj la pou remete Layout orijinal POS la nan plas li san Lock Screen an
+    window.location.reload();
+}
+
+// ==========================================
+// 6. UTILS: LOG EKIDAN AK TOGGLE THEME
+// ==========================================
+function logSystem(message) {
+    const logList = document.getElementById("log-list");
+    if (!logList) return;
+    
+    const time = new Date().toLocaleTimeString();
+    const logLine = `[${time}] ${message}\n`;
+    logList.innerText += logLine;
+    
+    // Scroll otomatikman nan fen log yo
+    logList.scrollTop = logList.scrollHeight;
+}
+
+function toggleTheme() {
+    const htmlEl = document.documentElement;
+    const themeBtn = document.querySelector(".theme-toggle");
+    
+    if (AppState.currentTheme === "light") {
+        htmlEl.setAttribute("data-theme", "dark");
+        AppState.currentTheme = "dark";
+        if (themeBtn) themeBtn.innerHTML = "☀️ Light Mode";
+        logSystem("Sistèm chanje nan Dark Mode.");
+    } else {
+        htmlEl.removeAttribute("data-theme");
+        AppState.currentTheme = "light";
+        if (themeBtn) themeBtn.innerHTML = "🌙 Dark Mode";
+        logSystem("Sistèm chanje nan Light Mode.");
+    }
+}
