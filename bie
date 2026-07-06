@@ -1,1 +1,114 @@
-nan kod la pou foto ti fritop la mete frutop img.JPG en plus de sa mete yon nouvo article fritop a 75g grenn demi kes 550g kes 1100 imag la ap gn nom Frutop img.PNG pou article  article  fanta a  prix grenn nan se 100 g pri demi kes la se 750 kes la 1500g imaj la ap gn nom Fanta img.JPG article dasani  grenn 50 demi kes 425 kes 850 imaj la pa rele dasani img.JPG article prastige grenn 200 g demi kes 2000g kes 4000g imaj la ap rele prestige img.JPG article valle grenn 50g demi 500g kes 1000g imaj la ap rele valle img.JPG article tanpico grenn 75 demi kes 675g kes la 1350g imaj la ap rete tampico img.JPG article robusto grenn 100 g demi kes 1100g kes 2200g imaj la ap rele robusto img.JPG article toro grenn 125 demi kes 1300g kes 2600g imaj la ap rele toro img.JPG article Malta H grenn 125g demi kes1250g kes 2500g imaj la ap rele maltah img.JPG article  beller grenn 50g demi kes 500g kes 1000g img ap  rele beller img.JPG          aticle Real demi  kes 475g kes 950g img a ap rele real img.JPG mete article sa yo nan kod sit la pa bezien mete sakte la avanyo mete letre majiskil devan chak nom yo epi nan tou bagay ki an goud mete yon ti ekriti tou piti pou montre konbien li ye en dola pouw konnen dola la wap diize montan an pa 5 fe selman sam diw la
+    <!-- MODAL INITYAL FON DE KÈS -->
+    <div id="verification-popup" class="verification-modal">
+        <div class="modal-content">
+            <span style="font-size: 40px;">💰</span>
+            <h3 id="modal-title">Verifikasyon Kès</h3>
+            <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
+            
+            <div class="modal-buttons" id="modal-initial-btns">
+                <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
+                <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
+            </div>
+
+            <div id="dispute-section" class="dispute-box">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
+                <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
+                <button onclick="submitDispute()" class="btn-main" style="background-color: var(--primary);">Valide Kontestasyon an 📤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP POU FÈMTI KÈS AVÈG -->
+    <div id="close-kes-popup" class="verification-modal">
+        <div class="modal-content" style="border-color: var(--purple);">
+            <span style="font-size: 40px;">🔒</span>
+            <h3>Fèmti Kès Jounen an (3h PM)</h3>
+            <p>Konpòtman sekirite: Konte tout kòb fizik (kach) ou gen nan men w kounye a epi tape l anba a san gade sistèm nan.</p>
+            <input type="number" id="vandes-counted-cash" class="input-text" placeholder="Konbyen kòb fizik ki gen nan menw?">
+            <button onclick="submitCloseKesBlind()" class="btn-main" style="background-color: var(--purple);">Finalize epi Voye Rapò Fèmti 📤</button>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP POU DEPANSRAPID -->
+    <div id="expense-popup" class="verification-modal" onclick="closeExpenseModalOutside(event)">
+        <div class="modal-content" style="border-color: var(--danger);" onclick="event.stopPropagation()">
+            <span style="font-size: 40px;">💸</span>
+            <h3>Anrejistre yon Depans</h3>
+            <p>Kòb sa a ap soti dirèkteman nan kès kach la.</p>
+            <input type="number" id="expense-amount" class="input-text" placeholder="Montan an Goud (HTG)">
+            <input type="text" id="expense-reason" class="input-text" placeholder="Rezon depans lan (Glas, kous...)">
+            <div class="modal-buttons">
+                <button onclick="submitExpense()" class="btn-modal-yes" style="background-color: var(--danger);">Sove Depans</button>
+                <button onclick="document.getElementById('expense-popup').style.display='none'" class="btn-modal-no" style="background-color: var(--text-muted);">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <div class="header-top">
+                <div class="logo">📦 <span>BWdepo</span></div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
+            </div>
+            <nav>
+                <button id="nav-pos" class="active" onclick="triggerPageSecurity('pos')">🛒 Bwason</button>
+                <button id="nav-natcash-tab" onclick="triggerPageSecurity('natcash-tab')">🟢 NatCash</button>
+                <button id="nav-admin" onclick="showPage('admin')">📊 Admin</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ONGLÈ 1: LAVANT BWASON -->
+    <div id="page-pos" class="page active">
+        <div class="pos-layout">
+            
+            <div class="left-column">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(30, 58, 138, 0.05);">
+                        <span style="font-size:11px; color:var(--text-muted); font-weight:bold; display:block;">KACH FIZIK NAN MENW:</span>
+                        <strong id="pos-cash-display" style="font-size:17px; color:var(--primary-light);">0 HTG</strong>
+                        <button onclick="openExpenseModal()" style="margin-top:4px; display:inline-block; padding:3px 8px; background:var(--danger); color:white; border:none; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Mete Depans 💸</button>
+                    </div>
+                    <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(139, 92, 246, 0.05); display:flex; align-items:center; justify-content:center;">
+                        <button onclick="openCloseKesModal()" class="btn-main" style="background:var(--purple); padding:8px; font-size:12px;">🔒 Fèmen Kès (3h)</button>
+                    </div>
+                </div>
+            <div class="right-column">
+                <h2 class="section-title">📝 Fakti Kliyan</h2>
+                <div class="card">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Pwodwi</th>
+                                <th>Tip</th>
+                                <th>Pri</th>
+                                <th style="text-align:right;">Retire</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-rows"></tbody>
+                    </table>
+                    <div class="bill-total-row">
+                        <span>Total:</span>
+                        <span id="bill-total-display">0 HTG</span>
+                    </div>
+                    <button onclick="checkoutSale()" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
+                        Validate Lavant lan ✅
+                    </button>
+                </div>
+            </div>
+                <div class="card">
+                     <input type="text" id="search-box" class="search-input" placeholder="🔎 Chèche yon bwason..." oninput="filterProducts()">
+                </div>
+
+                <h2 class="section-title">🥤 Pwodwi ki disponib</h2>
+                
+                <!-- AFICHAY PWODWI YO SOU SIT LA -->
+                <div class="products-grid" id="products-container"></div>
+
+
+            </div>
+
+
+
+        </div>
+    </div>
