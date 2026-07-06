@@ -296,14 +296,25 @@
                 <button onclick="updateNatBalanceFromAdmin()" class="btn-main" style="background-color: #0F172A; padding:12px;">💾 Anrejistre Balans Kat la</button>
             </div>
 
-            <div class="card">
-                <h3 style="font-size:13px; margin-bottom:8px;">📥 Refè Stòk Depo Jeneral</h3>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <select id="restock-select" class="select-style"></select>
-                    <input type="number" id="restock-qty" placeholder="Kantite pou ajoute" class="input-text">
-                    <button onclick="submitRestock()" class="btn-main" style="background-color: var(--primary);">Ajoute nan Stòk</button>
-                </div>
-            </div>
+<div class="card">
+    <h3 id="restock-title" style="font-size:13px; margin-bottom:8px;">📥 Refè Stòk Depo Jeneral</h3>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+        <!-- Chwa pou Action an: Ajoute oswa Retire -->
+        <select id="restock-action" class="select-style" onchange="toggleRestockMode()">
+            <option value="add">📥 Ajoute nan Stòk</option>
+            <option value="remove">📤 Retire nan Stòk</option>
+        </select>
+
+        <!-- Chwa Pwodwi -->
+        <select id="restock-select" class="select-style"></select>
+        
+        <!-- Kantite -->
+        <input type="number" id="restock-qty" placeholder="Kantite pou ajoute" class="input-text">
+        
+        <!-- Bouton an ki gen klas dinamik la koulye a -->
+        <button id="restock-btn" onclick="submitRestock()" class="btn-main btn-restock-add">Ajoute nan Stòk</button>
+    </div>
+</div>
         </div>
     </div>
 
