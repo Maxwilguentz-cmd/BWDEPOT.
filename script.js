@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// --- DONE INIASYAL YO ---
+// --- DONE INIASYAL YO --- 
 let inventory = [
     { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
