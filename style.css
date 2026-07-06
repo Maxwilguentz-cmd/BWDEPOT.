@@ -475,3 +475,8 @@ nav button.active {
     border-color: var(--primary-light);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
+
+/* Mete sa nan fen fichye CSS la pou JS ka louvri modal yo */
+.verification-modal.active {
+    display: flex !important;
+}
