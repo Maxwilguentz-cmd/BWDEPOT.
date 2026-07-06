@@ -3,14 +3,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 // Konfigirasyon Firebase ou 
-const firebaseConfig = {  
+const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
     authDomain: "bwdepot-61214.firebaseapp.com",
     databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
     projectId: "bwdepot-61214",
     storageBucket: "bwdepot-61214.firebasestorage.app",
     messagingSenderId: "624010872324",
-    appId: "1:624010872324:web:0b0565c3872b3caccd5751",  
+    appId: "1:624010872324:web:0b0565c3872b3caccd5751",
     measurementId: "G-8VEN9QQF7B"
 };
 
@@ -20,7 +20,7 @@ const database = getDatabase(app);
 
 // --- DONE INIASYAL YO ---
 let inventory = [
-    { id: 1, name: "Ti Fritop ", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
+    { id: 1, name: "Ti Fritop Haiti", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
     { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 55, demi: 400, kes: 800 } },
     { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 75, demi: 550, kes: 1100 } },
     { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 35, demi: 300, kes: 600 } },
@@ -80,12 +80,14 @@ onValue(ref(database, 'appState'), (snapshot) => {
         if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
         if (data.verifiedSections) verifiedSections = data.verifiedSections;
         
+        // Retounen html logs yo jan yo te ye a
         if (data.adminExpenseLogs && document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = data.adminExpenseLogs;
         if (data.logsAnGwo && document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = data.logsAnGwo;
         if (data.logsAnDetay && document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = data.logsAnDetay;
         if (data.posNatLogs && document.getElementById('pos-nat-logs')) document.getElementById('pos-nat-logs').innerHTML = data.posNatLogs;
         if (data.adminNatLogs && document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = data.adminNatLogs;
         
+        // Alèt yo
         if (document.getElementById('admin-dispute-alert')) {
             document.getElementById('admin-dispute-alert').style.display = data.adminDisputeAlert || "none";
             document.getElementById('admin-dispute-text').innerText = data.adminDisputeText || "";
@@ -99,32 +101,21 @@ onValue(ref(database, 'appState'), (snapshot) => {
     updateAdminDashboard();
 });
 
-// --- NAVIGASYON PAJ YO ---
+// --- APÈL LÒT LÒJIK YO ---
+
 window.showPage = function(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
-    const activePage = document.getElementById(`page-${pageId}`);
-    const activeNav = document.getElementById(`nav-${pageId}`);
-    
-    if(activePage) activePage.classList.add('active');
-    if(activeNav) activeNav.classList.add('active');
+    document.getElementById(`page-${pageId}`).classList.add('active');
+    document.getElementById(`nav-${pageId}`).classList.add('active');
 
-    if(pageId === 'pos') {
-        renderProducts();
-    }
-    
+    if(pageId === 'pos') renderProducts();
     if(pageId === 'admin') {
-        // SOLISYON PAJ BLANCH: Si admin nan pa konekte, nou fòse fòm modpas la parèt, epi nou kache kontni an
         if(isAdminAuthenticated) {
-            document.getElementById('admin-auth').style.display = 'none';
-            document.getElementById('admin-content').style.display = 'block';
             updateAdminDashboard();
             populateAdminSelects();
             renderFrizerStockTable();
-        } else {
-            document.getElementById('admin-auth').style.display = 'flex';
-            document.getElementById('admin-content').style.display = 'none';
         }
     }
 }
@@ -141,10 +132,7 @@ window.triggerPageSecurity = function(pageId) {
         openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG (S${totalBwasonFon / 5})** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
         return;
     }
-    
-    // KORÈKSYON PAJ BLANCH: Si id a se 'natcash-tab', nou voye id reyèl la bay showPage ('natcash')
-    let actualPageId = pageId === 'natcash-tab' ? 'natcash' : pageId;
-    showPage(actualPageId);
+    showPage(pageId);
 }
 
 window.openVerificationModal = function(title, msg) {
@@ -159,7 +147,7 @@ window.acceptFonDeKes = function() {
     if (currentVerifyingType === "natcash") {
         verifiedSections.natcash = true;
         physicalCashBalance += adminFonDeKes.natcash; 
-        showPage('natcash'); // KORÈKSYON LA TOU
+        showPage('natcash-tab');
     } else if (currentVerifyingType === "bwason") {
         verifiedSections.bwason = true;
         physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
@@ -188,7 +176,7 @@ window.submitDispute = function() {
         sectionName = "NatCash";
         verifiedSections.natcash = true; 
         physicalCashBalance += realAmount;
-        showPage('natcash'); // KORÈKSYON LA TOU
+        showPage('natcash-tab');
     } else if (currentVerifyingType === "bwason") {
         adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
         sectionName = "Vant Bwason (An gwo + Detay)";
@@ -302,11 +290,8 @@ window.showSubPage = function(subId) {
     document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
     
-    const activeSubPage = document.getElementById(`sub-page-${subId}`);
-    const activeSubNav = document.getElementById(`sub-nav-${subId}`);
-
-    if(activeSubPage) activeSubPage.classList.add('active');
-    if(activeSubNav) activeSubNav.classList.add('active');
+    document.getElementById(`sub-page-${subId}`).classList.add('active');
+    document.getElementById(`sub-nav-${subId}`).classList.add('active');
 }
 
 function renderProducts() {
@@ -459,28 +444,24 @@ window.checkoutSale = function() {
     let logGwoBox = document.getElementById('logs-an-gwo');
     let logDetayBox = document.getElementById('logs-an-detay');
 
-    if(logGwoBox && logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
-    if(logDetayBox && logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
+    if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
+    if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
 
     currentCart.forEach(item => {
         let p = inventory.find(prod => prod.id === item.prodId);
         if(item.type === 'detail') {
             p.stockFrizerGrenn -= item.qtyNeeded;
-            if(logDetayBox) logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
+            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
         } else {
             p.stockGrenn -= item.qtyNeeded;
-            if(logGwoBox) logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
+            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
         }
         billTotal += item.price; billProfit += (item.price - item.buyPrice);
     });
 
     totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
     alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
-    currentCart = []; 
-    renderCart(); 
-    renderProducts(); 
-    renderFrizerStockTable(); // Mizajou tab frizè a otomatikman apre lavant detay
-    updateAdminDashboard();
+    currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
     saveAppStateToFirebase();
 }
 
@@ -509,12 +490,12 @@ window.processNatCash = function(type) {
     }
 
     const posLogBox = document.getElementById('pos-nat-logs');
-    if(posLogBox && posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
-    if(posLogBox) posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
+    if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
+    posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
 
     const adminLogBox = document.getElementById('admin-nat-logs');
-    if(adminLogBox && adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
-    if(adminLogBox) adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
+    if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
+    adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
 
     amountInput.value = ''; updateAdminDashboard();
     saveAppStateToFirebase();
