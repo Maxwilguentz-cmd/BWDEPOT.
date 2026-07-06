@@ -333,7 +333,7 @@ window.saveFonDeKesFromAdmin = function() {
 
 window.checkAdminAuth = function() {
     let pass = document.getElementById('admin-pass-input').value;
-    if(pass === "1234") {
+    if(pass === "MW-1985B") {
         isAdminAuthenticated = true;
         document.getElementById('admin-auth').style.display = 'none';
         document.getElementById('admin-content').style.display = 'block';
@@ -485,9 +485,10 @@ window.removeFromCart = function(uniqueId) {
     if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
         currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
         renderCart();
-    } else {
-        alert("❌ Kòd enkòrèk!");
     }
+    window.removeFromCart = function(uniqueId) {
+    currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
+    renderCart();
 }
 
 function renderCart() {
