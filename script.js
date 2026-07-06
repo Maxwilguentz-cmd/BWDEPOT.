@@ -11,7 +11,7 @@ const firebaseConfig = {
     storageBucket: "bwdepot-61214.firebasestorage.app",
     messagingSenderId: "624010872324", 
     appId: "1:624010872324:web:0b0565c3872b3caccd5751",  
-    measurementId: "G-8VEN9QQF7B"
+    measurementId: "G-8VEN9QQF7B" 
 };
 
 // Inisyalize aplikasyon Firebase la
