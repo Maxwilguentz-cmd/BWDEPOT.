@@ -63,7 +63,44 @@ let isAdminAuthenticated = false;
 let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
 let verifiedSections = { natcash: false, bwason: false };
 let currentVerifyingType = ""; 
+function checkAndExecuteMidnightReset() {
+    const now = new Date();
+    
+    if (now.getHours() === 0 && now.getMinutes() === 0) {
+        let datYè = new Date();
+        datYè.setDate(now.getDate() - 1);
+        let datFòma = datYè.toISOString().split('T')[0];
 
+        const pakeAchiv = {
+            dat: datFòma,
+            lavantBwason: totalRevenue,
+            benefisPwodwi: totalProfit,
+            logsAnGwo: document.getElementById('logs-an-gwo')?.innerHTML || "",
+            logsAnDetay: document.getElementById('logs-an-detay')?.innerHTML || "",
+            adminExpenseLogs: document.getElementById('admin-expense-logs')?.innerHTML || "",
+            adminNatLogs: document.getElementById('admin-nat-logs')?.innerHTML || ""
+        };
+
+        push(ref(database, 'istorik_jounen'), pakeAchiv);
+
+        totalRevenue = 0;
+        totalProfit = 0;
+
+        if (document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = "Pa gen lavant an gwo...";
+        if (document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = "Pa gen lavant an detay...";
+        if (document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = "Pa gen depans ki fèt jodi a...";
+        if (document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = "Pa gen operasyon...";
+        if (document.getElementById('pos-nat-logs')) document.getElementById('pos-nat-logs').innerHTML = "Pa gen tranzaksyon...";
+
+        saveAppStateToFirebase();
+        if (typeof updateAdminDashboard === "function") updateAdminDashboard();
+        
+        console.log(`✨ Reset otomatik jounen an fèt ak siksè pou dat: ${datFòma}`);
+    }
+}
+
+// Kouri verifikasyon sa a chak 60 segonn
+setInterval(checkAndExecuteMidnightReset, 60000);
 // --- FONKSYON POU SOVE DONE YO NAN FIREBASE ---
 function saveAppStateToFirebase() {
     set(ref(database, 'appState'), {
