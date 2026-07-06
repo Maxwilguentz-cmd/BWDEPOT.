@@ -480,3 +480,11 @@ nav button.active {
 .verification-modal.active {
     display: flex !important;
 }
+/* Klas pou chanje koulè bouton an dinamikman ak JS */
+.btn-restock-add {
+    background-color: var(--primary) !important;
+}
+
+.btn-restock-remove {
+    background-color: var(--danger) !important;
+}
