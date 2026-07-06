@@ -20,11 +20,18 @@ const database = getDatabase(app);
 
 // --- DONE INIASYAL YO ---
 let inventory = [
-    { id: 1, name: "Ti Fritop Haiti", img: "https://images.unsplash.com/photo-1613967193442-19cfb7e05bc5?w=200", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
-    { id: 2, name: "Cola Real Haiti", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 3, name: "Couronne Haiti", img: "https://images.unsplash.com/photo-1527960656366-ee2a999e32e6?w=200", stockGrenn: 120, stockFrizerGrenn: 12, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } },
-    { id: 4, name: "Robusto Haiti", img: "https://images.unsplash.com/photo-1603532616252-0566042456ec?w=200", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 850, kes: 1700 }, buyingPrice: { detail: 70, demi: 600, kes: 1200 } },
-    { id: 5, name: "Fanta Haiti", img: "https://images.unsplash.com/photo-1624552184280-9e9631bbeee9?w=200", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 900, kes: 1800 }, buyingPrice: { detail: 75, demi: 680, kes: 1360 } }
+    { id: 1, name: "Ti Fritop Haiti", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
+    { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 55, demi: 400, kes: 800 } },
+    { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 75, demi: 550, kes: 1100 } },
+    { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 35, demi: 300, kes: 600 } },
+    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 160, demi: 1600, kes: 3200 } },
+    { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 35, demi: 380, kes: 750 } },
+    { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 55, demi: 500, kes: 1000 } },
+    { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 70, demi: 850, kes: 1700 } },
+    { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1300, kes: 2600 }, buyingPrice: { detail: 95, demi: 1000, kes: 2000 } },
+    { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 95, demi: 950, kes: 1900 } },
+    { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 35, demi: 380, kes: 750 } },
+    { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } }
 ];
 
 let currentCart = [];
@@ -116,13 +123,13 @@ window.showPage = function(pageId) {
 window.triggerPageSecurity = function(pageId) {
     if (pageId === 'natcash-tab' && !verifiedSections.natcash && adminFonDeKes.natcash > 0) {
         currentVerifyingType = "natcash";
-        openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
+        openVerificationModal(`Verifikasyon NatCash`, `Admin nan kite yon fon de kès **${adminFonDeKes.natcash} HTG (S${adminFonDeKes.natcash / 5})** pou pati NatCash la. Èske ou dakò kòb sa a la nan menw?`);
         return;
     }
     if (pageId === 'pos' && !verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
         currentVerifyingType = "bwason";
         let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
-        openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
+        openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè **${totalBwasonFon} HTG (S${totalBwasonFon / 5})** (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
         return;
     }
     showPage(pageId);
@@ -179,7 +186,7 @@ window.submitDispute = function() {
     }
 
     document.getElementById('admin-dispute-alert').style.display = "block";
-    document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud, men li deklare li jwenn ${realAmount} Goud nan kès la.`;
+    document.getElementById('admin-dispute-text').innerText = `Vandè a konteste fon de kès pou [${sectionName}] la! Ou te mete ${adminAmountExpected} Goud (S${adminAmountExpected / 5}), men li deklare li jwenn ${realAmount} Goud (S${realAmount / 5}) nan kès la.`;
 
     document.getElementById('verification-popup').style.display = 'none';
     alert("⚠️ Yo voye kontestasyon an bay Admin nan.");
@@ -210,10 +217,10 @@ window.submitExpense = function() {
     let timeStr = new Date().toLocaleTimeString();
     let expLogBox = document.getElementById('admin-expense-logs');
     if (expLogBox.innerHTML.includes("Pa gen depans")) expLogBox.innerHTML = '';
-    expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud : ${reason}<br>` + expLogBox.innerHTML;
+    expLogBox.innerHTML = `[${timeStr}] 💸 -${amt} Goud (S${amt / 5}) : ${reason}<br>` + expLogBox.innerHTML;
 
     document.getElementById('expense-popup').style.display = 'none';
-    alert(`✅ Depans pou "${reason}" (${amt} HTG) anrejistre.`);
+    alert(`✅ Depans pou "${reason}" (${amt} HTG / S${amt / 5}) anrejistre.`);
     updateAdminDashboard();
     saveAppStateToFirebase();
 }
@@ -232,11 +239,11 @@ window.submitCloseKesBlind = function() {
     let rapòMesaj = "";
 
     if (eka === 0) {
-        rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\nEka: 0 Goud.`;
+        rapòMesaj = `✅ Kès la Fèmen Kòrèk (A 3h PM).\nVandè a konte: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\nEka: 0 Goud.`;
     } else if (eka < 0) {
-        rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔴 MANKE: ${Math.abs(eka)} Goud!`;
+        rapòMesaj = `⚠️ ALÈT MANQO (Kòb Manke a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\n🔴 MANKE: ${Math.abs(eka)} Goud (S${Math.abs(eka) / 5})!`;
     } else {
-        rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud.\nSistèm nan te kalkile: ${systemExpected} Goud.\n🔵 ANPLIS: ${eka} Goud!`;
+        rapòMesaj = `🟢 ALÈT EKSÈ (Kòb Anplis a 3h PM):\nVandè a deklare li jwenn: ${counted} Goud (S${counted / 5}).\nSistèm nan te kalkile: ${systemExpected} Goud (S${systemExpected / 5}).\n🔵 ANPLIS: ${eka} Goud (S${eka / 5})!`;
     }
 
     document.getElementById('admin-close-alert').style.display = "block";
@@ -304,10 +311,10 @@ function renderProducts() {
                     <div class="prod-name">${p.name}</div>
                     <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
                     <div class="type-selector">
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g)</button>
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g)</button>
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.detail / 5}</span>)</button>
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.demi / 5}</span>)</button>
                     </div>
-                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g)</button>
+                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g <span style="font-size:11px;font-weight:normal;opacity:0.8;">/ S${p.prices.kes / 5}</span>)</button>
                 </div>
             </div>
         `;
@@ -423,11 +430,11 @@ function renderCart() {
         tbody.innerHTML += `<tr>
             <td><strong>${item.name}</strong></td>
             <td>${item.labelType}</td>
-            <td><strong>${item.price} G</strong></td>
+            <td><strong>${item.price} G <span style="font-size:10px;font-weight:normal;opacity:0.7;">(S${item.price / 5})</span></strong></td>
             <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
         </tr>`;
     });
-    document.getElementById('bill-total-display').innerText = total + " HTG";
+    document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
 }
 
 window.checkoutSale = function() {
@@ -444,16 +451,16 @@ window.checkoutSale = function() {
         let p = inventory.find(prod => prod.id === item.prodId);
         if(item.type === 'detail') {
             p.stockFrizerGrenn -= item.qtyNeeded;
-            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G<br>` + logDetayBox.innerHTML;
+            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
         } else {
             p.stockGrenn -= item.qtyNeeded;
-            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G<br>` + logGwoBox.innerHTML;
+            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
         }
         billTotal += item.price; billProfit += (item.price - item.buyPrice);
     });
 
     totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
-    alert(`✅ Lavant anrejistre (${billTotal} HTG).`);
+    alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
     currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
     saveAppStateToFirebase();
 }
@@ -466,14 +473,20 @@ window.processNatCash = function(type) {
     let safeLog = ""; let adminLog = ""; 
 
     if(type === 'depo') {
-        natCashBalance += amt; physicalCashBalance += amt;   
-        safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG (Pran Kach)`;
-        adminLog = `[${timeStr}] 📥 DEPO: Kat +${amt} HTG. Kach +${amt}g.`;
+        if(natCashBalance < amt) return alert("⚠️ Pa gen ase balans NatCash sou kont lan pou fè depo sa a!");
+        
+        natCashBalance -= amt; 
+        physicalCashBalance += amt;   
+        safeLog = `🔹 [${timeStr}] 📥 DEPO: +${amt} HTG / S${amt / 5} (Pran Kach)`;
+        adminLog = `[${timeStr}] 📥 DEPO: NatCash -${amt} G. Kach +${amt}g (S${amt / 5}).`;
+
     } else if(type === 'retre') {
         if(physicalCashBalance < amt && !confirm("⚠️ Pa gen ase kòb fizik nan kès, kontinye?")) return;
-        natCashBalance -= amt; physicalCashBalance -= amt;   
-        safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG (Remèt Kach)`;
-        adminLog = `[${timeStr}] 📤 RETRÈ: Kat -${amt} HTG. Kach -${amt}g.`;
+        
+        natCashBalance += amt; 
+        physicalCashBalance -= amt;   
+        safeLog = `🔸 [${timeStr}] 📤 RETRÈ: -${amt} HTG / S${amt / 5} (Remèt Kach)`;
+        adminLog = `[${timeStr}] 📤 RETRÈ: NatCash +${amt} G. Kach -${amt}g (S${amt / 5}).`;
     }
 
     const posLogBox = document.getElementById('pos-nat-logs');
@@ -497,19 +510,19 @@ window.updateNatBalanceFromAdmin = function() {
 }
 
 function updateAdminDashboard() {
-    if(document.getElementById('pos-cash-display')) document.getElementById('pos-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
-    if(document.getElementById('vandes-natcash-display')) document.getElementById('vandes-natcash-display').innerText = natCashBalance.toLocaleString() + " HTG";
-    if(document.getElementById('vandes-cash-display')) document.getElementById('vandes-cash-display').innerText = physicalCashBalance.toLocaleString() + " HTG";
-    if(document.getElementById('vandes-live-cash')) document.getElementById('vandes-live-cash').innerText = physicalCashBalance.toLocaleString() + " HTG";
+    if(document.getElementById('pos-cash-display')) document.getElementById('pos-cash-display').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
+    if(document.getElementById('vandes-natcash-display')) document.getElementById('vandes-natcash-display').innerHTML = natCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (natCashBalance / 5).toLocaleString() + "]</span>";
+    if(document.getElementById('vandes-cash-display')) document.getElementById('vandes-cash-display').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
+    if(document.getElementById('vandes-live-cash')) document.getElementById('vandes-live-cash').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
 
     if(!isAdminAuthenticated) return;
-    if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " G";
-    if(document.getElementById('stat-profit')) document.getElementById('stat-profit').innerText = totalProfit.toLocaleString() + " G";
-    if(document.getElementById('stat-nat-balance')) document.getElementById('stat-nat-balance').innerText = natCashBalance.toLocaleString() + " G";
+    if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerHTML = totalRevenue.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalRevenue / 5).toLocaleString() + "]</span>";
+    if(document.getElementById('stat-profit')) document.getElementById('stat-profit').innerHTML = totalProfit.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalProfit / 5).toLocaleString() + "]</span>";
+    if(document.getElementById('stat-nat-balance')) document.getElementById('stat-nat-balance').innerHTML = natCashBalance.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (natCashBalance / 5).toLocaleString() + "]</span>";
 
     let totalStockVal = 0;
     inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
-    if(document.getElementById('stat-stock-value')) document.getElementById('stat-stock-value').innerText = totalStockVal.toLocaleString() + " G";
+    if(document.getElementById('stat-stock-value')) document.getElementById('stat-stock-value').innerHTML = totalStockVal.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalStockVal / 5).toLocaleString() + "]</span>";
 }
 
 window.submitRestock = function() {
