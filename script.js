@@ -20,7 +20,7 @@ const database = getDatabase(app);
 
 // --- DONE INIASYAL YO ---
 let inventory = [
-    { id: 1, name: "Ti Fritop", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
+    { id: 1, name: "Ti Fritop Haiti34", img: "frutop img.JPG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 35, demi: 280, kes: 560 } },
     { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 55, demi: 400, kes: 800 } },
     { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 75, demi: 550, kes: 1100 } },
     { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 35, demi: 300, kes: 600 } },
