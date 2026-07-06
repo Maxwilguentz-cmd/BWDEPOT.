@@ -482,7 +482,7 @@ window.addToCart = function(prodId, type) {
 }
 
 window.removeFromCart = function(uniqueId) {
-    if(prompt("KÒD SEKIRITE ADMIN:") === "1234") {
+    if(prompt("KÒD SEKIRITE ADMIN:") === "BW-1985B") {
         currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
         renderCart();
     } else {
