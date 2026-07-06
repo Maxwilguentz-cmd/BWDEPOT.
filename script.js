@@ -545,12 +545,29 @@ function updateAdminDashboard() {
 }
 
 window.submitRestock = function() {
+    let action = document.getElementById('restock-action').value; // Li si se 'add' oswa 'remove'
     let prodId = parseInt(document.getElementById('restock-select').value);
     let qty = parseInt(document.getElementById('restock-qty').value);
-    if(isNaN(qty) || qty <= 0) return alert("Kantite a pa bon!");
-    inventory.find(prod => prod.id === prodId).stockGrenn += qty;
+    
+    if (isNaN(qty) || qty <= 0) return alert("Tanpri antre yon kantite ki valab!");
+    
+    let p = inventory.find(prod => prod.id === prodId);
+    
+    if (action === 'remove') {
+        // Lojik pou Retire nan stòk depo a
+        if (p.stockGrenn < qty) return alert(`⚠️ Stòk la twò piti! Gen sèlman ${p.stockGrenn} grenn nan depo.`);
+        p.stockGrenn -= qty;
+        alert(`📤 Siksè! Yo retire ${qty} grenn nan stòk ${p.name}.`);
+    } else {
+        // Lojik pou Ajoute (ansyen an)
+        p.stockGrenn += qty;
+        alert(`📥 Siksè! Yo ajoute ${qty} grenn nan stòk ${p.name}.`);
+    }
+    
+    // Netwaye bwat kantite a epi rafrechi paj la
     document.getElementById('restock-qty').value = '';
     renderProducts();
+    updateAdminDashboard(); // Pou rafrechi valè stòk jeneral la nan Dashboard la tou
     saveAppStateToFirebase();
 }
 
