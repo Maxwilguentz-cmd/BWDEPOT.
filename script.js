@@ -7,7 +7,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
     authDomain: "bwdepot-61214.firebaseapp.com",
     databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-    projectId: "bwdepot-61214",
+    projectId: "bwdepot-61214", 
     storageBucket: "bwdepot-61214.firebasestorage.app",
     messagingSenderId: "624010872324",
     appId: "1:624010872324:web:0b0565c3872b3caccd5751",  
