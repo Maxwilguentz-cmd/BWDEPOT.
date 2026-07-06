@@ -34,7 +34,7 @@ let inventory = [
     { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 660 } },
     { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 15, name: "Pro Rade", img: "Prorad.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 1000, kes: 2000 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 1000, kes: 2000 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 16, name: "Redrock", img: "Rade Rock.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 18, name: "Ragaman", img: "Ragaman.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
