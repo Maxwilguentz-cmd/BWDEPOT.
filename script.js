@@ -53,7 +53,6 @@ let inventory = [
     { id: 31, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 12, name: "Ti Couronne ", img: "Ticouronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } }
-    
 
 ];
 
