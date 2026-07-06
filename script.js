@@ -80,14 +80,12 @@ onValue(ref(database, 'appState'), (snapshot) => {
         if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
         if (data.verifiedSections) verifiedSections = data.verifiedSections;
         
-        // Retounen html logs yo jan yo te ye a
         if (data.adminExpenseLogs && document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = data.adminExpenseLogs;
         if (data.logsAnGwo && document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = data.logsAnGwo;
         if (data.logsAnDetay && document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = data.logsAnDetay;
         if (data.posNatLogs && document.getElementById('pos-nat-logs')) document.getElementById('pos-nat-logs').innerHTML = data.posNatLogs;
         if (data.adminNatLogs && document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = data.adminNatLogs;
         
-        // Alèt yo
         if (document.getElementById('admin-dispute-alert')) {
             document.getElementById('admin-dispute-alert').style.display = data.adminDisputeAlert || "none";
             document.getElementById('admin-dispute-text').innerText = data.adminDisputeText || "";
@@ -101,21 +99,32 @@ onValue(ref(database, 'appState'), (snapshot) => {
     updateAdminDashboard();
 });
 
-// --- APÈL LÒT LÒJIK YO ---
-
+// --- NAVIGASYON PAJ YO ---
 window.showPage = function(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
-    document.getElementById(`page-${pageId}`).classList.add('active');
-    document.getElementById(`nav-${pageId}`).classList.add('active');
+    const activePage = document.getElementById(`page-${pageId}`);
+    const activeNav = document.getElementById(`nav-${pageId}`);
+    
+    if(activePage) activePage.classList.add('active');
+    if(activeNav) activeNav.classList.add('active');
 
-    if(pageId === 'pos') renderProducts();
+    if(pageId === 'pos') {
+        renderProducts();
+    }
+    
     if(pageId === 'admin') {
+        // SOLISYON PAJ BLANCH: Si admin nan pa konekte, nou fòse fòm modpas la parèt, epi nou kache kontni an
         if(isAdminAuthenticated) {
+            document.getElementById('admin-auth').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
             updateAdminDashboard();
             populateAdminSelects();
             renderFrizerStockTable();
+        } else {
+            document.getElementById('admin-auth').style.display = 'flex';
+            document.getElementById('admin-content').style.display = 'none';
         }
     }
 }
@@ -290,8 +299,11 @@ window.showSubPage = function(subId) {
     document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(`sub-page-${subId}`).classList.add('active');
-    document.getElementById(`sub-nav-${subId}`).classList.add('active');
+    const activeSubPage = document.getElementById(`sub-page-${subId}`);
+    const activeSubNav = document.getElementById(`sub-nav-${subId}`);
+
+    if(activeSubPage) activeSubPage.classList.add('active');
+    if(activeSubNav) activeSubNav.classList.add('active');
 }
 
 function renderProducts() {
@@ -444,24 +456,28 @@ window.checkoutSale = function() {
     let logGwoBox = document.getElementById('logs-an-gwo');
     let logDetayBox = document.getElementById('logs-an-detay');
 
-    if(logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
-    if(logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
+    if(logGwoBox && logGwoBox.innerHTML.includes("Pa gen lavant")) logGwoBox.innerHTML = '';
+    if(logDetayBox && logDetayBox.innerHTML.includes("Pa gen lavant")) logDetayBox.innerHTML = '';
 
     currentCart.forEach(item => {
         let p = inventory.find(prod => prod.id === item.prodId);
         if(item.type === 'detail') {
             p.stockFrizerGrenn -= item.qtyNeeded;
-            logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
+            if(logDetayBox) logDetayBox.innerHTML = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logDetayBox.innerHTML;
         } else {
             p.stockGrenn -= item.qtyNeeded;
-            logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
+            if(logGwoBox) logGwoBox.innerHTML = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logGwoBox.innerHTML;
         }
         billTotal += item.price; billProfit += (item.price - item.buyPrice);
     });
 
     totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal; 
     alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
-    currentCart = []; renderCart(); renderProducts(); updateAdminDashboard();
+    currentCart = []; 
+    renderCart(); 
+    renderProducts(); 
+    renderFrizerStockTable(); // Mizajou tab frizè a otomatikman apre lavant detay
+    updateAdminDashboard();
     saveAppStateToFirebase();
 }
 
@@ -490,12 +506,12 @@ window.processNatCash = function(type) {
     }
 
     const posLogBox = document.getElementById('pos-nat-logs');
-    if(posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
-    posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
+    if(posLogBox && posLogBox.innerHTML.includes("Pa gen tranzaksyon")) posLogBox.innerHTML = '';
+    if(posLogBox) posLogBox.innerHTML = safeLog + "<br>" + posLogBox.innerHTML;
 
     const adminLogBox = document.getElementById('admin-nat-logs');
-    if(adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
-    adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
+    if(adminLogBox && adminLogBox.innerHTML.includes("Pa gen operasyon")) adminLogBox.innerHTML = '';
+    if(adminLogBox) adminLogBox.innerHTML = adminLog + "<br>" + adminLogBox.innerHTML;
 
     amountInput.value = ''; updateAdminDashboard();
     saveAppStateToFirebase();
