@@ -298,7 +298,7 @@ window.saveFonDeKesFromAdmin = function() {
 
 window.checkAdminAuth = function() {
     let pass = document.getElementById('admin-pass-input').value;
-    if(pass === "1234") {
+    if(pass === "MW-1985B") {
         isAdminAuthenticated = true;
         document.getElementById('admin-auth').style.display = 'none';
         document.getElementById('admin-content').style.display = 'block';
