@@ -46,15 +46,11 @@ let inventory = [
     { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 25, name: "Petit", img: "Petit.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1500, kes: 3000 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
     { id: 26, name: "Matla H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 27, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 28, name: "Guinness", img: "Guinness.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 29, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id:30, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 31, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 12, name: "Ti Couronne ", img: "Ticouronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
-    { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } }
-
-];
+    { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } },
+    { id: 31, name: "Ti Couronne ", img: "Ticouronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 38, demi: 330, kes: 660 } }];
 
 let currentCart = [];
 let totalRevenue = 0;
