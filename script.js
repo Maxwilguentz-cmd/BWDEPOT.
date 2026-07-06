@@ -50,7 +50,7 @@ let inventory = [
     { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0 , kes: 0,} },
-    { id: 31, name: "Ti Couronne ", img: "Ti couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } }];
+    { id: 31, name: "Ti Couronne ", img: "Ticouronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } }];
 
 let currentCart = [];
 let totalRevenue = 0;
