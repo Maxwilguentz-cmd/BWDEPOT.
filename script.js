@@ -20,14 +20,14 @@ const database = getDatabase(app);
 
 // --- DONE INIASYAL YO ---
 let inventory = [
-    { id: 1, name: "Ti Fritop ", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
+    { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
-    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, 0, demi: 0, kes: 0, } },
-    { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
+    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0,  demi: 0, kes: 0, } },
+    { id: 6, name: "Valle ", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
-    { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
+    { id: 8, name: "Robusto ", img:"robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1300, kes: 2600 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
     { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0, } },
