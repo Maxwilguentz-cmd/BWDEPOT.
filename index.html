@@ -1,21 +1,375 @@
 <!DOCTYPE html>
 <html lang="ht">
 <head>
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>BWdepot - Premium Edition</title>
-    <!-- Koneksyon ak fichye CSS separe a --> 
-    <link rel="stylesheet" href="style.css"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWdepot - Bwason</title>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --accent: #10B981;
+            --natcash: #00A550;
+            --purple: #8B5CF6;
+            --danger: #EF4444;
+            --border: #E2E8F0;
+            --nav-bg: #FFFFFF;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --accent: #34D399;
+            --natcash: #22C55E;
+            --purple: #A78BFA;
+            --danger: #F87171;
+            --border: #334155;
+            --nav-bg: #1E293B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 130px;
+            padding-bottom: 30px;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo span { color: #38BDF8; }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        nav a, nav button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        nav a.active, nav button.active {
+            background-color: var(--bg-card);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] nav a.active,
+        [data-theme="dark"] nav button.active { color: var(--primary-light); }
+
+        .page {
+            padding: 0 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pos-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .prod-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            position: relative;
+            height: 115px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .prod-card img {
+            width: 95px;
+            height: 100%;
+            object-fit: cover;
+            background-color: #E2E8F0;
+        }
+
+        .prod-info {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .prod-name { font-weight: 700; font-size: 14px; color: var(--text-main); }
+        .prod-stock { font-size: 12px; color: var(--text-muted); }
+
+        .stock-alert {
+            background-color: var(--danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            z-index: 10;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .type-btn {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-sell {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .cart-table { width: 100%; border-collapse: collapse; }
+        .cart-table th {
+            text-align: left;
+            padding: 8px 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+        }
+        .cart-table td {
+            padding: 12px 6px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            word-break: break-word;
+        }
+
+        .bill-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: 800;
+            border-top: 2px dashed var(--border);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .input-text, .select-style {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .verification-modal.active { display: flex !important; }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid var(--primary-light);
+        }
+        .modal-content h3 { margin-bottom: 12px; font-size: 19px; }
+        .modal-content p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+
+        .search-input:focus, .input-text:focus, .select-style:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-main:active, .btn-sell:active, .type-btn:active, .theme-toggle:active, .btn-modal-yes:active, .btn-modal-no:active {
+            transform: scale(0.97);
+            opacity: 0.85;
+        }
+
+        @media (min-width: 768px) {
+            body { padding-top: 95px; }
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            nav { width: auto; min-width: 380px; }
+            .pos-layout {
+                grid-template-columns: 1.2fr 0.8fr;
+                align-items: start;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- MODAL INITYAL FON DE KÈS -->
+    <!-- MODAL VERIFIKASYON FON DE KÈS (BWASON) -->
     <div id="verification-popup" class="verification-modal">
         <div class="modal-content">
             <span style="font-size: 40px;">💰</span>
             <h3 id="modal-title">Verifikasyon Kès</h3>
             <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
-            
+
             <div class="modal-buttons" id="modal-initial-btns">
                 <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
                 <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
@@ -29,7 +383,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP POU FÈMTI KÈS AVÈG -->
+    <!-- MODAL POPUP POU FÈMTI KÈS -->
     <div id="close-kes-popup" class="verification-modal">
         <div class="modal-content" style="border-color: var(--purple);">
             <span style="font-size: 40px;">🔒</span>
@@ -40,7 +394,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP POU DEPANSRAPID -->
+    <!-- MODAL POPUP POU DEPANS RAPID -->
     <div id="expense-popup" class="verification-modal" onclick="closeExpenseModalOutside(event)">
         <div class="modal-content" style="border-color: var(--danger);" onclick="event.stopPropagation()">
             <span style="font-size: 40px;">💸</span>
@@ -62,17 +416,16 @@
                 <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
             </div>
             <nav>
-                <button id="nav-pos" class="active" onclick="triggerPageSecurity('pos')">🛒 Bwason</button>
-                <button id="nav-natcash-tab" onclick="triggerPageSecurity('natcash-tab')">🟢 NatCash</button>
-                <button id="nav-admin" onclick="showPage('admin')">📊 Admin</button>
+                <a href="index.html" class="active">🛒 Bwason</a>
+                <a href="natcash.html">🟢 NatCash</a>
+                <a href="admin.html">📊 Admin</a>
             </nav>
         </div>
     </header>
 
-    <!-- ONGLÈ 1: LAVANT BWASON -->
-    <div id="page-pos" class="page active">
+    <div id="page-pos" class="page">
         <div class="pos-layout">
-            
+
             <div class="left-column">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                     <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(30, 58, 138, 0.05);">
@@ -84,7 +437,16 @@
                         <button onclick="openCloseKesModal()" class="btn-main" style="background:var(--purple); padding:8px; font-size:12px;">🔒 Fèmen Kès (3h)</button>
                     </div>
                 </div>
-           <div class="right-column">
+
+                <div class="card">
+                     <input type="text" id="search-box" class="search-input" placeholder="🔎 Chèche yon bwason..." oninput="filterProducts()">
+                </div>
+
+                <h2 class="section-title">🥤 Pwodwi ki disponib</h2>
+                <div class="products-grid" id="products-container"></div>
+            </div>
+
+            <div class="right-column">
                 <h2 class="section-title">📝 Fakti Kliyan</h2>
                 <div class="card">
                     <table class="cart-table">
@@ -107,219 +469,312 @@
                     </button>
                 </div>
             </div>
-                <div class="card">
-                     <input type="text" id="search-box" class="search-input" placeholder="🔎 Chèche yon bwason..." oninput="filterProducts()">
-                </div>
 
-                <h2 class="section-title">🥤 Pwodwi ki disponib</h2>
-                
-                <!-- AFICHAY PWODWI YO SOU SIT LA -->
-                <div class="products-grid" id="products-container"></div>
-                
-            </div>
-
- 
         </div>
     </div>
 
-    <!-- ONGLÈ 2: GUICHET NATCASH -->
-    <div id="page-natcash-tab" class="page">
-        <h2 class="section-title" style="color: var(--natcash);">🟢 Guichet NatCash</h2>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
-            <div class="card" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0;">
-                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
-                <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
-            </div>
-            <div class="card" style="background-color: rgba(30, 58, 138, 0.08); border: 1px solid var(--primary); text-align: center; padding: 14px; margin-bottom: 0;">
-                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Kòb Fizik nan Menw (Kach):</span>
-                <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
-            </div>
-        </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
-            <label style="font-weight: 700; font-size: 13px; color: var(--text-muted); display:block; margin-bottom:6px;">Montan Tranzaksyon (HTG):</label>
-            <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
-            
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
-                <button onclick="processNatCash('depo')" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
-                <button onclick="processNatCash('retre')" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
-            </div>
-        </div>
+const firebaseConfig = {
+    apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
+    authDomain: "bwdepot-61214.firebaseapp.com",
+    databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
+    projectId: "bwdepot-61214",
+    storageBucket: "bwdepot-61214.firebasestorage.app",
+    messagingSenderId: "624010872324",
+    appId: "1:624010872324:web:0b0565c3872b3caccd5751",
+    measurementId: "G-8VEN9QQF7B"
+};
 
-        <div class="card">
-            <h3 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; text-transform:uppercase;">📋 Istorik Kout NatCash</h3>
-            <div id="pos-nat-logs" style="font-size: 13px; font-family: monospace; line-height: 1.5; max-height: 140px; overflow-y: auto;">
-                Pa gen tranzaksyon...
-            </div>
-        </div>
-    </div>
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-    <!-- ONGLÈ 3: PAJ ADMIN -->
-    <div id="page-admin" class="page">
-        <div id="admin-auth" class="card lock-screen">
-            <span style="font-size: 40px; margin-bottom: 10px;">🔒</span>
-            <h3 style="margin-bottom: 6px;">Espas Admin Sekirize</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Mete kòd sekirite a pou w ka jwenn aksè nan dashboard la.</p>
-            <input type="password" id="admin-pass-input" placeholder="Kòd Admin" class="input-text" style="text-align: center; max-width: 240px;">
-            <button onclick="checkAdminAuth()" class="btn-main" style="background-color: var(--primary); max-width: 240px; padding: 12px;">Antre 🔓</button>
-        </div>
+let inventory = [
+    { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 6, name: "Valle ", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 8, name: "Robusto ", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1300, kes: 2600 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 19, name: "Limonade", img: "limonade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1500, kes: 3000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 26, name: "Matla H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+    { id: 31, name: "Ti Couronne ", img: "Ti couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
+];
 
-        <div id="admin-content" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h2 class="section-title" style="margin-bottom:0;">📊 Dashboard Jeneral</h2>
-                <button onclick="lockAdmin()" style="background:transparent; border:none; color:var(--danger); font-weight:bold; font-size:13px; cursor:pointer;">Bloke Paj 🔒</button>
-            </div>
+let currentCart = [];
+let totalRevenue = 0;
+let totalProfit = 0;
+let natCashBalance = 5000;
+let physicalCashBalance = 0;
+let currentTheme = "light";
+let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
+let verifiedSections = { natcash: false, bwason: false };
+let currentVerifyingType = "";
+let securityChecked = false;
+let logsAnGwo = "";
+let logsAnDetay = "";
 
-            <div id="admin-close-alert" class="card" style="display: none; background-color: rgba(139, 92, 246, 0.15); border: 2px solid var(--purple); color: var(--text-main);">
-                <strong style="color: var(--purple); display: block; margin-bottom: 4px;">📊 RAPÒ FÈMTI KÈS (3h PM)</strong>
-                <p id="admin-close-text" style="font-size: 14px; margin: 0; font-weight: 600; white-space: pre-line;"></p>
-            </div>
+function saveAppStateToFirebase() {
+    const updates = {
+        inventory: inventory,
+        totalRevenue: totalRevenue,
+        totalProfit: totalProfit,
+        natCashBalance: natCashBalance,
+        physicalCashBalance: physicalCashBalance,
+        adminFonDeKes: adminFonDeKes,
+        verifiedSections: verifiedSections,
+        logsAnGwo: logsAnGwo,
+        logsAnDetay: logsAnDetay
+    };
+    update(ref(database, 'appState'), updates);
+}
 
-            <div id="admin-dispute-alert" class="card" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 2px solid var(--danger); color: var(--text-main);">
-                <strong style="color: var(--danger); display: block; margin-bottom: 4px;">⚠️ ALÈT KONTESTASYON FÒN DE KÈS:</strong>
-                <p id="admin-dispute-text" style="font-size: 14px; margin: 0; font-weight: 600;"></p>
-            </div>
-            
-            <div class="admin-grid">
-                <div class="stat-card revenue">
-                    <h3>Lavant Bwason</h3>
-                    <p id="stat-revenue">0 G</p>
-                </div>
-                <div class="stat-card profit">
-                    <h3>Benefis Pwodwi</h3>
-                    <p id="stat-profit">0 G</p>
-                </div>
-                <div class="stat-card stock">
-                    <h3>Valè Stòk</h3>
-                    <p id="stat-stock-value">0 G</p>
-                </div>
-                <div class="stat-card natcash">
-                    <h3>Balans Kat</h3>
-                    <p id="stat-nat-balance">5,000 G</p>
-                </div>
-                <div class="stat-card livecash">
-                    <h3 style="color: #D97706;">💰 Kach nan Men Vandè (Tan Reyèl)</h3>
-                    <p id="vandes-live-cash" style="color: #B45309; font-size: 20px;">0 HTG</p>
-                </div>
-            </div>
+onValue(ref(database, 'appState'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        if (data.inventory) inventory = data.inventory;
+        totalRevenue = data.totalRevenue || 0;
+        totalProfit = data.totalProfit || 0;
+        natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 0;
+        physicalCashBalance = data.physicalCashBalance || 0;
+        if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
+        if (data.verifiedSections) verifiedSections = data.verifiedSections;
+        if (data.logsAnGwo !== undefined) logsAnGwo = data.logsAnGwo;
+        if (data.logsAnDetay !== undefined) logsAnDetay = data.logsAnDetay;
+    }
+    renderProducts();
+    updatePosCashDisplay();
+    if (!securityChecked) {
+        securityChecked = true;
+        checkPosSecurityOnLoad();
+    }
+});
 
-            <div class="card" style="border-top: 4px solid var(--danger);">
-                <h3 style="font-size: 13px; color: var(--danger); text-transform: uppercase; margin-bottom: 6px;">📋 Swivi Depans Rapid ki Soti nan Kès</h3>
-                <div class="log-list" id="admin-expense-logs" style="height: 100px; background:#1E293B; color:#F87171;">Pa gen depans ki fèt jodi a...</div>
-            </div>
+function checkPosSecurityOnLoad() {
+    if (!verifiedSections.bwason && (adminFonDeKes.gwo > 0 || adminFonDeKes.detay > 0)) {
+        currentVerifyingType = "bwason";
+        let totalBwasonFon = adminFonDeKes.gwo + adminFonDeKes.detay;
+        openVerificationModal(`Verifikasyon Kès Bwason`, `Admin nan kite yon fon de kès jeneral ki valè ${totalBwasonFon} HTG (S${totalBwasonFon / 5}) (An gwo: ${adminFonDeKes.gwo}g, Detay: ${adminFonDeKes.detay}g). Èske ou dakò chif sa yo ki la?`);
+    }
+}
 
-            <div class="card" style="border-top: 4px solid var(--primary-light);">
-                <h3 style="font-size:14px; margin-bottom:10px; text-transform: uppercase; color: var(--primary-light);">💰 Prepare Fon de Kès Vandè a</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">NatCash (G):</label>
-                        <input type="number" id="setup-fon-natcash" value="0" class="input-text">
+window.openVerificationModal = function(title, msg) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-msg').innerText = msg;
+    document.getElementById('dispute-section').style.display = 'none';
+    document.getElementById('modal-initial-btns').style.display = 'flex';
+    document.getElementById('verification-popup').style.display = 'flex';
+}
+
+window.acceptFonDeKes = function() {
+    if (currentVerifyingType === "bwason") {
+        verifiedSections.bwason = true;
+        physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
+    }
+    document.getElementById('verification-popup').style.display = 'none';
+    updatePosCashDisplay();
+    saveAppStateToFirebase();
+}
+
+window.showDisputeInput = function() {
+    document.getElementById('modal-initial-btns').style.display = 'none';
+    document.getElementById('dispute-section').style.display = 'block';
+    document.getElementById('disputed-amount-input').value = '';
+}
+
+window.submitDispute = function() {
+    let realAmount = parseFloat(document.getElementById('disputed-amount-input').value);
+    if (isNaN(realAmount) || realAmount < 0) return alert("Tanpri antre yon chif valab!");
+
+    if (currentVerifyingType === "bwason") {
+        let adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
+        verifiedSections.bwason = true;
+        physicalCashBalance += realAmount;
+        alert(`⚠️ Kontestasyon voye bay Admin nan. Ou te dwe jwenn ${adminAmountExpected} HTG, ou deklare ${realAmount} HTG.`);
+    }
+
+    document.getElementById('verification-popup').style.display = 'none';
+    updatePosCashDisplay();
+    saveAppStateToFirebase();
+}
+
+window.openExpenseModal = function() {
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-reason').value = '';
+    document.getElementById('expense-popup').style.display = 'flex';
+}
+
+window.closeExpenseModalOutside = function(event) {
+    document.getElementById('expense-popup').style.display = 'none';
+}
+
+window.submitExpense = function() {
+    let amt = parseFloat(document.getElementById('expense-amount').value);
+    let reason = document.getElementById('expense-reason').value.trim();
+
+    if (isNaN(amt) || amt <= 0) return alert("Tanpri antre yon montan valab!");
+    if (reason === "") return alert("Tanpri ekri rezon depans lan!");
+    if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
+
+    physicalCashBalance -= amt;
+
+    document.getElementById('expense-popup').style.display = 'none';
+    alert(`✅ Depans pou "${reason}" (${amt} HTG / S${amt / 5}) anrejistre.`);
+    updatePosCashDisplay();
+    saveAppStateToFirebase();
+}
+
+window.openCloseKesModal = function() {
+    document.getElementById('vandes-counted-cash').value = '';
+    document.getElementById('close-kes-popup').style.display = 'flex';
+}
+
+window.submitCloseKesBlind = function() {
+    let counted = parseFloat(document.getElementById('vandes-counted-cash').value);
+    if (isNaN(counted) || counted < 0) return alert("Tanpri antre yon kantite kòb valab!");
+
+    document.getElementById('close-kes-popup').style.display = 'none';
+    alert("🔒 Rapò fèmti kès la voye bay Admin nan.");
+    saveAppStateToFirebase();
+}
+
+function updatePosCashDisplay() {
+    const el = document.getElementById('pos-cash-display');
+    if (el) el.innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
+}
+
+function renderProducts() {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    inventory.forEach(p => {
+        let isLowStock = p.stockGrenn < 24;
+        let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
+
+        container.innerHTML += `
+            <div class="prod-card" data-name="${p.name.toLowerCase()}">
+                ${alertBadge}
+                <img src="${p.img}" alt="${p.name}">
+                <div class="prod-info">
+                    <div class="prod-name">${p.name}</div>
+                    <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
+                    <div class="type-selector">
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.detail / 5}</span>)</button>
+                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.demi / 5}</span>)</button>
                     </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant An Gwo (G):</label>
-                        <input type="number" id="setup-fon-gwo" value="0" class="input-text">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant Detay (G):</label>
-                        <input type="number" id="setup-fon-detay" value="0" class="input-text">
-                    </div>
-                </div>
-                <button onclick="saveFonDeKesFromAdmin()" class="btn-main" style="background-color: var(--primary-light); padding:12px; margin-top:6px;">
-                    💾 Sove epi Lese Fon de Kès Sa yo
-                </button>
-            </div>
-
-            <div class="card" style="border-top: 4px solid var(--purple);">
-                <div class="admin-sub-tabs">
-                    <button id="sub-nav-add-frizer" class="sub-tab-btn active" onclick="showSubPage('add-frizer')">📥 Mete Frizer</button>
-                    <button id="sub-nav-view-frizer" class="sub-tab-btn" onclick="showSubPage('view-frizer')">🧊 Stòk Frizer</button>
-                    <button id="sub-nav-gaste-frizer" class="sub-tab-btn" onclick="showSubPage('gaste-frizer')">💥 Grenn Koule</button>
-                    <button id="sub-nav-kontab-separe" class="sub-tab-btn" onclick="showSubPage('kontab-separe')">📜 Kaye Kontab</button>
-                </div>
-
-                <div id="sub-page-add-frizer" class="sub-page active">
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Pwodwi:</label>
-                    <select id="frizer-select-prod" class="select-style"></select>
-                    
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Tip Deplasman:</label>
-                    <select id="frizer-select-type" class="select-style">
-                        <option value="kes">Kès Konplè (24 grenn)</option>
-                        <option value="demi">Demi-Kès (12 grenn)</option>
-                        <option value="detail">Grenn Detay</option>
-                    </select>
-
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Kantite:</label>
-                    <input type="number" id="frizer-qty" class="input-text" value="1">
-                    
-                    <button onclick="moveProductToFrizer()" class="btn-main" style="background-color: var(--purple);">
-                        Konfime Deplasman 📥
-                    </button>
-                </div>
-
-                <div id="sub-page-view-frizer" class="sub-page">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Pwodwi</th>
-                                <th>Nan Frize</th>
-                            </tr>
-                        </thead>
-                        <tbody id="frizer-stock-rows"></tbody>
-                    </table>
-                </div>
-
-                <div id="sub-page-gaste-frizer" class="sub-page">
-                    <label style="font-size:12px; color:var(--text-muted);">Rapòte yon grenn ki koule nan depo jeneral la:</label>
-                    <select id="gaste-select-prod" class="select-style" style="margin-top:6px;"></select>
-                    <input type="number" id="gaste-qty" class="input-text" value="1">
-                    <button onclick="reportGasteProduct()" class="btn-main" style="background-color: var(--danger);">
-                        Retire Grenn Koule a 💥
-                    </button>
-                </div>
-
-                <div id="sub-page-kontab-separe" class="sub-page">
-                    <h4 style="font-size: 12px; color: var(--primary-light); text-transform: uppercase; margin-bottom: 4px;">📦 Lavant An Gwo</h4>
-                    <div class="log-list" id="logs-an-gwo" style="margin-bottom: 12px; height: 110px;">Pa gen lavant an gwo...</div>
-
-                    <h4 style="font-size: 12px; color: var(--purple); text-transform: uppercase; margin-bottom: 4px;">🥤 Lavant An Detay (Frizer)</h4>
-                    <div class="log-list" id="logs-an-detay" style="margin-bottom: 12px; height: 110px; color: #A78BFA;">Pa gen lavant an detay...</div>
-
-                    <h4 style="font-size: 12px; color: var(--natcash); text-transform: uppercase; margin-bottom: 4px;">📲 Istorik NatCash Detaye</h4>
-                    <div class="log-list" id="admin-nat-logs" style="height: 110px; color: #10B981;">Pa gen operasyon...</div>
+                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g <span style="font-size:11px;font-weight:normal;opacity:0.8;">/ S${p.prices.kes / 5}</span>)</button>
                 </div>
             </div>
+        `;
+    });
+}
 
-            <div class="card" style="margin-top:20px;">
-                <h3 style="font-size:13px; margin-bottom:8px;">⚙️ Balans Kat NatCash</h3>
-                <input type="number" id="admin-set-nat-balance" placeholder="Ex: 25000" class="input-text">
-                <button onclick="updateNatBalanceFromAdmin()" class="btn-main" style="background-color: #0F172A; padding:12px;">💾 Anrejistre Balans Kat la</button>
-            </div>
+window.filterProducts = function() {
+    let filterValue = document.getElementById('search-box').value.toLowerCase();
+    document.querySelectorAll('.prod-card').forEach(card => {
+        let name = card.getAttribute('data-name');
+        card.style.display = name.includes(filterValue) ? "flex" : "none";
+    });
+}
 
-<div class="card">
-    <h3 id="restock-title" style="font-size:13px; margin-bottom:8px;">📥 Refè Stòk Depo Jeneral</h3>
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        <!-- Chwa pou Action an: Ajoute oswa Retire -->
-        <select id="restock-action" class="select-style" onchange="toggleRestockMode()">
-            <option value="add">📥 Ajoute nan Stòk</option>
-            <option value="remove">📤 Retire nan Stòk</option>
-        </select>
+window.toggleTheme = function() {
+    const root = document.documentElement;
+    const btn = document.getElementById('theme-btn');
+    if (currentTheme === "light") {
+        root.setAttribute('data-theme', 'dark');
+        btn.innerText = "🌙 Nwit"; currentTheme = "dark";
+    } else {
+        root.removeAttribute('data-theme');
+        btn.innerText = "☀️ Lajounen"; currentTheme = "light";
+    }
+}
 
-        <!-- Chwa Pwodwi -->
-        <select id="restock-select" class="select-style"></select>
-        
-        <!-- Kantite -->
-        <input type="number" id="restock-qty" placeholder="Kantite pou ajoute" class="input-text">
-        
-        <!-- Bouton an ki gen klas dinamik la koulye a -->
-        <button id="restock-btn" onclick="submitRestock()" class="btn-main btn-restock-add">valide</button>
-    </div>
-</div>
-        </div>
-    </div>
+window.addToCart = function(prodId, type) {
+    let p = inventory.find(item => item.id === prodId);
+    let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
+    let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
 
-    <!-- Lyen ak fichye JavaScript separe a -->
-<!-- Ou dwe ajoute type="module" obligatwarman -->
-<script type="module" src="script.js"></script>
+    if (type === 'detail') {
+        if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
+    } else {
+        if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
+    }
+
+    currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
+    renderCart();
+}
+
+window.removeFromCart = function(uniqueId) {
+    currentCart = currentCart.filter(item => item.uniqueId !== uniqueId);
+    renderCart();
+}
+
+function renderCart() {
+    const tbody = document.getElementById('cart-rows');
+    if (!tbody) return;
+    tbody.innerHTML = ''; let total = 0;
+    currentCart.forEach(item => {
+        total += item.price;
+        tbody.innerHTML += `<tr>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.labelType}</td>
+            <td><strong>${item.price} G <span style="font-size:10px;font-weight:normal;opacity:0.7;">(S${item.price / 5})</span></strong></td>
+            <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
+        </tr>`;
+    });
+    document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
+}
+
+window.checkoutSale = function() {
+    if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+    let billTotal = 0; let billProfit = 0;
+    let timeStr = new Date().toLocaleTimeString();
+
+    currentCart.forEach(item => {
+        let p = inventory.find(prod => prod.id === item.prodId);
+        if (item.type === 'detail') {
+            p.stockFrizerGrenn -= item.qtyNeeded;
+            logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnDetay;
+        } else {
+            p.stockGrenn -= item.qtyNeeded;
+            logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnGwo;
+        }
+        billTotal += item.price; billProfit += (item.price - item.buyPrice);
+    });
+
+    totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal;
+    alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
+    currentCart = [];
+    renderCart();
+    renderProducts();
+    updatePosCashDisplay();
+    saveAppStateToFirebase();
+}
+</script>
 </body>
 </html>
