@@ -364,7 +364,7 @@
 <body>
 
     <!-- MODAL VERIFIKASYON FON DE KÈS (BWASON) -->
-    <div id="verification-popup" class="verification-modal">
+    <div id="verification-popup" class="verification-modal" style="display: none;">
         <div class="modal-content">
             <span style="font-size: 40px;">💰</span>
             <h3 id="modal-title">Verifikasyon Kès</h3>
@@ -375,7 +375,7 @@
                 <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
             </div>
 
-            <div id="dispute-section" class="dispute-box">
+            <div id="dispute-section" class="dispute-box" style="display: none;">
                 <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
                 <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
                 <button onclick="submitDispute()" class="btn-main" style="background-color: var(--primary);">Valide Kontestasyon an 📤</button>
@@ -384,7 +384,7 @@
     </div>
 
     <!-- MODAL POPUP POU FÈMTI KÈS -->
-    <div id="close-kes-popup" class="verification-modal">
+    <div id="close-kes-popup" class="verification-modal" style="display: none;">
         <div class="modal-content" style="border-color: var(--purple);">
             <span style="font-size: 40px;">🔒</span>
             <h3>Fèmti Kès Jounen an (3h PM)</h3>
@@ -395,7 +395,7 @@
     </div>
 
     <!-- MODAL POPUP POU DEPANS RAPID -->
-    <div id="expense-popup" class="verification-modal" onclick="closeExpenseModalOutside(event)">
+    <div id="expense-popup" class="verification-modal" style="display: none;" onclick="closeExpenseModalOutside(event)">
         <div class="modal-content" style="border-color: var(--danger);" onclick="event.stopPropagation()">
             <span style="font-size: 40px;">💸</span>
             <h3>Anrejistre yon Depans</h3>
@@ -427,14 +427,27 @@
         <div class="pos-layout">
 
             <div class="left-column">
+                <!-- SEKSYON KÈS AK METE DEPANS / FÈMTI -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                     <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(30, 58, 138, 0.05);">
-                        <span style="font-size:11px; color:var(--text-muted); font-weight:bold; display:block;">KACH FIZIK NAN MENW:</span>
+                        <span style="font-size:11px; color:var(--text-muted); font-weight:bold; display:block;">KACH FIZIK (TOTAL):</span>
                         <strong id="pos-cash-display" style="font-size:17px; color:var(--primary-light);">0 HTG</strong>
                         <button onclick="openExpenseModal()" style="margin-top:4px; display:inline-block; padding:3px 8px; background:var(--danger); color:white; border:none; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Mete Depans 💸</button>
                     </div>
                     <div class="card" style="margin-bottom:0; padding:10px; text-align:center; background-color: rgba(139, 92, 246, 0.05); display:flex; align-items:center; justify-content:center;">
                         <button onclick="openCloseKesModal()" class="btn-main" style="background:var(--purple); padding:8px; font-size:12px;">🔒 Fèmen Kès (3h)</button>
+                    </div>
+                </div>
+
+                <!-- 🌟 DE TI BWAT KÈS DETAY AK KÈS EN GRO (BW) LAN -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <div class="card" style="margin-bottom:0; padding:8px; text-align:center; background-color: rgba(16, 185, 129, 0.05); border: 1px dashed var(--accent);">
+                        <span style="font-size:10px; color:var(--text-muted); font-weight:bold; display:block;">KÈS DETAY (TI GLASE):</span>
+                        <strong id="kes-detay-display" style="font-size:14px; color:var(--accent);">0 HTG</strong>
+                    </div>
+                    <div class="card" style="margin-bottom:0; padding:8px; text-align:center; background-color: rgba(30, 58, 138, 0.05); border: 1px dashed var(--primary);">
+                        <span style="font-size:10px; color:var(--text-muted); font-weight:bold; display:block;">KÈS EN GRO (BW):</span>
+                        <strong id="kes-gro-display" style="font-size:14px; color:var(--primary);">0 HTG</strong>
                     </div>
                 </div>
 
@@ -490,53 +503,26 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const dbRef = ref(database, 'appState');
 
-let inventory = [
-    { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 6, name: "Valle ", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 8, name: "Robusto ", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1300, kes: 2600 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 19, name: "Limonade", img: "limonade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1500, kes: 3000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 26, name: "Matla H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-    { id: 31, name: "Ti Couronne ", img: "Ti couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
-];
-
-let currentCart = [];
+let inventory = [];
 let totalRevenue = 0;
 let totalProfit = 0;
 let natCashBalance = 5000;
-let physicalCashBalance = 0;
-let currentTheme = "light";
+
+// 3 Gwo Estok lajan yo senkronize
+let physicalCashBalance = 0;    // Kòb total ki nan kès la (Kach total)
+let stokBwasonFrijidè = 0.00;    // STOK 2: Kès detay (Bwason ti glase)
+let stokVenteEnGro = 0.00;      // STOK 3: Kès Vann an gwo (BW)
+
 let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
 let verifiedSections = { natcash: false, bwason: false };
 let currentVerifyingType = "";
 let securityChecked = false;
 let logsAnGwo = "";
 let logsAnDetay = "";
+let currentCart = [];
+let currentTheme = "light";
 
 function saveAppStateToFirebase() {
     const updates = {
@@ -545,22 +531,27 @@ function saveAppStateToFirebase() {
         totalProfit: totalProfit,
         natCashBalance: natCashBalance,
         physicalCashBalance: physicalCashBalance,
+        stokBwasonFrijidè: stokBwasonFrijidè,
+        stokVenteEnGro: stokVenteEnGro,
         adminFonDeKes: adminFonDeKes,
         verifiedSections: verifiedSections,
         logsAnGwo: logsAnGwo,
         logsAnDetay: logsAnDetay
     };
-    update(ref(database, 'appState'), updates);
+    update(dbRef, updates);
 }
 
-onValue(ref(database, 'appState'), (snapshot) => {
+// Koute chanjman yo an tan reyèl pou tout lòt telefòn ka wè yo lamenm
+onValue(dbRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
         if (data.inventory) inventory = data.inventory;
         totalRevenue = data.totalRevenue || 0;
         totalProfit = data.totalProfit || 0;
-        natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 0;
+        natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
         physicalCashBalance = data.physicalCashBalance || 0;
+        stokBwasonFrijidè = data.stokBwasonFrijidè || 0;
+        stokVenteEnGro = data.stokVenteEnGro || 0;
         if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
         if (data.verifiedSections) verifiedSections = data.verifiedSections;
         if (data.logsAnGwo !== undefined) logsAnGwo = data.logsAnGwo;
@@ -593,6 +584,8 @@ window.openVerificationModal = function(title, msg) {
 window.acceptFonDeKes = function() {
     if (currentVerifyingType === "bwason") {
         verifiedSections.bwason = true;
+        stokBwasonFrijidè += adminFonDeKes.detay;
+        stokVenteEnGro += adminFonDeKes.gwo;
         physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
     }
     document.getElementById('verification-popup').style.display = 'none';
@@ -613,6 +606,9 @@ window.submitDispute = function() {
     if (currentVerifyingType === "bwason") {
         let adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
         verifiedSections.bwason = true;
+        
+        // Si gen erè, nou mete lajan an nan kès detay pa defo pou jounen an ka kòmanse
+        stokBwasonFrijidè += realAmount;
         physicalCashBalance += realAmount;
         alert(`⚠️ Kontestasyon voye bay Admin nan. Ou te dwe jwenn ${adminAmountExpected} HTG, ou deklare ${realAmount} HTG.`);
     }
@@ -640,7 +636,13 @@ window.submitExpense = function() {
     if (reason === "") return alert("Tanpri ekri rezon depans lan!");
     if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
 
+    // Depans lan retire nan kès total ak nan kès detay pa defo
     physicalCashBalance -= amt;
+    if(stokBwasonFrijidè >= amt) {
+        stokBwasonFrijidè -= amt;
+    } else {
+        stokVenteEnGro -= amt;
+    }
 
     document.getElementById('expense-popup').style.display = 'none';
     alert(`✅ Depans pou "${reason}" (${amt} HTG / S${amt / 5}) anrejistre.`);
@@ -665,6 +667,12 @@ window.submitCloseKesBlind = function() {
 function updatePosCashDisplay() {
     const el = document.getElementById('pos-cash-display');
     if (el) el.innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
+    
+    // Ajou nan de ti bwat afichaj yo
+    const elDetay = document.getElementById('kes-detay-display');
+    const elGro = document.getElementById('kes-gro-display');
+    if (elDetay) elDetay.innerText = stokBwasonFrijidè.toLocaleString() + " HTG";
+    if (elGro) elGro.innerText = stokVenteEnGro.toLocaleString() + " HTG";
 }
 
 function renderProducts() {
@@ -716,6 +724,7 @@ window.toggleTheme = function() {
 
 window.addToCart = function(prodId, type) {
     let p = inventory.find(item => item.id === prodId);
+    if (!p) return;
     let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
     let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
 
@@ -757,17 +766,26 @@ window.checkoutSale = function() {
 
     currentCart.forEach(item => {
         let p = inventory.find(prod => prod.id === item.prodId);
+        if (!p) return;
+        
         if (item.type === 'detail') {
             p.stockFrizerGrenn -= item.qtyNeeded;
+            // 🌟 OGMANTE KÈS DETAY (TI GLASE)
+            stokBwasonFrijidè += item.price;
             logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnDetay;
         } else {
             p.stockGrenn -= item.qtyNeeded;
+            // 🌟 OGMANTE KÈS VANN AN GWO (BW)
+            stokVenteEnGro += item.price;
             logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnGwo;
         }
         billTotal += item.price; billProfit += (item.price - item.buyPrice);
     });
 
-    totalRevenue += billTotal; totalProfit += billProfit; physicalCashBalance += billTotal;
+    totalRevenue += billTotal; 
+    totalProfit += billProfit; 
+    physicalCashBalance += billTotal; // Kès jeneral kach la moute tou otomatikman
+    
     alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
     currentCart = [];
     renderCart();
@@ -776,5 +794,4 @@ window.checkoutSale = function() {
     saveAppStateToFirebase();
 }
 </script>
-</body>
 </html>
