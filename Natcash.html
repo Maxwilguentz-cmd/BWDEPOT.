@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWdepot - NatCash</title>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --accent: #10B981;
+            --natcash: #00A550;
+            --purple: #8B5CF6;
+            --danger: #EF4444;
+            --border: #E2E8F0;
+            --nav-bg: #FFFFFF;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --accent: #34D399;
+            --natcash: #22C55E;
+            --purple: #A78BFA;
+            --danger: #F87171;
+            --border: #334155;
+            --nav-bg: #1E293B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 130px;
+            padding-bottom: 30px;
+        }
+
+        header {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .logo span { color: #38BDF8; }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        nav a {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        nav a.active {
+            background-color: var(--bg-card);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        [data-theme="dark"] nav a.active { color: var(--primary-light); }
+
+        .page { padding: 0 16px; max-width: 1200px; margin: 0 auto; }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+        .input-text:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-main:active, .theme-toggle:active, .btn-modal-yes:active, .btn-modal-no:active { transform: scale(0.97); opacity: 0.85; }
+
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .verification-modal.active { display: flex !important; }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid var(--primary-light);
+        }
+        .modal-content h3 { margin-bottom: 12px; font-size: 19px; }
+        .modal-content p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+
+        @media (min-width: 768px) {
+            body { padding-top: 95px; }
+            .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
+            nav { width: auto; min-width: 380px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL VERIFIKASYON FON DE KÈS (NATCASH) -->
+    <div id="verification-popup" class="verification-modal">
+        <div class="modal-content">
+            <span style="font-size: 40px;">💰</span>
+            <h3 id="modal-title">Verifikasyon Kès</h3>
+            <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
+
+            <div class="modal-buttons" id="modal-initial-btns">
+                <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
+                <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
+            </div>
+
+            <div id="dispute-section" class="dispute-box">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
+                <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
+                <button onclick="submitDispute()" class="btn-main" style="background-color: var(--primary);">Valide Kontestasyon an 📤</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <div class="header-top">
+                <div class="logo">📦 <span>BWdepo</span></div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
+            </div>
+            <nav>
+                <a href="index.html">🛒 Bwason</a>
+                <a href="natcash.html" class="active">🟢 NatCash</a>
+                <a href="admin.html">📊 Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <div id="page-natcash-tab" class="page">
+        <h2 class="section-title" style="color: var(--natcash);">🟢 Guichet NatCash</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div class="card" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0;">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
+                <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
+            </div>
+            <div class="card" style="background-color: rgba(30, 58, 138, 0.08); border: 1px solid var(--primary); text-align: center; padding: 14px; margin-bottom: 0;">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Kòb Fizik nan Menw (Kach):</span>
+                <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
+            </div>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
+            <label style="font-weight: 700; font-size: 13px; color: var(--text-muted); display:block; margin-bottom:6px;">Montan Tranzaksyon (HTG):</label>
+            <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                <button onclick="processNatCash('depo')" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
+                <button onclick="processNatCash('retre')" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; text-transform:uppercase;">📋 Istorik Kout NatCash</h3>
+            <div id="pos-nat-logs" style="font-size: 13px; font-family: monospace; line-height: 1.5; max-height: 140px; overflow-y: auto;">
+                Pa gen tranzaksyon...
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+
+    // Balans inisyal yo
+    let natcashCardBalance = 41812.00;
+    let physicalCashBalance = 90650.00;
+    let accumulatedCommission = 0.00; // Komisyon k ap fèt nan jounen an
+
+    // Array pou kenbe detay tranzaksyon yo pou nou ka modifye oswa suprime yo pita
+    let lisTranzaksyon  = [];
+
+// Fòmil pou jwenn dat demen a 7 AM fiks
+    function jwennPwochenSètèA() {
+         let kounye  = new Date();
+         let demen = new Date(kounye);
+        demen.setDate(kounye.getDate() + 1);
+        demen.setHours(7, 0, 0, 0);
+        return demen;}
+
+// Pwochen dat pou lage komisyon (Demen maten a 7:00 AM)
+    let datPemanKomisyon = jwennPwochenSètèA();
+
+// Komisyon Depo an "Tranches"
+    function jwennKomisyonDepo(montan) {
+        if (montan < 20) return 0;
+        if (montan >= 20 && montan <= 99) return 1.65;
+        if (montan >= 100 && montan <= 249) return 3.31;
+        if (montan >= 250 && montan <= 499) return 4.14;
+        if (montan >= 500 && montan <= 999) return 6.20;
+        if (montan >= 1000 && montan <= 1999) return 12.40;
+        if (montan >= 2000 && montan <= 3999) return 20.60;
+        if (montan >= 4000 && montan <= 7999) return 28.93;
+        if (montan >= 8000 && montan <= 11999) return 35.00;
+        if (montan >= 12000 && montan <= 19999) return 45.00;
+        if (montan >= 20000 && montan <= 39999) return 60.00;
+        if (montan >= 40000 && montan <= 59999) return 75.00;
+        if (montan >= 60000 && montan <= 74999) return 90.00;
+        if (montan >= 75000 && montan <= 99999) return 100.00;
+        return montan * 0.001;}
+
+// Komisyon Retrè an "Tranches"
+    function jwennKomisyonRetrè(montan) {
+        if (montan < 20) return 0;
+        if (montan >= 20 && montan <= 99) return 1.50;
+        if (montan >= 100 && montan <= 249) return 3.00;
+        if (montan >= 250 && montan <= 499) return 4.50;
+        if (montan >= 500 && montan <= 999) return 7.93;
+        if (montan >= 1000 && montan <= 1999) return 15.48;
+        if (montan >= 2000 && montan <= 3999) return 25.93;
+        if (montan >= 4000 && montan <= 7999) return 36.73;
+        if (montan >= 8000 && montan <= 11999) return 47.53;
+        if (montan >= 12000 && montan <= 19999) return 59.00;
+        if (montan >= 20000 && montan <= 39999) return 75.00;
+        if (montan >= 40000 && montan <= 59999) return 95.00;
+        if (montan >= 60000 && montan <= 74999) return 115.00;
+        if (montan >= 75000 && montan <= 99999) return 135.00;
+        return montan * 0.0015;}
+
+// Mete afichaj yo ajou sou ekran an
+    function updateNatCashDisplays() {
+        let cardDisp = document.getElementById('vandes-natcash-display');
+        let cashDisp = document.getElementById('vandes-cash-display');
+        let komiDisp = document.getElementById('vandes-komisyon-display');
+
+        if (cardDisp) {
+            cardDisp.innerText = natcashCardBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+       }
+        if (cashDisp) {
+            cashDisp.innerText = physicalCashBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+        }
+        if (komiDisp) {
+            komiDisp.innerText = accumulatedCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+    }
+}
+
+// Ekri epi jere istorik la kòm objè pou yo ka klike sou yo
+    function ajouteNanNatLog(mesaj, montan = 0, tip = 'sistèm', komisyon = 0) {
+        let id = Date.now() + Math.random().toString(36).substr(2, 5);
+    
+    // Si se pa yon mesaj sistèm otomatik, nou sove l nan array pou modifikasyon
+        if (tip !== 'sistèm') {
+            lisTranzaksyon.unshift({ id: id, mesaj: mesaj, montan: montan, tip: tip, komisyon: komisyon, tan: new Date().toLocaleTimeString() });
+    }
+    
+        aficheIstorikEkran();
+}
+
+// Fonksyon ki rann istorik la vizib epi ki mete aksyon "click" sou liy yo
+    function aficheIstorikEkran() {
+        const logDiv = document.getElementById('pos-nat-logs');
+        if (!logDiv) return;
+    
+        if (lisTranzaksyon .length === 0) {
+            logDiv.innerHTML = "Pa gen tranzaksyon...";
+            return;}
+    
+    let htmlKontni = "";
+    lisTranzaksyon .forEach(t => {
+        let ikòn = t.tip === 'depo' ? '📥' : '📤';
+        htmlKontni += `<div onclick="manijeTranzaksyon('${t.id}')" style="cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
+            ⏰ ${t.tan} - ${ikòn} <strong>${t.tip.toUpperCase()}:</strong> ${t.mesaj} (Klike pou w modifye/suprime)
+        </div>`;
+    });
+    
+    logDiv.innerHTML = htmlKontni;}
+
+// Lojik pou Suprime oswa Modifye yon tranzaksyon lè w klike sou li
+function manijeTranzaksyon(id) {
+    let tIndex = lisTranzaksyon .findIndex(item => item.id === id);
+    if (tIndex === -1) return;
+    
+    let tranzaksyon = lisTranzaksyon [tIndex];
+    let aksyon = prompt(`Opsyon pou tranzaksyon ${tranzaksyon.tip.toUpperCase()} ki te fèt a ${tranzaksyon.tan}:\n\nEkri "SUPRIME" pou w efase l.\nEkri "MODIFYE" pou w chanje montan an.`);
+    
+    if (!aksyon) return;
+    
+    if (aksyon.toUpperCase() === "SUPRIME") {
+        // Ranvwaye balans yo anvan nou efase l
+        if (tranzaksyon.tip === 'depo') {
+            natcashCardBalance += tranzaksyon.montan;
+            physicalCashBalance -= tranzaksyon.montan;
+        } else if (tranzaksyon.tip === 'retre') {
+            natcashCardBalance -= tranzaksyon.montan;
+            physicalCashBalance += tranzaksyon.montan;
+        }
+        accumulatedCommission -= tranzaksyon.komisyon;
+        
+        // Retire l nan array la
+        lisTranzaksyon .splice(tIndex, 1);
+        alert("Tranzaksyon an suprime ak siksè, balans yo retounen nan plas yo!");
+        
+    } else if (aksyon.toUpperCase() === "MODIFYE") {
+        let nouvoMontanKòd = prompt(`Montan aktyèl la se ${tranzaksyon.montan} HTG. Antre nouvo montan an:`);
+        let nouvoMontan = parseFloat(nouvoMontanKòd);
+        
+        if (isNaN(nouvoMontan) || nouvoMontan <= 0) {
+            alert("⚠️ Nouvo montan an pa valab!");
+            return;
+        }
+        
+        // Ann anile ansyen enpak la anvan
+        if (tranzaksyon.tip === 'depo') {
+            natcashCardBalance += tranzaksyon.montan;
+            physicalCashBalance -= tranzaksyon.montan;
+        } else if (tranzaksyon.tip === 'retre') {
+            natcashCardBalance -= tranzaksyon.montan;
+            physicalCashBalance += tranzaksyon.montan;
+        }
+        accumulatedCommission -= tranzaksyon.komisyon;
+        
+        // Aplike nouvo lojik la ak nouvo montan an
+        tranzaksyon.montan = nouvoMontan;
+        if (tranzaksyon.tip === 'depo') {
+            tranzaksyon.komisyon = jwennKomisyonDepo(nouvoMontan);
+            natcashCardBalance -= nouvoMontan;
+            physicalCashBalance += nouvoMontan;
+            tranzaksyon.mesaj = `Kliyan voye ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
+        } else if (tranzaksyon.tip === 'retre') {
+            tranzaksyon.komisyon = jwennKomisyonRetrè(nouvoMontan);
+            natcashCardBalance += nouvoMontan;
+            physicalCashBalance -= nouvoMontan;
+            tranzaksyon.mesaj = `Kliyan retire ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
+        }
+        accumulatedCommission += tranzaksyon.komisyon;
+        alert("Tranzaksyon an modifye ak siksè!");
+    }
+    
+    updateNatCashDisplays();
+    aficheIstorikEkran();
+}
+
+// Lojik pou jere bwat Kach la nan grid la (Ajoute / Retire)
+function manijeKòbFizikKach() {
+    let chwa = prompt(`Manadjman Kòb Fizik (Kach):\n\nEkri "AJOUTE" pou mete lajan nan kès la.\nEkri "RETIRE" pou w pran lajan nan kès la.`);
+    
+    if (!chwa) return;
+    
+    if (chwa.toUpperCase() === "AJOUTE") {
+        let montanKòd = prompt("Antre montan w ap ajoute nan kès fizik la:");
+        let montan = parseFloat(montanKòd);
+        if (isNaN(montan) || montan <= 0) {
+            alert("⚠️ Montan sa a pa valab!");
+            return;
+        }
+        // Nòt: Pita sa ap pran nan kès la pou paj admin lan jan w te mande l la
+        physicalCashBalance += montan;
+        alert(`Ou ajoute ${montan.toFixed(2)} HTG nan Kòb Fizik la.`);
+        
+    } else if (chwa.toUpperCase() === "RETIRE") {
+        let montanKòd = prompt("Antre montan w ap retire nan kès fizik la:");
+        let montan = parseFloat(montanKòd);
+        if (isNaN(montan) || montan <= 0) {
+            alert("⚠️ Montan sa a pa valab!");
+            return;
+        }
+        if (physicalCashBalance < montan) {
+            alert("❌ Pa gen ase kòb fizik pou w retire montan sa a!");
+            return;
+        }
+        
+        let destinasyon = prompt("Ki kote lajan sa a ap ale? (Pa egzanp: BW, Depans, elatriye):");
+        if (!destinasyon) destinasyon = "BW"; // Pa defo si moun nan pa mete anyen
+        
+        physicalCashBalance -= montan;
+        alert(`Ou retire ${montan.toFixed(2)} HTG nan Kòb Fizik la. Direksyon: ${destinasyon.toUpperCase()}. Sove pou kès admin an pita!`);
+    }
+    
+    updateNatCashDisplays();
+}
+
+// Sistèm otomatik k ap kouri chak segonn pou tcheke si l fè 7:00 AM pou l lage komisyon yo
+setInterval(function tchekePemanKomisyon() {
+    let kounye  = new Date();
+    if (kounye  >= datPemanKomisyon) {
+        if (accumulatedCommission > 0) {
+            natcashCardBalance += accumulatedCommission;
+            // Pou mesaj sistèm, nou pa bezwen fòse klik sou li
+            const logDiv = document.getElementById('pos-nat-logs');
+            if (logDiv) {
+                logDiv.innerHTML = `<div>⏰ ${kounye .toLocaleTimeString()} - 💰 <strong>SISTÈM (7:00 AM):</strong> Komisyon jounen an (+${accumulatedCommission.toFixed(2)} HTG) depoze sou kat la!</div>` + logDiv.innerHTML;
+            }
+            accumulatedCommission = 0.00; // Reset komisyon an apre depo a fin fèt
+            updateNatCashDisplays();
+        }
+        datPemanKomisyon = jwennPwochenSètèA(); // Repwograme pou demen ankò
+    }
+}, 1000);
+
+// Fonksyon prensipal pou kalkile Depo ak Retrè
+function processNatCash(type) {
+    const amountInput = document.getElementById('nat-amount');
+    if (!amountInput) return;
+
+    let montan = parseFloat(amountInput.value);
+
+    if (isNaN(montan) || montan <= 0) {
+        alert("⚠️ Tanpri antre yon montan ki valab!");
+        return;
+    }
+
+    if (type === 'depo') {
+        if (natcashCardBalance < montan) {
+            alert("❌ Ou pa gen ase balans sou kat la pou fè depo sa a!");
+            return;
+        }
+        
+        let komisyon = jwennKomisyonDepo(montan);
+        
+        natcashCardBalance -= montan;
+        physicalCashBalance += montan;
+        accumulatedCommission += komisyon;
+
+        ajouteNanNatLog(`Kliyan voye ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'depo', komisyon);
+        
+    } else if (type === 'retre') {
+        if (physicalCashBalance < montan) {
+            alert("❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!");
+            return;
+        }
+
+        let komisyon = jwennKomisyonRetrè(montan);
+
+        natcashCardBalance += montan;
+        physicalCashBalance -= montan;
+        accumulatedCommission += komisyon;
+
+        ajouteNanNatLog(`Kliyan retire ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'retre', komisyon);
+    }
+
+    amountInput.value = '';
+    updateNatCashDisplays();
+}
+
+// Ekspose fonksyon yo pou HTML ka wè yo san pwoblèm lyezon
+window.processNatCash = processNatCash;
+window.manijeTranzaksyon = manijeTranzaksyon;
+window.manijeKòbFizikKach = manijeKòbFizikKach;
+
+// Ekzekite afichaj la pou premye fwa lè paj la louvri
+updateNatCashDisplays();
+</script>
+</body>
+</html>
