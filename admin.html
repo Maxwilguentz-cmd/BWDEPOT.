@@ -115,7 +115,7 @@
 
     <header>
         <div class="header-container">
-            <div class="logo">📦 <span>BWdepo Admin</span></div>
+            <div class="logo">📦 <span>BWdepot Admin</span></div>
             <nav>
                 <a href="index.html">🛒 Bwason</a>
                 <a href="natcash.html">🟢 NatCash</a>
@@ -222,8 +222,20 @@
                     <option value="malta">Malta</option>
                     <option value="ragaman">Ragaman</option>
                     <option value="tampico">Tampico</option>
+                    <option value="toro">Toro</option>
+                    <option value="prestige">Prestige</option>
+                    <option value="cola">Coca-Cola</option>
+                    <option value="sprite">Sprite</option>
                 </select>
-                <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite Kès antye ou achte">
+                
+                <label style="font-size:12px; font-weight:bold;">Chwazi Kalite Inite w ap ajoute a:</label>
+                <select id="select-inite-estok" class="input-field">
+                    <option value="kes">Kès Antye</option>
+                    <option value="demi">1/2 Kès</option>
+                    <option value="grenn">Grenn</option>
+                </select>
+
+                <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite">
                 <button class="btn btn-accent" onclick="ajouteEstokAdmin()">Mete nan Estok Jeneral 📦</button>
             </div>
         </div>
@@ -286,12 +298,16 @@
 
     let lokalState = {};
 
-    // Pri ak lojik estok pou kalkile valè estok total ak benefis otomatik
+    // Pri ak lojik estok ak tout pwodwi yo
     const priReferans = {
         fritop: { kèsPri: 475, grennPri: 50, nanKès: 12 },
         malta: { kèsPri: 600, grennPri: 65, nanKès: 12 },
         ragaman: { kèsPri: 550, grennPri: 60, nanKès: 12 },
-        tampico: { kèsPri: 400, grennPri: 45, nanKès: 12 }
+        tampico: { kèsPri: 400, grennPri: 45, nanKès: 12 },
+        toro: { kèsPri: 525, grennPri: 55, nanKès: 12 },
+        prestige: { kèsPri: 800, grennPri: 85, nanKès: 12 },
+        cola: { kèsPri: 450, grennPri: 50, nanKès: 12 },
+        sprite: { kèsPri: 450, grennPri: 50, nanKès: 12 }
     };
 
     // Koute Firebase
@@ -324,8 +340,8 @@
         document.getElementById('sub-ben-detay').innerText = benDetay.toLocaleString('en-US');
         document.getElementById('sub-ben-gro').innerText = benGro.toLocaleString('en-US');
 
-        // Kalkile Valè Estok total ki nan gwo Depo a
-        let estokJeneral = lokalState.estokJeneral ?? { fritop: 100, malta: 80, ragaman: 50, tampico: 120 };
+        // Kalkile Valè Estok total nan gwo Depo a
+        let estokJeneral = lokalState.estokJeneral ?? {};
         let valeEstok = 0;
         for (let pwodwi in estokJeneral) {
             if (priReferans[pwodwi]) {
@@ -334,11 +350,11 @@
         }
         document.getElementById('disp-vale-estok').innerText = valeEstok.toLocaleString('en-US') + " HTG";
 
-        // Alèt si vandè a te konteste fon de kès maten
+        // Alèt yo
         const alertBox = document.getElementById('admin-alert');
         if (lokalState.kontestasyonKès) {
             alertBox.style.display = 'block';
-            alertBox.innerHTML = `⚠️ <strong>ALÈT KONTESTASYON MATEN:</strong> Vandè a deklare li jwenn <strong>${lokalState.kontestasyonKès.kòbMounNanWè} HTG</strong> olye de <strong>${lokalState.kontestasyonKès.kòbSistèm} HTG</strong> nan kès NatCash la! (Te fèt le: ${lokalState.kontestasyonKès.dat})`;
+            alertBox.innerHTML = `⚠️ <strong>ALÈT KONTESTASYON MATEN:</strong> Vandè a deklare li jwenn <strong>${lokalState.kontestasyonKès.kòbMounNanWè} HTG</strong> olye de <strong>${lokalState.kontestasyonKès.kòbSistèm} HTG</strong> nan kès NatCash la!`;
         } else if (lokalState.clotureAveg) {
             alertBox.style.display = 'block';
             alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
@@ -352,26 +368,18 @@
             alertBox.style.display = 'none';
         }
 
-        // Kalkile ak afiche Estatistik Lavant yo
         aficheEstatistik();
-
-        // Afiche tout istorik yo
         ranpliIstorikEkran();
     }
 
-    // 1. Mete balans kat la depi nan telefòn ou
     window.setNatCardBalance = function() {
         let val = parseFloat(document.getElementById('input-nat-balans').value);
-        if (isNaN(val) || val < 0) {
-            alert("Antre yon balans valab!");
-            return;
-        }
+        if (isNaN(val) || val < 0) { alert("Antre yon balans valab!"); return; }
         update(appRef, { natcashCardBalance: val });
         alert("Balans kat la ajou nan sistèm nan!");
         document.getElementById('input-nat-balans').value = '';
     };
 
-    // 2. Voye lòd verifikasyon bay vandè a
     window.mandeVerifikasyonMaten = function() {
         let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
         let g = parseFloat(document.getElementById('fon-gro').value) || 0;
@@ -382,13 +390,12 @@
             stokBwasonFrijidè: f,
             stokVenteEnGro: g,
             kobfiziknatcash: n,
-            kontestasyonKès: null, // Netwaye ansyen vye done
+            kontestasyonKès: null,
             clotureAveg: null
         });
         alert("Lòd verifikasyon voye bay vandè a avèk siksè pou demen maten!");
     };
 
-    // 3. Retire lajan nan kès (Mouvman Admin)
     window.retireKòbAdmin = function() {
         let kès = document.getElementById('select-retre-kes').value;
         let montan = parseFloat(document.getElementById('input-retre-montan').value);
@@ -416,24 +423,35 @@
         document.getElementById('input-retre-motive').value = '';
     };
 
-    // 4. Ajoute nouvo kès pwodwi ou sot achte nan estok jeneral
+    // PATI KI MODIFIE A POU JERE GRENN, 1/2 KÈS, AK KÈS ANTYE
     window.ajouteEstokAdmin = function() {
         let pwodwi = document.getElementById('select-pwodwi-estok').value;
-        let kantite = parseInt(document.getElementById('input-kantite-bwat').value);
+        let inite = document.getElementById('select-inite-estok').value;
+        let kantite = parseFloat(document.getElementById('input-kantite-bwat').value);
 
-        if (isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite kès valab!"); return; }
+        if (isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite valab!"); return; }
 
-        let estokJeneral = lokalState.estokJeneral ?? { fritop: 100, malta: 80, ragaman: 50, tampico: 120 };
-        estokJeneral[pwodwi] = (estokJeneral[pwodwi] ?? 0) + kantite;
+        let kèsPouAjoute = 0;
+        let grennNanKès = priReferans[pwodwi].nanKès; // Konbyen grenn ki gen nan yon kès pou pwodwi sa a
+
+        if (inite === "kes") {
+            kèsPouAjoute = kantite;
+        } else if (inite === "demi") {
+            kèsPouAjoute = kantite * 0.5; // Yon demi kès se 0.5 kès
+        } else if (inite === "grenn") {
+            kèsPouAjoute = kantite / grennNanKès; // Konvèti grenn yo an fraksyon kès antye
+        }
+
+        let estokJeneral = lokalState.estokJeneral ?? {};
+        estokJeneral[pwodwi] = (estokJeneral[pwodwi] ?? 0) + kèsPouAjoute;
 
         update(appRef, { estokJeneral: estokJeneral });
-        alert(`Siksè! ${kantite} nouvo kès ${pwodwi.toUpperCase()} ajoute nan Depo a.`);
+        alert(`Siksè! Valè estok ${pwodwi.toUpperCase()} la mete ajou nan Depo a.`);
         document.getElementById('input-kantite-bwat').value = '';
     };
 
-    // 5. Lojik kalkil ak afichaj Statistik yo
     function aficheEstatistik() {
-        let stats = lokalState.lavantKonte ?? { fritop: 0, malta: 0, ragaman: 0, tampico: 0 };
+        let stats = lokalState.lavantKonte ?? {};
         let container = document.getElementById('stats-container');
         
         let maxVant = Math.max(...Object.values(stats), 1); 
@@ -456,27 +474,23 @@
         container.innerHTML = html;
     }
 
-    // 6. Afiche epi filtre Istorik yo
     function ranpliIstorikEkran(datFiltre = "") {
         let tGlaseBox = document.getElementById('log-ti-glase');
         let enGroBox = document.getElementById('log-en-gro');
         let natBox = document.getElementById('log-natcash');
 
-        // Ti Glase Istorik
         if (lokalState.lisTranzaksyonDetay) {
             let items = Object.values(lokalState.lisTranzaksyonDetay);
             if (datFiltre) items = items.filter(i => i.dat === datFiltre);
             tGlaseBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
         } else { tGlaseBox.innerHTML = "Pa gen lavant..."; }
 
-        // En Gwo Istorik
         if (lokalState.lisTranzaksyonGro) {
             let items = Object.values(lokalState.lisTranzaksyonGro);
             if (datFiltre) items = items.filter(i => i.dat === datFiltre);
             enGroBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
         } else { enGroBox.innerHTML = "Pa gen lavant..."; }
 
-        // NatCash Istorik
         if (lokalState.lisTranzaksyon) {
             let items = Object.values(lokalState.lisTranzaksyon);
             if (datFiltre) items = items.filter(i => i.dat === datFiltre);
@@ -487,12 +501,10 @@
     window.filtreIstorik = function() {
         let datChwazi = document.getElementById('filtre-dat').value;
         if (!datChwazi) { ranpliIstorikEkran(); return; }
-        // Konvèti dat la nan fòma lokal (Ex: 7/8/2026) pou matche ak sa nou sove a
         let datObj = new Date(datChwazi + "T00:00:00");
         ranpliIstorikEkran(datObj.toLocaleDateString());
     };
 
-    // 7. FÈMEN JOUNEN AN & ACHIVE DEDANS FIREBASE
     window.femenJounenOfisyel = function() {
         if (!confirm("Èske ou sèten ou vle fèmen jounen an ofisyèlman? Sa ap reset kontè benefis ak lavant yo!")) return;
 
@@ -508,13 +520,12 @@
 
         push(achivRef, nouvoRapò);
 
-        // Reset tout vye valè pou nouvo jounen pròp
         update(appRef, {
             benefisDetay: 0,
             benefisGro: 0,
             totalKomisyonDepo: 0,
             totalKomisyonRetre: 0,
-            lavantKonte: { fritop: 0, malta: 0, ragaman: 0, tampico: 0 },
+            lavantKonte: { fritop: 0, malta: 0, ragaman: 0, tampico: 0, toro: 0, prestige: 0, cola: 0, sprite: 0 },
             clotureAveg: null,
             kontestasyonKès: null
         });
@@ -522,7 +533,6 @@
         alert("🏁 Jounen an fèmen epi achive avèk siksè! Tout bagay pròp pou demen.");
     };
 
-    // Tcheke kòd sekirite 4 chif la
     window.checkPin = function() {
         let pin = document.getElementById('admin-pin').value;
         if (pin === "1234") {
