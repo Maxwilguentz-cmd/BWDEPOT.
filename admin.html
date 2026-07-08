@@ -14,10 +14,9 @@
             --primary-light: #3B82F6;
             --accent: #10B981;
             --natcash: #00A550;
-            --purple: #8B5CF6;
             --danger: #EF4444;
+            --warning: #F59E0B;
             --border: #E2E8F0;
-            --nav-bg: #FFFFFF;
         }
 
         [data-theme="dark"] {
@@ -29,250 +28,94 @@
             --primary-light: #60A5FA;
             --accent: #34D399;
             --natcash: #22C55E;
-            --purple: #A78BFA;
             --danger: #F87171;
+            --warning: #FBBF24;
             --border: #334155;
-            --nav-bg: #1E293B;
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: background-color 0.2s, color 0.2s;
         }
 
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-top: 130px;
-            padding-bottom: 30px;
+        body { background-color: var(--bg-body); color: var(--text-main); padding-top: 100px; padding-bottom: 40px; }
+
+        /* LOCK SCREEN STYLE */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-body); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
         }
 
         header {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 12px;
+            position: fixed; top: 0; left: 0; width: 100%;
+            background-color: var(--primary); color: white; padding: 12px; z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .header-top { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 800; }
         .logo span { color: #38BDF8; }
-
-        .theme-toggle {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        nav {
-            display: flex;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 4px;
-            border-radius: 8px;
-            width: 100%;
-        }
-
+        
+        nav { display: flex; gap: 8px; }
         nav a {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 10px 6px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            display: block;
+            color: rgba(255, 255, 255, 0.8); padding: 8px 12px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; text-decoration: none;
         }
+        nav a.active { background-color: var(--bg-card); color: var(--primary); }
 
-        nav a.active {
-            background-color: var(--bg-card);
-            color: var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        [data-theme="dark"] nav a.active { color: var(--primary-light); }
-
-        .page { padding: 0 16px; max-width: 1200px; margin: 0 auto; }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 20px; }
 
         .card {
-            background-color: var(--bg-card);
-            border-radius: 14px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 16px;
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
+        .card-title { font-size: 14px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; }
+        .card-value { font-size: 24px; font-weight: 800; color: var(--primary); }
 
-        .cart-table { width: 100%; border-collapse: collapse; }
-        .cart-table th {
-            text-align: left;
-            padding: 8px 6px;
-            color: var(--text-muted);
-            font-size: 12px;
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
+        .btn {
+            width: 100%; padding: 12px; border-radius: 8px; border: none;
+            font-size: 14px; font-weight: 700; color: white; cursor: pointer; margin-top: 8px;
         }
-        .cart-table td {
-            padding: 12px 6px;
-            font-size: 14px;
-            border-bottom: 1px solid var(--border);
-            word-break: break-word;
-        }
+        .btn-primary { background-color: var(--primary-light); }
+        .btn-accent { background-color: var(--accent); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-warning { background-color: var(--warning); color: #000; }
 
-        .input-text, .select-style {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            margin-bottom: 12px;
-            font-size: 15px;
-            outline: none;
+        .input-field {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+            background-color: var(--bg-body); color: var(--text-main); margin-bottom: 10px; outline: none;
         }
-        .input-text:focus, .select-style:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
+        
+        .log-box { font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: var(--bg-body); padding: 10px; border-radius: 6px; }
+        .log-item { padding: 6px 0; border-bottom: 1px dashed var(--border); }
 
-        .btn-main {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            font-size: 15px;
-            font-weight: 700;
-            color: white;
-            cursor: pointer;
-        }
-        .btn-main:active, .theme-toggle:active, .sub-tab-btn:active { transform: scale(0.97); opacity: 0.85; }
+        /* STATS BAR CHART */
+        .stat-bar-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .stat-row { display: flex; align-items: center; gap: 10px; }
+        .stat-label { width: 100px; font-size: 13px; font-weight: bold; }
+        .stat-progress-bg { flex: 1; background: var(--border); height: 15px; border-radius: 10px; overflow: hidden; }
+        .stat-progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; }
+        .stat-count { font-size: 12px; font-weight: bold; width: 40px; text-align: right; }
 
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--text-muted);
-        }
-        .stat-card.revenue { border-left-color: var(--accent); }
-        .stat-card.profit { border-left-color: var(--primary-light); }
-        .stat-card.stock { border-left-color: var(--purple); }
-        .stat-card.natcash { border-left-color: var(--natcash); }
-        .stat-card.livecash { border-left-color: #F59E0B; }
-        .stat-card h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .stat-card p { font-size: 18px; font-weight: 800; }
-
-        .log-list {
-            max-height: 180px;
-            overflow-y: auto;
-            background-color: #0F172A;
-            color: #38BDF8;
-            font-family: monospace;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        .admin-sub-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 6px;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        .admin-sub-tabs::-webkit-scrollbar { display: none; }
-        .admin-sub-tabs { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .sub-tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 6px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .sub-tab-btn.active { color: var(--purple); border-bottom: 2px solid var(--purple); }
-
-        .sub-page { display: none; }
-        .sub-page.active { display: block; }
-
-        .lock-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        .btn-restock-add { background-color: var(--primary) !important; }
-        .btn-restock-remove { background-color: var(--danger) !important; }
-                @media (min-width: 768px) {
-            body { padding-top: 95px; }
-            .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
-            nav { width: auto; min-width: 380px; }
-        }
+        .alert-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
 
+    <!-- LOCK SCREEN DE SIKIRITE -->
+    <div id="lock-screen">
+        <h2>🔒 Aksè Sekirize Admin</h2>
+        <p style="color: var(--text-muted);">Antre kòd sekirite a pou w jere depo a:</p>
+        <input type="password" id="admin-pin" class="input-field" style="width: 200px; text-align: center; font-size: 20px;" placeholder="****" maxlength="4">
+        <button class="btn btn-primary" style="width: 200px;" onclick="checkPin()">Debloke 🔓</button>
+    </div>
+
     <header>
         <div class="header-container">
-            <div class="header-top">
-                <div class="logo">📦 <span>BWdepo</span></div>
-                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
-            </div>
+            <div class="logo">📦 <span>BWdepo Admin</span></div>
             <nav>
                 <a href="index.html">🛒 Bwason</a>
                 <a href="natcash.html">🟢 NatCash</a>
@@ -281,438 +124,415 @@
         </div>
     </header>
 
-    <div id="page-admin" class="page">
-        <div id="admin-auth" class="card lock-screen">
-            <span style="font-size: 40px; margin-bottom: 10px;">🔒</span>
-            <h3 style="margin-bottom: 6px;">Espas Admin Sekirize</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Mete kòd sekirite a pou w ka jwenn aksè nan dashboard la.</p>
-            <input type="password" id="admin-pass-input" placeholder="Kòd Admin" class="input-text" style="text-align: center; max-width: 240px;">
-            <button onclick="checkAdminAuth()" class="btn-main" style="background-color: var(--primary); max-width: 240px; padding: 12px;">Antre 🔓</button>
+    <div class="container" id="main-content" style="display: none;">
+        
+        <!-- ALÈT SOU KÈS POU DISPUTE OWA CLÔTURE -->
+        <div id="admin-alert" class="alert-box"></div>
+
+        <!-- 1. DASHBOARD VALÈ AN TAN REYÈL -->
+        <h2 style="margin-bottom: 15px;">📊 Dashboard Finansyè</h2>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">💵 Kès Ti Glase (Frijidè)</div>
+                <div class="card-value" id="disp-kes-frijide">0.00 HTG</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📦 Kès En Gwo (BW)</div>
+                <div class="card-value" id="disp-kes-gro" style="color: var(--primary-light);">0.00 HTG</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📱 NatCash Kach (Fizik)</div>
+                <div class="card-value" id="disp-nat-cash" style="color: var(--natcash);">0.00 HTG</div>
+            </div>
         </div>
 
-        <div id="admin-content" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h2 class="section-title" style="margin-bottom:0;">📊 Dashboard Jeneral</h2>
-                <button onclick="lockAdmin()" style="background:transparent; border:none; color:var(--danger); font-weight:bold; font-size:13px; cursor:pointer;">Bloke Paj 🔒</button>
-            </div>
-
-            <div id="admin-close-alert" class="card" style="display: none; background-color: rgba(139, 92, 246, 0.15); border: 2px solid var(--purple); color: var(--text-main);">
-                <strong style="color: var(--purple); display: block; margin-bottom: 4px;">📊 RAPÒ FÈMTI KÈS (3h PM)</strong>
-                <p id="admin-close-text" style="font-size: 14px; margin: 0; font-weight: 600; white-space: pre-line;"></p>
-            </div>
-
-            <div id="admin-dispute-alert" class="card" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 2px solid var(--danger); color: var(--text-main);">
-                <strong style="color: var(--danger); display: block; margin-bottom: 4px;">⚠️ ALÈT KONTESTASYON FÒN DE KÈS:</strong>
-                <p id="admin-dispute-text" style="font-size: 14px; margin: 0; font-weight: 600;"></p>
-            </div>
-
-            <div class="admin-grid">
-                <div class="stat-card revenue">
-                    <h3>Lavant Bwason</h3>
-                    <p id="stat-revenue">0 G</p>
-                </div>
-                <div class="stat-card profit">
-                    <h3>Benefis Pwodwi</h3>
-                    <p id="stat-profit">0 G</p>
-                </div>
-                <div class="stat-card stock">
-                    <h3>Valè Stòk</h3>
-                    <p id="stat-stock-value">0 G</p>
-                </div>
-                <div class="stat-card natcash">
-                    <h3>Balans Kat</h3>
-                    <p id="stat-nat-balance">5,000 G</p>
-                </div>
-                <div class="stat-card livecash">
-                    <h3 style="color: #D97706;">💰 Kach nan Men Vandè (Tan Reyèl)</h3>
-                    <p id="vandes-live-cash" style="color: #B45309; font-size: 20px;">0 HTG</p>
+        <div class="grid-3">
+            <div class="card" style="border-left: 5px solid var(--accent);">
+                <div class="card-title">📈 Benefis Jounen An</div>
+                <div class="card-value" id="disp-benefis" style="color: var(--accent);">0.00 HTG</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
+                    Ti Glase: <span id="sub-ben-detay">0</span> HTG | BW Gwo: <span id="sub-ben-gro">0</span> HTG
                 </div>
             </div>
-
-            <div class="card" style="border-top: 4px solid var(--danger);">
-                <h3 style="font-size: 13px; color: var(--danger); text-transform: uppercase; margin-bottom: 6px;">📋 Swivi Depans Rapid ki Soti nan Kès</h3>
-                <div class="log-list" id="admin-expense-logs" style="height: 100px; background:#1E293B; color:#F87171;">Pa gen depans ki fèt jodi a...</div>
-            </div>
-
-            <div class="card" style="border-top: 4px solid var(--primary-light);">
-                <h3 style="font-size:14px; margin-bottom:10px; text-transform: uppercase; color: var(--primary-light);">💰 Prepare Fon de Kès Vandè a</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">NatCash (G):</label>
-                        <input type="number" id="setup-fon-natcash" value="0" class="input-text">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant An Gwo (G):</label>
-                        <input type="number" id="setup-fon-gwo" value="0" class="input-text">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; font-weight:bold; color:var(--text-muted);">Vant Detay (G):</label>
-                        <input type="number" id="setup-fon-detay" value="0" class="input-text">
-                    </div>
-                </div>
-                <button onclick="saveFonDeKesFromAdmin()" class="btn-main" style="background-color: var(--primary-light); padding:12px; margin-top:6px;">
-                    💾 Sove epi Lese Fon de Kès Sa yo
-                </button>
-            </div>
-
-            <div class="card" style="border-top: 4px solid var(--purple);">
-                <div class="admin-sub-tabs">
-                    <button id="sub-nav-add-frizer" class="sub-tab-btn active" onclick="showSubPage('add-frizer')">📥 Mete Frizer</button>
-                    <button id="sub-nav-view-frizer" class="sub-tab-btn" onclick="showSubPage('view-frizer')">🧊 Stòk Frizer</button>
-                    <button id="sub-nav-gaste-frizer" class="sub-tab-btn" onclick="showSubPage('gaste-frizer')">💥 Grenn Koule</button>
-                    <button id="sub-nav-kontab-separe" class="sub-tab-btn" onclick="showSubPage('kontab-separe')">📜 Kaye Kontab</button>
-                </div>
-
-                <div id="sub-page-add-frizer" class="sub-page active">
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Pwodwi:</label>
-                    <select id="frizer-select-prod" class="select-style"></select>
-
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Tip Deplasman:</label>
-                    <select id="frizer-select-type" class="select-style">
-                        <option value="kes">Kès Konplè (24 grenn)</option>
-                        <option value="demi">Demi-Kès (12 grenn)</option>
-                        <option value="detail">Grenn Detay</option>
-                    </select>
-
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Kantite:</label>
-                    <input type="number" id="frizer-qty" class="input-text" value="1">
-
-                    <button onclick="moveProductToFrizer()" class="btn-main" style="background-color: var(--purple);">
-                        Konfime Deplasman 📥
-                    </button>
-                </div>
-
-                <div id="sub-page-view-frizer" class="sub-page">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Pwodwi</th>
-                                <th>Nan Frize</th>
-                            </tr>
-                        </thead>
-                        <tbody id="frizer-stock-rows"></tbody>
-                    </table>
-                </div>
-
-                <div id="sub-page-gaste-frizer" class="sub-page">
-                    <label style="font-size:12px; color:var(--text-muted);">Rapòte yon grenn ki koule nan depo jeneral la:</label>
-                    <select id="gaste-select-prod" class="select-style" style="margin-top:6px;"></select>
-                    <input type="number" id="gaste-qty" class="input-text" value="1">
-                    <button onclick="reportGasteProduct()" class="btn-main" style="background-color: var(--danger);">
-                        Retire Grenn Koule a 💥
-                    </button>
-                </div>
-
-                <div id="sub-page-kontab-separe" class="sub-page">
-                    <h4 style="font-size: 12px; color: var(--primary-light); text-transform: uppercase; margin-bottom: 4px;">📦 Lavant An Gwo</h4>
-                    <div class="log-list" id="logs-an-gwo" style="margin-bottom: 12px; height: 110px;">Pa gen lavant an gwo...</div>
-
-                    <h4 style="font-size: 12px; color: var(--purple); text-transform: uppercase; margin-bottom: 4px;">🥤 Lavant An Detay (Frizer)</h4>
-                    <div class="log-list" id="logs-an-detay" style="margin-bottom: 12px; height: 110px; color: #A78BFA;">Pa gen lavant an detay...</div>
-
-                    <h4 style="font-size: 12px; color: var(--natcash); text-transform: uppercase; margin-bottom: 4px;">📲 Istorik NatCash Detaye</h4>
-                    <div class="log-list" id="admin-nat-logs" style="height: 110px; color: #10B981;">Pa gen operasyon...</div>
+            <div class="card" style="border-left: 5px solid var(--warning);">
+                <div class="card-title">🪙 Komisyon NatCash jodi a</div>
+                <div class="card-value" id="disp-komisyon" style="color: var(--warning);">0.00 HTG</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
+                    Depo: <span id="sub-kom-depo">0</span> HTG | Retrè: <span id="sub-kom-retre">0</span> HTG
                 </div>
             </div>
+            <div class="card">
+                <div class="card-title">💰 Valè Estok Total nan Depo a</div>
+                <div class="card-value" id="disp-vale-estok" style="color: purple;">0.00 HTG</div>
+            </div>
+        </div>
 
-            <div class="card" style="margin-top:20px;">
-                <h3 style="font-size:13px; margin-bottom:8px;">⚙️ Balans Kat NatCash</h3>
-                <input type="number" id="admin-set-nat-balance" placeholder="Ex: 25000" class="input-text">
-                <button onclick="updateNatBalanceFromAdmin()" class="btn-main" style="background-color: #0F172A; padding:12px;">💾 Anrejistre Balans Kat la</button>
+        <!-- 2. KONTWÒL AK PARAMÈT ADMIN -->
+        <div class="grid-2">
+            <!-- KONFIGIRASYON MATEN AK TELEFÒN -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">⚙️ Aksyon rapid ak Konfigirasyon</h3>
+                
+                <label style="font-size:12px; font-weight:bold;">Mete Balans Kat NatCash la (Dapre Telefòn ou):</label>
+                <div style="display:flex; gap:5px; margin-bottom:12px;">
+                    <input type="number" id="input-nat-balans" class="input-field" style="margin-bottom:0;" placeholder="Valè sou kat la">
+                    <button class="btn btn-accent" style="margin-top:0; width:auto;" onclick="setNatCardBalance()">Mete l</button>
+                </div>
+
+                <label style="font-size:12px; font-weight:bold;">Mete Fon de Kès Maten pou Vandè a:</label>
+                <input type="number" id="fon-frijide" class="input-field" placeholder="Kès Ti glase">
+                <input type="number" id="fon-gro" class="input-field" placeholder="Kès En Gwo (BW)">
+                <input type="number" id="fon-nat" class="input-field" placeholder="NatCash Kach">
+                <button class="btn btn-primary" onclick="mandeVerifikasyonMaten()">Voye Verifikasyon bay Vandè a 📤</button>
             </div>
 
-<div class="card">
-    <h3 id="restock-title" style="font-size:13px; margin-bottom:8px;">📥 Refè Stòk Depo Jeneral</h3>
-    <div style="display: flex; flex-direction: column; gap: 4px;">
-        <!-- 1. Chwazi si w ap Ajoute oswa Retire -->
-        <select id="restock-action" class="select-style" onchange="toggleRestockMode()">
-            <option value="add">📥 Ajoute nan Stòk</option>
-            <option value="remove">📤 Retire nan Stòk</option>
-        </select>
-        
-        <!-- 2. Chwazi ki Atik/Pwodwi -->
-        <select id="restock-select" class="select-style"></select>
-        
-        <!-- 3. TI BWAT DUPLIKE A: Chwazi Inite a (Grenn, Demi Kès, Kès) -->
-        <select id="restock-unit" class="select-style">
-            <option value="1">🥤 Grenn (x1)</option>
-            <option value="12">📦 Demi Kès / Pake (x12)</option>
-            <option value="24">📦 Kès Nèt (x24)</option>
-        </select>
-        
-        <!-- 4. Input pou tape konbyen nan inite sa ou vle mete/retire -->
-        <input type="number" id="restock-qty" placeholder="Kantite pou ajoute" class="input-text">
-        
-        <!-- 5. Bouton Valide -->
-        <button id="restock-btn" onclick="submitRestock()" class="btn-main btn-restock-add">Valide</button>
+            <!-- TABLO ESTATISTIK PWODWI KI PLI VANN -->
+            <div class="card">
+                <h3 style="margin-bottom: 5px;">🔥 Pwodwi ki pi Vann yo</h3>
+                <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Estatistik baze sou kantite grenn ak bwat ki soti</p>
+                <div class="stat-bar-container" id="stats-container">
+                    <!-- Dinamikman ranpli pa JS -->
+                    Pa gen vant ki fèt pou jounen an ankò.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RETRÈ LAJAN AK ENJEKSYON ESTOK -->
+        <div class="grid-2">
+            <!-- JESTYON RETRÈ LAJAN DEPI NAN KÈS -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">💸 Retire lajan nan yon Kès</h3>
+                <label style="font-size:12px; font-weight:bold;">Chwazi ki kès w ap tire kòb:</label>
+                <select id="select-retre-kes" class="input-field">
+                    <option value="stokBwasonFrijidè">Kès Ti Glase</option>
+                    <option value="stokVenteEnGro">Kès En Gwo (BW)</option>
+                    <option value="kobfiziknatcash">NatCash Kach</option>
+                </select>
+                <input type="number" id="input-retre-montan" class="input-field" placeholder="Montan an HTG">
+                <input type="text" id="input-retre-motive" class="input-field" placeholder="Rezon (Ex: Sere labank, achte glas...)">
+                <button class="btn btn-danger" onclick="retireKòbAdmin()">Valide Retrè Lajan an 📤</button>
+            </div>
+
+            <!-- JESTYON LÈW ACHTE NOUVO ESTOK (ENTRE) -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">📥 Mete nouvo Pwodwi nan Estok (Gwo Depo)</h3>
+                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi a:</label>
+                <select id="select-pwodwi-estok" class="input-field">
+                    <option value="fritop">Fritop</option>
+                    <option value="malta">Malta</option>
+                    <option value="ragaman">Ragaman</option>
+                    <option value="tampico">Tampico</option>
+                </select>
+                <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite Kès antye ou achte">
+                <button class="btn btn-accent" onclick="ajouteEstokAdmin()">Mete nan Estok Jeneral 📦</button>
+            </div>
+        </div>
+
+        <!-- 4. TI RECHÈCH PA DAT EPI ISTORIK YO -->
+        <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                <h3>📋 Istorik ak Filtraj Jeneral</h3>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <label style="font-size:12px; font-weight:bold;">Filtre pa dat:</label>
+                    <input type="date" id="filtre-dat" class="input-field" style="margin-bottom:0; width:auto;" onchange="filtreIstorik()">
+                </div>
+            </div>
+            
+            <div class="grid-3" style="margin-bottom:0;">
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🛒 VANT AN DETAY (TI GLASE)</h4>
+                    <div class="log-box" id="log-ti-glase">Pa gen aksyon...</div>
+                </div>
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">📦 VANT EN GWO (BW)</h4>
+                    <div class="log-box" id="log-en-gro">Pa gen aksyon...</div>
+                </div>
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🟢 TRANZAKSYON NATCASH</h4>
+                    <div class="log-box" id="log-natcash">Pa gen aksyon...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. BOUTON POU FÈMEN JOUNEN AN -->
+        <div class="card" style="border: 2px dashed var(--danger); text-align: center;">
+            <h3 style="color: var(--danger); margin-bottom: 8px;">🏁 Fèmti Ofisyèl Jounen Biznis la</h3>
+            <p style="font-size:13px; color: var(--text-muted); margin-bottom:15px;">
+                Bouton sa a ap pran tout benefis, komisyon, ak lavant jounen an, l ap achive yo nan baz done a pou nèt, epi l ap mete kontè yo pròp pou demen. Fè sa sèlman lè w fin verifye kès la aswè a!
+            </p>
+            <button class="btn btn-danger" style="max-width: 350px; margin: 0 auto; font-size:16px;" onclick="femenJounenOfisyel()">🔒 FÈMEN JOUNEN AN & ARCHIVE</button>
+        </div>
+
     </div>
-</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
-    authDomain: "bwdepot-61214.firebaseapp.com",
-    databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-    projectId: "bwdepot-61214",
-    storageBucket: "bwdepot-61214.firebasestorage.app",
-    messagingSenderId: "624010872324",
-    appId: "1:624010872324:web:0b0565c3872b3caccd5751",
-    measurementId: "G-8VEN9QQF7B"
-};
-
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-
-let totalRevenue = 0;
-let totalProfit = 0;
-let natCashcardBalance = 0;
-let physicalCashBalance = 0;
-let currentTheme = "light";
-let isAdminAuthenticated = false;
-let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
-let verifiedSections = { natcash: false, bwason: false };
-
-function saveAppStateToFirebase() {
-    const updates = {
-        inventory: inventory,
-        totalRevenue: totalRevenue,
-        totalProfit: totalProfit,
-        natCashcardBalance: natCashcardBalance,
-        physicalCashBalance: physicalCashBalance,
-        adminFonDeKes: adminFonDeKes,
-        verifiedSections: verifiedSections
+    const firebaseConfig = {
+        apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
+        authDomain: "bwdepot-61214.firebaseapp.com",
+        databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
+        projectId: "bwdepot-61214",
+        storageBucket: "bwdepot-61214.firebasestorage.app",
+        messagingSenderId: "624010872324",
+        appId: "1:624010872324:web:0b0565c3872b3caccd5751",
+        measurementId: "G-8VEN9QQF7B"
     };
-    const logFields = {
-        adminExpenseLogs: 'admin-expense-logs',
-        adminNatLogs: 'admin-nat-logs'
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const appRef = ref(db, "appState");
+
+    let lokalState = {};
+
+    // Pri ak lojik estok pou kalkile valè estok total ak benefis otomatik
+    const priReferans = {
+        fritop: { kèsPri: 475, grennPri: 50, nanKès: 12 },
+        malta: { kèsPri: 600, grennPri: 65, nanKès: 12 },
+        ragaman: { kèsPri: 550, grennPri: 60, nanKès: 12 },
+        tampico: { kèsPri: 400, grennPri: 45, nanKès: 12 }
     };
-    for (const [key, id] of Object.entries(logFields)) {
-        const el = document.getElementById(id);
-        if (el) updates[key] = el.innerHTML;
-    }
-    const disputeAlert = document.getElementById('admin-dispute-alert');
-    if (disputeAlert) {
-        updates.adminDisputeAlert = disputeAlert.style.display || "none";
-        updates.adminDisputeText = document.getElementById('admin-dispute-text')?.innerText || "";
-    }
-    const closeAlert = document.getElementById('admin-close-alert');
-    if (closeAlert) {
-        updates.adminCloseAlert = closeAlert.style.display || "none";
-        updates.adminCloseText = document.getElementById('admin-close-text')?.innerText || "";
-    }
-    update(ref(database, 'appState'), updates);
-}
 
-onValue(ref(database, 'appState'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        if (data.inventory) inventory = data.inventory;
-        totalRevenue = data.totalRevenue || 0;
-        totalProfit = data.totalProfit || 0;
-        natCashcardBalance = data.natCashcardBalance !== undefined ? data.natCashcardBalance : 0;
-        physicalCashBalance = data.physicalCashBalance || 0;
-        if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
-        if (data.verifiedSections) verifiedSections = data.verifiedSections;
-
-        if (data.adminExpenseLogs && document.getElementById('admin-expense-logs')) document.getElementById('admin-expense-logs').innerHTML = data.adminExpenseLogs;
-        if (data.logsAnGwo && document.getElementById('logs-an-gwo')) document.getElementById('logs-an-gwo').innerHTML = data.logsAnGwo;
-        if (data.logsAnDetay && document.getElementById('logs-an-detay')) document.getElementById('logs-an-detay').innerHTML = data.logsAnDetay;
-        if (data.adminNatLogs && document.getElementById('admin-nat-logs')) document.getElementById('admin-nat-logs').innerHTML = data.adminNatLogs;
-
-        if (document.getElementById('admin-dispute-alert')) {
-            document.getElementById('admin-dispute-alert').style.display = data.adminDisputeAlert || "none";
-            document.getElementById('admin-dispute-text').innerText = data.adminDisputeText || "";
+    // Koute Firebase
+    onValue(appRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            lokalState = data;
+            majEkranAdmin();
         }
-        if (document.getElementById('admin-close-alert')) {
-            document.getElementById('admin-close-alert').style.display = data.adminCloseAlert || "none";
-            document.getElementById('admin-close-text').innerText = data.adminCloseText || "";
+    });
+
+    function majEkranAdmin() {
+        // Balans yo
+        document.getElementById('disp-kes-frijide').innerText = (lokalState.stokBwasonFrijidè ?? 0).toLocaleString('en-US') + " HTG";
+        document.getElementById('disp-kes-gro').innerText = (lokalState.stokVenteEnGro ?? 0).toLocaleString('en-US') + " HTG";
+        document.getElementById('disp-nat-cash').innerText = (lokalState.kobfiziknatcash ?? 0).toLocaleString('en-US') + " HTG";
+
+        // Kalkile Benefis ak Komisyon NatCash
+        let komiDepo = lokalState.totalKomisyonDepo ?? 0;
+        let komiRetre = lokalState.totalKomisyonRetre ?? 0;
+        let totalKomi = komiDepo + komiRetre;
+        document.getElementById('disp-komisyon').innerText = totalKomi.toLocaleString('en-US') + " HTG";
+        document.getElementById('sub-kom-depo').innerText = komiDepo.toFixed(2);
+        document.getElementById('sub-kom-retre').innerText = komiRetre.toFixed(2);
+
+        let benDetay = lokalState.benefisDetay ?? 0;
+        let benGro = lokalState.benefisGro ?? 0;
+        let totalBen = benDetay + benGro;
+        document.getElementById('disp-benefis').innerText = totalBen.toLocaleString('en-US') + " HTG";
+        document.getElementById('sub-ben-detay').innerText = benDetay.toLocaleString('en-US');
+        document.getElementById('sub-ben-gro').innerText = benGro.toLocaleString('en-US');
+
+        // Kalkile Valè Estok total ki nan gwo Depo a
+        let estokJeneral = lokalState.estokJeneral ?? { fritop: 100, malta: 80, ragaman: 50, tampico: 120 };
+        let valeEstok = 0;
+        for (let pwodwi in estokJeneral) {
+            if (priReferans[pwodwi]) {
+                valeEstok += estokJeneral[pwodwi] * priReferans[pwodwi].kèsPri;
+            }
         }
-    }
-    updateAdminDashboard();
-});
+        document.getElementById('disp-vale-estok').innerText = valeEstok.toLocaleString('en-US') + " HTG";
 
-window.toggleTheme = function() {
-    const root = document.documentElement;
-    const btn = document.getElementById('theme-btn');
-    if (currentTheme === "light") {
-        root.setAttribute('data-theme', 'dark');
-        btn.innerText = "🌙 Nwit"; currentTheme = "dark";
-    } else {
-        root.removeAttribute('data-theme');
-        btn.innerText = "☀️ Lajounen"; currentTheme = "light";
-    }
-}
+        // Alèt si vandè a te konteste fon de kès maten
+        const alertBox = document.getElementById('admin-alert');
+        if (lokalState.kontestasyonKès) {
+            alertBox.style.display = 'block';
+            alertBox.innerHTML = `⚠️ <strong>ALÈT KONTESTASYON MATEN:</strong> Vandè a deklare li jwenn <strong>${lokalState.kontestasyonKès.kòbMounNanWè} HTG</strong> olye de <strong>${lokalState.kontestasyonKès.kòbSistèm} HTG</strong> nan kès NatCash la! (Te fèt le: ${lokalState.kontestasyonKès.dat})`;
+        } else if (lokalState.clotureAveg) {
+            alertBox.style.display = 'block';
+            alertBox.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+            alertBox.style.borderColor = 'var(--warning)';
+            alertBox.style.color = 'var(--warning)';
+            alertBox.innerHTML = `🏁 <strong>RAPÒ FÈMTI KÈS AVÈG VANDÈ:</strong><br>
+                - Kòb Ti Glase li wè: ${lokalState.clotureAveg.frijideVedi} HTG (Sistèm: ${lokalState.stokBwasonFrijidè} HTG)<br>
+                - Kòb En Gwo li wè: ${lokalState.clotureAveg.groVedi} HTG (Sistèm: ${lokalState.stokVenteEnGro} HTG)<br>
+                - Kòb NatCash Kach li wè: ${lokalState.clotureAveg.natVedi} HTG (Sistèm: ${lokalState.kobfiziknatcash} HTG)`;
+        } else {
+            alertBox.style.display = 'none';
+        }
 
-window.checkAdminAuth = function() {
-    let pass = document.getElementById('admin-pass-input').value;
-    if (pass === "MW-1985B") {
-        isAdminAuthenticated = true;
-        document.getElementById('admin-auth').style.display = 'none';
-        document.getElementById('admin-content').style.display = 'block';
-        updateAdminDashboard();
-        populateAdminSelects();
-        renderFrizerStockTable();
-    } else {
-        alert("❌ Modpas Kòd Admin Enkòrèk!");
-    }
-    document.getElementById('admin-pass-input').value = '';
-}
+        // Kalkile ak afiche Estatistik Lavant yo
+        aficheEstatistik();
 
-window.lockAdmin = function() {
-    isAdminAuthenticated = false;
-    document.getElementById('admin-content').style.display = 'none';
-    document.getElementById('admin-auth').style.display = 'flex';
-}
-
-window.showSubPage = function(subId) {
-    document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-
-    const activeSubPage = document.getElementById(`sub-page-${subId}`);
-    const activeSubNav = document.getElementById(`sub-nav-${subId}`);
-
-    if (activeSubPage) activeSubPage.classList.add('active');
-    if (activeSubNav) activeSubNav.classList.add('active');
-}
-
-function populateAdminSelects() {
-    const restockSelect = document.getElementById('restock-select');
-    const frizerSelect = document.getElementById('frizer-select-prod');
-    const gasteSelect = document.getElementById('gaste-select-prod');
-
-    if (!restockSelect) return;
-    restockSelect.innerHTML = ''; frizerSelect.innerHTML = ''; gasteSelect.innerHTML = '';
-
-    inventory.forEach(p => {
-        let optionHTML = `<option value="${p.id}">${p.name}</option>`;
-        restockSelect.innerHTML += optionHTML;
-        frizerSelect.innerHTML += optionHTML;
-        gasteSelect.innerHTML += optionHTML;
-    });
-}
-
-window.moveProductToFrizer = function() {
-    let prodId = parseInt(document.getElementById('frizer-select-prod').value);
-    let type = document.getElementById('frizer-select-type').value;
-    let qty = parseInt(document.getElementById('frizer-qty').value);
-
-    if (isNaN(qty) || qty <= 0) return alert("Antre yon kantite ki valab!");
-
-    let multiplier = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
-    let totalGrennToMove = qty * multiplier;
-    let p = inventory.find(item => item.id === prodId);
-
-    if (p.stockGrenn < totalGrennToMove) return alert(`⚠️ Pa gen ase stòk nan depo!`);
-
-    p.stockGrenn -= totalGrennToMove; p.stockFrizerGrenn += totalGrennToMove;
-    alert(`❄️ Siksè! ${totalGrennToMove} grenn deplase.`);
-    renderFrizerStockTable(); updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-function renderFrizerStockTable() {
-    const tbody = document.getElementById('frizer-stock-rows');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    inventory.forEach(p => {
-        tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style="color:var(--purple); font-weight:bold;">${p.stockFrizerGrenn}</span> grenn</td></tr>`;
-    });
-}
-
-window.reportGasteProduct = function() {
-    let prodId = parseInt(document.getElementById('gaste-select-prod').value);
-    let qty = parseInt(document.getElementById('gaste-qty').value);
-    if (isNaN(qty) || qty <= 0) return alert("Antre yon kantite valab!");
-    let p = inventory.find(prod => prod.id === prodId);
-    if (p.stockGrenn < qty) return alert(`⚠️ Pa gen ase stòk!`);
-    p.stockGrenn -= qty;
-    alert(`💥 Yo retire ${qty} grenn koule.`);
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-window.saveFonDeKesFromAdmin = function() {
-    adminFonDeKes.natcash = parseFloat(document.getElementById('setup-fon-natcash').value) || 0;
-    adminFonDeKes.gwo = parseFloat(document.getElementById('setup-fon-gwo').value) || 0;
-    adminFonDeKes.detay = parseFloat(document.getElementById('setup-fon-detay').value) || 0;
-
-    verifiedSections.natcash = false;
-    verifiedSections.bwason = false;
-    alert(`Sove! Vandè a ap gen pou l verifye yo.`);
-    saveAppStateToFirebase();
-}
-
-window.updateNatBalanceFromAdmin = function() {
-    let val = parseFloat(document.getElementById('admin-set-nat-balance').value);
-    if (isNaN(val) || val < 0) return alert("Antre chif valab!");
-    natCashcardBalance = val; document.getElementById('admin-set-nat-balance').value = '';
-    updateAdminDashboard();
-    saveAppStateToFirebase();
-}
-
-function updateAdminDashboard() {
-    if (!isAdminAuthenticated) return;
-    if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerHTML = totalRevenue.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalRevenue / 5).toLocaleString() + "]</span>";
-    if (document.getElementById('stat-profit')) document.getElementById('stat-profit').innerHTML = totalProfit.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalProfit / 5).toLocaleString() + "]</span>";
-    if (document.getElementById('stat-nat-balance')) document.getElementById('stat-nat-balance').innerHTML = natCashcardBalance.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (natCashcardBalance / 5).toLocaleString() + "]</span>";
-    if (document.getElementById('vandes-live-cash')) document.getElementById('vandes-live-cash').innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
-
-    let totalStockVal = 0;
-    inventory.forEach(p => { totalStockVal += ((p.stockGrenn + p.stockFrizerGrenn) * p.prices.detail); });
-    if (document.getElementById('stat-stock-value')) document.getElementById('stat-stock-value').innerHTML = totalStockVal.toLocaleString() + " G <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (totalStockVal / 5).toLocaleString() + "]</span>";
-}
-
-window.toggleRestockMode = function() {
-    const action = document.getElementById('restock-action').value;
-    const btn = document.getElementById('restock-btn');
-    const title = document.getElementById('restock-title');
-    if (action === 'remove') {
-        btn.classList.remove('btn-restock-add');
-        btn.classList.add('btn-restock-remove');
-        btn.innerText = '📤 Retire nan Stòk';
-        if (title) title.innerText = '📤 Retire Stòk Depo Jeneral';
-    } else {
-        btn.classList.remove('btn-restock-remove');
-        btn.classList.add('btn-restock-add');
-        btn.innerText = '📥 Ajoute nan Stòk';
-        if (title) title.innerText = '📥 Refè Stòk Depo Jeneral';
-    }
-}
-
-window.submitRestock = function() {
-    let action = document.getElementById('restock-action').value;
-    let prodId = parseInt(document.getElementById('restock-select').value);
-    let inputQty = parseInt(document.getElementById('restock-qty').value);
-    
-    // Nou rekiperere valè miltiplikatè inite a (1, 12, oswa 24)
-    let unitMultiplier = parseInt(document.getElementById('restock-unit').value);
-
-    if (isNaN(inputQty) || inputQty <= 0) return alert("Tanpri antre yon kantite ki valab!");
-
-    // Kalkile kantite total grenn nèt ki pral chanje
-    let qty = inputQty * unitMultiplier;
-
-    let p = inventory.find(prod => prod.id === prodId);
-    if (!p) return alert("⚠️ Atik sa a pa egziste nan sistèm lan!");
-
-    if (action === 'remove') {
-        if (p.stockGrenn < qty) return alert(`⚠️ Stòk la twò piti! Gen sèlman ${p.stockGrenn} grenn nan depo. Ou bezwen ${qty} grenn.`);
-        p.stockGrenn -= qty;
-        alert(`📤 Siksè! Yo retire ${inputQty} nan inite w chwazi a (Sa fè ${qty} grenn) nan stòk ${p.name}.`);
-    } else {
-        p.stockGrenn += qty;
-        alert(`📥 Siksè! Yo ajoute ${inputQty} nan inite w chwazi a (Sa fè ${qty} grenn) nan stòk ${p.name}.`);
+        // Afiche tout istorik yo
+        ranpliIstorikEkran();
     }
 
-    // Reyisialize jaden yo epi sove
-    document.getElementById('restock-qty').value = '';
-    if (typeof updateAdminDashboard === "function") updateAdminDashboard();
-    if (typeof saveAppStateToFirebase === "function") saveAppStateToFirebase();
-}
+    // 1. Mete balans kat la depi nan telefòn ou
+    window.setNatCardBalance = function() {
+        let val = parseFloat(document.getElementById('input-nat-balans').value);
+        if (isNaN(val) || val < 0) {
+            alert("Antre yon balans valab!");
+            return;
+        }
+        update(appRef, { natcashCardBalance: val });
+        alert("Balans kat la ajou nan sistèm nan!");
+        document.getElementById('input-nat-balans').value = '';
+    };
+
+    // 2. Voye lòd verifikasyon bay vandè a
+    window.mandeVerifikasyonMaten = function() {
+        let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
+        let g = parseFloat(document.getElementById('fon-gro').value) || 0;
+        let n = parseFloat(document.getElementById('fon-nat').value) || 0;
+
+        update(appRef, {
+            mandeVerifikasyon: true,
+            stokBwasonFrijidè: f,
+            stokVenteEnGro: g,
+            kobfiziknatcash: n,
+            kontestasyonKès: null, // Netwaye ansyen vye done
+            clotureAveg: null
+        });
+        alert("Lòd verifikasyon voye bay vandè a avèk siksè pou demen maten!");
+    };
+
+    // 3. Retire lajan nan kès (Mouvman Admin)
+    window.retireKòbAdmin = function() {
+        let kès = document.getElementById('select-retre-kes').value;
+        let montan = parseFloat(document.getElementById('input-retre-montan').value);
+        let rezon = document.getElementById('input-retre-motive').value || "Retrè Admin";
+
+        if (isNaN(montan) || montan <= 0) { alert("Antre yon montan valab!"); return; }
+        if ((lokalState[kès] ?? 0) < montan) { alert("Pa gen ase kòb nan kès sa a!"); return; }
+
+        let nouvoVal = lokalState[kès] - montan;
+        let pouseRef = ref(db, `appState/istorikAdminRetre`);
+        push(pouseRef, {
+            dat: new Date().toLocaleDateString(),
+            tan: new Date().toLocaleTimeString(),
+            kès: kès,
+            montan: montan,
+            rezon: rezon
+        });
+
+        let updateObj = {};
+        updateObj[kès] = nouvoVal;
+        update(appRef, updateObj);
+
+        alert(`Siksè! Ou tire ${montan} HTG nan kès la.`);
+        document.getElementById('input-retre-montan').value = '';
+        document.getElementById('input-retre-motive').value = '';
+    };
+
+    // 4. Ajoute nouvo kès pwodwi ou sot achte nan estok jeneral
+    window.ajouteEstokAdmin = function() {
+        let pwodwi = document.getElementById('select-pwodwi-estok').value;
+        let kantite = parseInt(document.getElementById('input-kantite-bwat').value);
+
+        if (isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite kès valab!"); return; }
+
+        let estokJeneral = lokalState.estokJeneral ?? { fritop: 100, malta: 80, ragaman: 50, tampico: 120 };
+        estokJeneral[pwodwi] = (estokJeneral[pwodwi] ?? 0) + kantite;
+
+        update(appRef, { estokJeneral: estokJeneral });
+        alert(`Siksè! ${kantite} nouvo kès ${pwodwi.toUpperCase()} ajoute nan Depo a.`);
+        document.getElementById('input-kantite-bwat').value = '';
+    };
+
+    // 5. Lojik kalkil ak afichaj Statistik yo
+    function aficheEstatistik() {
+        let stats = lokalState.lavantKonte ?? { fritop: 0, malta: 0, ragaman: 0, tampico: 0 };
+        let container = document.getElementById('stats-container');
+        
+        let maxVant = Math.max(...Object.values(stats), 1); 
+        let html = "";
+
+        for (let pwodwi in priReferans) {
+            let kantiteVann = stats[pwodwi] ?? 0;
+            let pousantaj = (kantiteVann / maxVant) * 100;
+
+            html += `
+                <div class="stat-row">
+                    <div class="stat-label">${pwodwi.toUpperCase()}</div>
+                    <div class="stat-progress-bg">
+                        <div class="stat-progress-fill" style="width: ${pousantaj}%;"></div>
+                    </div>
+                    <div class="stat-count">${kantiteVann}</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    // 6. Afiche epi filtre Istorik yo
+    function ranpliIstorikEkran(datFiltre = "") {
+        let tGlaseBox = document.getElementById('log-ti-glase');
+        let enGroBox = document.getElementById('log-en-gro');
+        let natBox = document.getElementById('log-natcash');
+
+        // Ti Glase Istorik
+        if (lokalState.lisTranzaksyonDetay) {
+            let items = Object.values(lokalState.lisTranzaksyonDetay);
+            if (datFiltre) items = items.filter(i => i.dat === datFiltre);
+            tGlaseBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
+        } else { tGlaseBox.innerHTML = "Pa gen lavant..."; }
+
+        // En Gwo Istorik
+        if (lokalState.lisTranzaksyonGro) {
+            let items = Object.values(lokalState.lisTranzaksyonGro);
+            if (datFiltre) items = items.filter(i => i.dat === datFiltre);
+            enGroBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
+        } else { enGroBox.innerHTML = "Pa gen lavant..."; }
+
+        // NatCash Istorik
+        if (lokalState.lisTranzaksyon) {
+            let items = Object.values(lokalState.lisTranzaksyon);
+            if (datFiltre) items = items.filter(i => i.dat === datFiltre);
+            natBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen tranzaksyon...";
+        } else { natBox.innerHTML = "Pa gen tranzaksyon..."; }
+    }
+
+    window.filtreIstorik = function() {
+        let datChwazi = document.getElementById('filtre-dat').value;
+        if (!datChwazi) { ranpliIstorikEkran(); return; }
+        // Konvèti dat la nan fòma lokal (Ex: 7/8/2026) pou matche ak sa nou sove a
+        let datObj = new Date(datChwazi + "T00:00:00");
+        ranpliIstorikEkran(datObj.toLocaleDateString());
+    };
+
+    // 7. FÈMEN JOUNEN AN & ACHIVE DEDANS FIREBASE
+    window.femenJounenOfisyel = function() {
+        if (!confirm("Èske ou sèten ou vle fèmen jounen an ofisyèlman? Sa ap reset kontè benefis ak lavant yo!")) return;
+
+        let achivRef = ref(db, "achivLavant");
+        let nouvoRapò = {
+            dat: new Date().toLocaleDateString(),
+            benefisPwofi: (lokalState.benefisDetay ?? 0) + (lokalState.benefisGro ?? 0),
+            komisyonNatCash: (lokalState.totalKomisyonDepo ?? 0) + (lokalState.totalKomisyonRetre ?? 0),
+            kèsFèmtiFrijidè: lokalState.stokBwasonFrijidè ?? 0,
+            kèsFèmtiGro: lokalState.stokVenteEnGro ?? 0,
+            kèsFèmtiNatCash: lokalState.kobfiziknatcash ?? 0
+        };
+
+        push(achivRef, nouvoRapò);
+
+        // Reset tout vye valè pou nouvo jounen pròp
+        update(appRef, {
+            benefisDetay: 0,
+            benefisGro: 0,
+            totalKomisyonDepo: 0,
+            totalKomisyonRetre: 0,
+            lavantKonte: { fritop: 0, malta: 0, ragaman: 0, tampico: 0 },
+            clotureAveg: null,
+            kontestasyonKès: null
+        });
+
+        alert("🏁 Jounen an fèmen epi achive avèk siksè! Tout bagay pròp pou demen.");
+    };
+
+    // Tcheke kòd sekirite 4 chif la
+    window.checkPin = function() {
+        let pin = document.getElementById('admin-pin').value;
+        if (pin === "1234") {
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        } else {
+            alert("❌ Kòd Sekirite a Enkorèk! Eseye ankò.");
+            document.getElementById('admin-pin').value = '';
+        }
+    };
 </script>
 </body>
 </html>
