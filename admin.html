@@ -1,377 +1,406 @@
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BWdepot - Admin</title>
+    <title>BWdepot - Dashboard Admin</title>
+    <!-- Tailwind CSS pou baz la -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-body: #F1F5F9;
-            --bg-card: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --primary: #1E3A8A;
-            --primary-light: #3B82F6;
-            --accent: #10B981;
-            --natcash: #00A550;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --border: #E2E8F0;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #090d16;
+            --card-bg: #131c2e;
+            --text-muted: #94a3b8;
         }
 
-        [data-theme="dark"] {
-            --bg-body: #0F172A;
-            --bg-card: #1E293B;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --primary: #3B82F6;
-            --primary-light: #60A5FA;
-            --accent: #34D399;
-            --natcash: #22C55E;
-            --danger: #F87171;
-            --warning: #FBBF24;
-            --border: #334155;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
         }
 
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            transition: background-color 0.2s, color 0.2s;
+        .glass-card {
+            background: rgba(19, 28, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
         }
 
-        body { background-color: var(--bg-body); color: var(--text-main); padding-top: 100px; padding-bottom: 40px; }
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
 
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-depot { background-color: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+        .badge-frizer { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+        /* Stil pou ekran bloke a */
         #lock-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-body); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        header {
-            position: fixed; top: 0; left: 0; width: 100%;
-            background-color: var(--primary); color: white; padding: 12px; z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .pin-box {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: 800; }
-        .logo span { color: #38BDF8; }
-        
-        nav { display: flex; gap: 8px; }
-        nav a {
-            color: rgba(255, 255, 255, 0.8); padding: 8px 12px; border-radius: 6px;
-            font-size: 14px; font-weight: 700; text-decoration: none;
+
+        .log-container {
+            max-height: 220px;
+            overflow-y: auto;
         }
-        nav a.active { background-color: var(--bg-card); color: var(--primary); }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 20px; }
-
-        .card {
-            background-color: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        .log-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.85rem;
         }
-        .card-title { font-size: 14px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; }
-        .card-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+        .log-item:last-child { border-bottom: none; }
 
-        .btn {
-            width: 100%; padding: 12px; border-radius: 8px; border: none;
-            font-size: 14px; font-weight: 700; color: white; cursor: pointer; margin-top: 8px;
+        /* Graf Estatistik */
+        .stat-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
-        .btn-primary { background-color: var(--primary-light); }
-        .btn-accent { background-color: var(--accent); }
-        .btn-danger { background-color: var(--danger); }
-        .btn-warning { background-color: var(--warning); color: #000; }
-
-        .input-field {
-            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
-            background-color: var(--bg-body); color: var(--text-main); margin-bottom: 10px; outline: none;
-        }
-        
-        .log-box { font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: var(--bg-body); padding: 10px; border-radius: 6px; }
-        .log-item { padding: 6px 0; border-bottom: 1px dashed var(--border); }
-
-        .stat-bar-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .stat-row { display: flex; align-items: center; gap: 10px; }
-        .stat-label { width: 140px; font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .stat-progress-bg { flex: 1; background: var(--border); height: 15px; border-radius: 10px; overflow: hidden; }
-        .stat-progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; }
-        .stat-count { font-size: 12px; font-weight: bold; width: 40px; text-align: right; }
-
-        .alert-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
-
-        /* REKÒT STYLE POU TABLO STÒK LA */
-        .stock-table-wrapper { max-height: 350px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 6px; }
-        .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .stock-table th, .stock-table td { padding: 10px; border-bottom: 1px solid var(--border); }
-        .stock-table th { background-color: var(--primary); color: white; position: sticky; top: 0; }
-        .stock-table tr:nth-child(even) { background-color: rgba(0,0,0,0.02); }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
-        .badge-depot { background-color: var(--primary-light); }
-        .badge-frizer { background-color: var(--warning); color: #000; }
+        .stat-label { width: 120px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .stat-progress-bg { flex: 1; background: rgba(255,255,255,0.05); height: 12px; border-radius: 6px; margin: 0 10px; overflow: hidden; }
+        .stat-progress-fill { background: linear-gradient(90deg, #3b82f6, #10b981); height: 100%; width: 0%; transition: width 0.4s ease; }
+        .stat-count { width: 40px; text-align: right; font-weight: 600; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-6 antialiased">
 
-    <!-- LOCK SCREEN DE SIKIRITE -->
-    <div id="lock-screen">
-        <h2>🔒 Aksè Sekirize Admin</h2>
-        <p style="color: var(--text-muted);">Antre kòd sekirite a pou w jere depo a:</p>
-        <input type="password" id="admin-pin" class="input-field" style="width: 200px; text-align: center; font-size: 20px;" placeholder="****" maxlength="4">
-        <button class="btn btn-primary" style="width: 200px;" onclick="checkPin()">Debloke 🔓</button>
+<!-- 🔐 LOCK SCREEN (EKRAN BLOKAY SOU PIN) -->
+<div id="lock-screen">
+    <div class="pin-box p-8 rounded-2xl w-full max-w-sm text-center backdrop-blur-md">
+        <div class="w-16 h-16 bg-blue-600/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </div>
+        <h2 class="text-xl font-bold mb-2">Espace Admin - BWdepot</h2>
+        <p class="text-xs text-slate-400 mb-6">Antre kòd sekirite ou pou jwenn aksè</p>
+        
+        <input type="password" id="admin-pin" placeholder="••••" class="w-full text-center text-2xl tracking-widest bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 mb-4" maxlength="4">
+        <button onclick="checkPin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-xl transition duration-200 shadow-lg shadow-blue-600/20">Debloke Dashboard</button>
     </div>
+</div>
 
-    <header>
-        <div class="header-container">
-            <div class="logo">📦 <span>BWdepot Admin</span></div>
-            <nav>
-                <a href="index.html">🛒 Bwason</a>
-                <a href="natcash.html">🟢 NatCash</a>
-                <a href="admin.html" class="active">📊 Admin</a>
-            </nav>
+<!-- 📊 MAIN CONTENT (APÈS PIN NAN KORÈK) -->
+<div id="main-content" style="display: none;" class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+                🚀 BWdepot <span class="text-xs font-mono uppercase px-2 py-0.5 bg-blue-600/30 text-blue-400 border border-blue-500/20 rounded">Panel Kontwòl Admin</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Siveyans lavant, kès, antre ak soti estòk an tan reyèl.</p>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <input type="date" id="filtre-dat" class="bg-slate-900 border border-slate-700 text-sm p-2 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            <button onclick="filtreIstorik()" class="bg-slate-800 hover:bg-slate-700 text-xs font-semibold px-4 py-2.5 rounded-lg transition">Filtre Istorik</button>
+            <button onclick="femenJounenOfisyel()" class="bg-rose-600 hover:bg-rose-700 text-xs font-bold px-4 py-2.5 rounded-lg transition shadow-lg shadow-rose-600/10 flex items-center gap-1">
+                🏁 Fèmen Jounen
+            </button>
         </div>
     </header>
 
-    <div class="container" id="main-content" style="display: none;">
+    <!-- KÈS AK BALANS YO (STAT CARDS) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="glass-card stat-card p-5 flex flex-col justify-between">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kès Ti Glase (Detay)</span>
+            <div class="my-3">
+                <span id="disp-kes-frijide" class="text-2xl md:text-3xl font-black tracking-tight text-emerald-400">0.00 HTG</span>
+            </div>
+            <span class="text-[10px] text-slate-500">Kòb likid ki nan ti frizè a</span>
+        </div>
+        <!-- Card 2 -->
+        <div class="glass-card stat-card p-5 flex flex-col justify-between">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kès Vant An Gwo</span>
+            <div class="my-3">
+                <span id="disp-kes-gro" class="text-2xl md:text-3xl font-black tracking-tight text-blue-400">0.00 HTG</span>
+            </div>
+            <span class="text-[10px] text-slate-500">Kòb likid ki nan kès gwo depo a</span>
+        </div>
+        <!-- Card 3 -->
+        <div class="glass-card stat-card p-5 flex flex-col justify-between">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">NatCash Kòb Fizik</span>
+            <div class="my-3">
+                <span id="disp-nat-cash" class="text-2xl md:text-3xl font-black tracking-tight text-amber-400">0.00 HTG</span>
+            </div>
+            <span class="text-[10px] text-slate-500">Lajan kach ki soti nan sèvis depo/retrè</span>
+        </div>
+        <!-- Card 4 -->
+        <div class="glass-card stat-card p-5 flex flex-col justify-between">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Valè Estok Total (Depo)</span>
+            <div class="my-3">
+                <span id="disp-vale-estok" class="text-2xl md:text-3xl font-black tracking-tight text-purple-400">0.00 HTG</span>
+            </div>
+            <span class="text-[10px] text-slate-500">Valè machandiz yo baze sou pri kès</span>
+        </div>
+    </div>
+
+    <!-- BENEFIS AK KOMISYON (DEZYÈM LINY BALANS) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass-card p-4 flex justify-between items-center bg-gradient-to-r from-emerald-950/20 to-transparent">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Benefis Jounen An</p>
+                <h3 id="disp-benefis" class="text-2xl font-black text-emerald-400 mt-1">0.00 HTG</h3>
+            </div>
+            <div class="text-right text-xs space-y-1 text-slate-400 font-mono">
+                <div>Detay: <span id="sub-ben-detay" class="text-white font-bold">0</span> HTG</div>
+                <div>An Gwo: <span id="sub-ben-gro" class="text-white font-bold">0</span> HTG</div>
+            </div>
+        </div>
+        <div class="glass-card p-4 flex justify-between items-center bg-gradient-to-r from-blue-950/20 to-transparent">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Komisyon NatCash</p>
+                <h3 id="disp-komisyon" class="text-2xl font-black text-blue-400 mt-1">0.00 HTG</h3>
+            </div>
+            <div class="text-right text-xs space-y-1 text-slate-400 font-mono">
+                <div>Kom. Depo: <span id="sub-kom-depo" class="text-white font-bold">0.00</span> HTG</div>
+                <div>Kom. Retre: <span id="sub-kom-retre" class="text-white font-bold">0.00</span> HTG</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALÈT SOU KÈS AK FÈMTI AK RAPÒ (SI GENYEN) -->
+    <div id="admin-alert" class="hidden p-4 rounded-xl border bg-rose-600/10 border-rose-500/30 text-rose-400 text-sm"></div>
+
+    <!-- BLÒK JESTYON AK AKSYON ADM -> INPUTS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- ALÈT SOU KÈS POU DISPUTE OWA CLÔTURE -->
-        <div id="admin-alert" class="alert-box"></div>
+        <!-- BLÒK 1: METE ESTOK / TRANSFÈ -->
+        <div class="glass-card p-5 space-y-5">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2 flex items-center gap-2">
+                📦 Konfigirasyon Estok Depo
+            </h2>
+            
+            <!-- Fòm 1: Ajoute nouvo bwat nan depo -->
+            <div class="space-y-2">
+                <label class="text-xs font-medium text-slate-400">Ajoute estok nan gwo Depo a</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="select-pwodwi-estok" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500 col-span-2"></select>
+                    <select id="select-inite-estok" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500">
+                        <option value="kes">Kès (24 gr)</option>
+                        <option value="demi">Demi-Kès (12 gr)</option>
+                        <option value="grenn">Grenn (1 gr)</option>
+                    </select>
+                    <input type="number" id="input-kantite-bwat" placeholder="Kantite" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <button onclick="ajouteEstokAdmin()" class="w-full bg-blue-600 hover:bg-blue-700 text-xs font-bold p-2.5 rounded-lg transition mt-1">Mete nan Depo</button>
+            </div>
 
-        <!-- 1. DASHBOARD VALÈ AN TAN REYÈL -->
-        <h2 style="margin-bottom: 15px;">📊 Dashboard Finansyè</h2>
-        <div class="grid-3">
-            <div class="card">
-                <div class="card-title">💵 Kès Ti Glase (Frijidè)</div>
-                <div class="card-value" id="disp-kes-frijide">0.00 HTG</div>
-            </div>
-            <div class="card">
-                <div class="card-title">📦 Kès En Gwo (BW)</div>
-                <div class="card-value" id="disp-kes-gro" style="color: var(--primary-light);">0.00 HTG</div>
-            </div>
-            <div class="card">
-                <div class="card-title">📱 NatCash Kach (Fizik)</div>
-                <div class="card-value" id="disp-nat-cash" style="color: var(--natcash);">0.00 HTG</div>
+            <!-- Fòm 2: Transfere bwat nan Frizè -->
+            <div class="space-y-2 pt-2 border-t border-slate-800/60">
+                <label class="text-xs font-medium text-slate-400">Transfere nan Frizè (Pa Demi-Kès)</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <select id="select-pwodwi-transfere" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500 col-span-2"></select>
+                    <input type="number" id="input-kantite-transfere-demi" placeholder="Kantite" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <button onclick="transfereNanFrizerAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-bold p-2.5 rounded-lg transition mt-1">Transfere kòm Jete</button>
             </div>
         </div>
 
-        <div class="grid-3">
-            <div class="card" style="border-left: 5px solid var(--accent);">
-                <div class="card-title">📈 Benefis Jounen An</div>
-                <div class="card-value" id="disp-benefis" style="color: var(--accent);">0.00 HTG</div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
-                    Ti Glase: <span id="sub-ben-detay">0</span> HTG | BW Gwo: <span id="sub-ben-gro">0</span> HTG
+        <!-- BLÒK 2: SEKTÈ FINANS AK TRÈT KÒB -->
+        <div class="glass-card p-5 space-y-5">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2 flex items-center gap-2">
+                💰 Soti Lajan & NatCash Kat
+            </h2>
+            
+            <!-- Fòm 1: Retire kòb nan kès -->
+            <div class="space-y-2">
+                <label class="text-xs font-medium text-slate-400">Retire kòb an dirèk nan yon kès</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="select-retre-kes" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500">
+                        <option value="stokBwasonFrijidè">Kès Ti Glase</option>
+                        <option value="stokVenteEnGro">Kès En Gwo</option>
+                        <option value="kobfiziknatcash">NatCash Kach</option>
+                    </select>
+                    <input type="number" id="input-retre-montan" placeholder="Montan HTG" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500">
+                    <input type="text" id="input-retre-motive" placeholder="Poukisa? (Rezon)" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500 col-span-2">
                 </div>
+                <button onclick="retireKòbAdmin()" class="w-full bg-rose-600 hover:bg-rose-700 text-xs font-bold p-2.5 rounded-lg transition mt-1">Konfime Retrè</button>
             </div>
-            <div class="card" style="border-left: 5px solid var(--warning);">
-                <div class="card-title">🪙 Komisyon NatCash jodi a</div>
-                <div class="card-value" id="disp-komisyon" style="color: var(--warning);">0.00 HTG</div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
-                    Depo: <span id="sub-kom-depo">0</span> HTG | Retrè: <span id="sub-kom-retre">0</span> HTG
+
+            <!-- Fòm 2: Balans Kat la -->
+            <div class="space-y-2 pt-2 border-t border-slate-800/60">
+                <label class="text-xs font-medium text-slate-400">Mete oswa Mizajou Balans ki sou Kat NatCash la</label>
+                <div class="flex gap-2">
+                    <input type="number" id="input-nat-balans" placeholder="Montan Balans Kat" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-white focus:outline-none focus:border-blue-500 flex-1">
+                    <button onclick="setNatCardBalance()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs px-4 rounded-lg font-semibold transition">Mete Kat la Ajou</button>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-title">💰 Valè Estok Total nan Depo a</div>
-                <div class="card-value" id="disp-vale-estok" style="color: purple;">0.00 HTG</div>
             </div>
         </div>
 
-        <!-- SEKSYON ETA AN TAN REYÈL POU TOUT 31 BWASON YO -->
-        <h2 style="margin-bottom: 15px;">🔍 Eta Kantite nan chak Bwason</h2>
-        <div class="card" style="margin-bottom: 20px;">
-            <div class="card-title">📋 Lis tout 31 Pwodwi yo (Depo vs Frizè)</div>
-            <div class="stock-table-wrapper">
-                <table class="stock-table">
+        <!-- BLÒK 3: VERIFIKASYON MATEN -->
+        <div class="glass-card p-5 space-y-3">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2 flex items-center gap-2">
+                🔒 Verifikasyon / Fon pou Demen
+            </h2>
+            <p class="text-[11px] text-slate-400">Mete kòb w ap kite pou vandè a jwenn nan kès yo pou demen maten. Sa ap fòse l verifye yo anvan li kòmanse.</p>
+            
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Fon Ti Frizè:</span>
+                    <input type="number" id="fon-frijide" value="0" class="w-28 bg-slate-900 border border-slate-700 rounded p-1 text-right text-xs text-white">
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Fon En Gwo:</span>
+                    <input type="number" id="fon-gro" value="0" class="w-28 bg-slate-900 border border-slate-700 rounded p-1 text-right text-xs text-white">
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Fon NatCash:</span>
+                    <input type="number" id="fon-nat" value="0" class="w-28 bg-slate-900 border border-slate-700 rounded p-1 text-right text-xs text-white">
+                </div>
+                <button onclick="mandeVerifikasyonMaten()" class="w-full bg-amber-600 hover:bg-amber-700 text-xs font-bold p-2.5 rounded-lg transition mt-2 shadow-lg shadow-amber-600/10">Voye Lòd Verifikasyon Maten</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEKSYON TABLO TABLO ESTOK AK TABLO GRAF ESTATISTIK JOU A -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Tablo Envantè Pwodwi yo -->
+        <div class="glass-card p-4 lg:col-span-2 overflow-hidden">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">📋 Sitiyasyon ak Nivo Estok (31 Pwodwi)</h3>
+            <div class="overflow-x-auto max-h-[350px] overflow-y-auto">
+                <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr>
-                            <th>Non Bwason</th>
-                            <th>Stòk Depo (Grenn)</th>
-                            <th>Stòk Frizè (Grenn)</th>
-                            <th>Kès nan Depo</th>
+                        <tr class="text-slate-500 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+                            <th class="pb-2">Non Pwodwi</th>
+                            <th class="pb-2">Estok Depo</th>
+                            <th class="pb-2">Frizè (Pare / Friz)</th>
+                            <th class="pb-2">Estok an Kès</th>
                         </tr>
                     </thead>
-                    <tbody id="tbl-stock-body">
-                        <tr><td colspan="4" style="text-align:center;">Ap chaje done yo...</td></tr>
+                    <tbody id="tbl-stock-body" class="divide-y divide-slate-800/50">
+                        <!-- Pwodwi yo ap chaje an dinamik isit la -->
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2. KONTWÒL AK PARAMÈT ADMIN -->
-        <div class="grid-2">
-            <!-- KONFIGIRASYON MATEN AK TELEFÒN -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">⚙️ Aksyon rapid ak Konfigirasyon</h3>
-                
-                <label style="font-size:12px; font-weight:bold;">Mete Balans Kat NatCash la (Dapre Telefòn ou):</label>
-                <div style="display:flex; gap:5px; margin-bottom:12px;">
-                    <input type="number" id="input-nat-balans" class="input-field" style="margin-bottom:0;" placeholder="Valè sou kat la">
-                    <button class="btn btn-accent" style="margin-top:0; width:auto;" onclick="setNatCardBalance()">Mete l</button>
-                </div>
-
-                <label style="font-size:12px; font-weight:bold;">Mete Fon de Kès Maten pou Vandè a:</label>
-                <input type="number" id="fon-frijide" class="input-field" placeholder="Kès Ti glase">
-                <input type="number" id="fon-gro" class="input-field" placeholder="Kès En Gwo (BW)">
-                <input type="number" id="fon-nat" class="input-field" placeholder="NatCash Kach">
-                <button class="btn btn-primary" onclick="mandeVerifikasyonMaten()">Voye Verifikasyon bay Vandè a 📤</button>
-            </div>
-
-            <!-- TABLO ESTATISTIK PWODWI KI PLI VANN -->
-            <div class="card">
-                <h3 style="margin-bottom: 5px;">🔥 Pwodwi ki pi Vann yo</h3>
-                <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Estatistik baze sou kantite grenn ak bwat ki soti</p>
-                <div class="stat-bar-container" id="stats-container">
-                    Pa gen vant ki fèt pou jounen an ankò.
-                </div>
+        <!-- Estatistik Graf Vann yo -->
+        <div class="glass-card p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">🔥 Pwodwi ki Plis Vann Jodi a</h3>
+            <div id="stats-container" class="space-y-1 max-h-[350px] overflow-y-auto pr-1">
+                <!-- Graf yo ap monte isit la nan JS -->
             </div>
         </div>
-
-        <!-- 3. RETRÈ LAJAN, ENJEKSYON, AK TRANSFÈ FRIZÈ -->
-        <div class="grid-2">
-            <!-- JESTYON RETRÈ LAJAN DEPI NAN KÈS -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">💸 Retire lajan nan yon Kès</h3>
-                <label style="font-size:12px; font-weight:bold;">Chwazi ki kès w ap tire kòb:</label>
-                <select id="select-retre-kes" class="input-field">
-                    <option value="stokBwasonFrijidè">Kès Ti Glase</option>
-                    <option value="stokVenteEnGro">Kès En Gwo (BW)</option>
-                    <option value="kobfiziknatcash">NatCash Kach</option>
-                </select>
-                <input type="number" id="input-retre-montan" class="input-field" placeholder="Montan an HTG">
-                <input type="text" id="input-retre-motive" class="input-field" placeholder="Rezon (Ex: Sere labank, achte glas...)">
-                <button class="btn btn-danger" onclick="retireKòbAdmin()">Valide Retrè Lajan an 📤</button>
-            </div>
-
-            <!-- JESTYON LÈW ACHTE NOUVO ESTOK (ENTRE) -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">📥 Mete nouvo Pwodwi nan Estok (Gwo Depo)</h3>
-                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi a:</label>
-                <select id="select-pwodwi-estok" class="input-field">
-                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
-                </select>
-                
-                <label style="font-size:12px; font-weight:bold;">Chwazi Kalite Inite w ap ajoute a:</label>
-                <select id="select-inite-estok" class="input-field">
-                    <option value="kes">Kès Antye</option>
-                    <option value="demi">1/2 Kès</option>
-                    <option value="grenn">Grenn</option>
-                </select>
-
-                <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite">
-                <button class="btn btn-accent" onclick="ajouteEstokAdmin()">Mete nan Estok Jeneral 📦</button>
-            </div>
-        </div>
-
-        <!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
-        <div class="grid-2">
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">❄️ Voye Bwason nan Frizè (Transfè)</h3>
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Lojik sa a ap retire stòk nan Depo jeneral la pou l mete l nan Frizè a pou detay.</p>
-                
-                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi pou Transfere a:</label>
-                <select id="select-pwodwi-transfere" class="input-field">
-                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
-                </select>
-
-                <label style="font-size:12px; font-weight:bold;">Kantite Demi-Kès pou voye nan Frizè:</label>
-                <input type="number" id="input-kantite-transfere-demi" class="input-field" placeholder="Egzanp: 2">
-                <button class="btn btn-warning" onclick="transfereNanFrizerAdmin()">Valide Transfè Frizè a ❄️</button>
-            </div>
-            
-            <div class="card" style="visibility: hidden; display: none;"></div>
-        </div>
-
-        <!-- 4. TI RECHÈCH PA DAT EPI ISTORIK YO -->
-        <div class="card" style="margin-bottom:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-                <h3>📋 Istorik ak Filtraj Jeneral</h3>
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <label style="font-size:12px; font-weight:bold;">Filtre pa dat:</label>
-                    <input type="date" id="filtre-dat" class="input-field" style="margin-bottom:0; width:auto;" onchange="filtreIstorik()">
-                </div>
-            </div>
-            
-            <div class="grid-3" style="margin-bottom:0;">
-                <div>
-                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🛒 VANT AN DETAY (TI GLASE)</h4>
-                    <div class="log-box" id="log-ti-glase">Pa gen aksyon...</div>
-                </div>
-                <div>
-                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">📦 VANT EN GWO (BW)</h4>
-                    <div class="log-box" id="log-en-gro">Pa gen aksyon...</div>
-                </div>
-                <div>
-                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🟢 TRANZAKSYON NATCASH</h4>
-                    <div class="log-box" id="log-natcash">Pa gen aksyon...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. BOUTON POU FÈMEN JOUNEN AN -->
-        <div class="card" style="border: 2px dashed var(--danger); text-align: center;">
-            <h3 style="color: var(--danger); margin-bottom: 8px;">🏁 Fèmti Ofisyèl Jounen Biznis la</h3>
-            <p style="font-size:13px; color: var(--text-muted); margin-bottom:15px;">
-                Bouton sa a ap pran tout benefis, komisyon, ak lavant jounen an, l ap achive yo nan baz done a pou nèt, epi l ap mete kontè yo pròp pou demen. Fè sa sèlman lè w fin verifye kès la aswè a!
-            </p>
-            <button class="btn btn-danger" style="max-width: 350px; margin: 0 auto; font-size:16px;" onclick="femenJounenOfisyel()">🔒 FÈMEN JOUNEN AN & ARCHIVE</button>
-        </div>
-
     </div>
 
+    <!-- SEKSYON ISTORIK APPLIKASYON AN TRANZAKSYON YO -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-800 pb-1 text-emerald-400">❄️ Logs Detay (Ti Glase)</h3>
+            <div id="log-ti-glase" class="log-container font-mono text-slate-300"></div>
+        </div>
+        <div class="glass-card p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-800 pb-1 text-blue-400">📦 Logs En Gwo</h3>
+            <div id="log-en-gro" class="log-container font-mono text-slate-300"></div>
+        </div>
+        <div class="glass-card p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-800 pb-1 text-amber-400">📱 Logs Sèvis NatCash</h3>
+            <div id="log-natcash" class="log-container font-mono text-slate-300"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- FIREBASE INTEGRATION SETUP -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // Konfigirasyon Firebase ou an
     const firebaseConfig = {
-        apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
-        authDomain: "bwdepot-61214.firebaseapp.com",
-        databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-        projectId: "bwdepot-61214",
-        storageBucket: "bwdepot-61214.firebasestorage.app",
-        messagingSenderId: "624010872324",
-        appId: "1:624010872324:web:0b0565c3872b3caccd5751",
-        measurementId: "G-8VEN9QQF7B"
+        databaseURL: "https://bwdepot-23094-default-rtdb.firebaseio.com"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const appRef = ref(db, "appState");
 
-    let lokalState = {};
-
-    // Lis 31 pwodwi yo ekzakteman jan yo ye nan index.html la pou sekirite si Firebase vid
+    // Lis 31 pwodwi pa defo yo
     const defaultPwodwiLis = [
-        { id: 1, name: "Ti Fritop", prices: { grenn: 45, demi: 475, kes: 950 } },
-        { id: 2, name: "Gwo Fritop", prices: { grenn: 65, demi: 700, kes: 1400 } },
-        { id: 3, name: "Frutop bwat", prices: { grenn: 55, demi: 550, kes: 1100 } },
-        { id: 4, name: "Malta H bwat", prices: { grenn: 65, demi: 650, kes: 1300 } },
-        { id: 5, name: "Ragaman", prices: { grenn: 60, demi: 625, kes: 1250 } },
-        { id: 6, name: "Tampico", prices: { grenn: 45, demi: 425, kes: 850 } },
-        { id: 7, name: "Toro", prices: { grenn: 55, demi: 575, kes: 1150 } },
-        { id: 8, name: "Prestige ti bout", prices: { grenn: 85, demi: 925, kes: 1850 } },
-        { id: 9, name: "Prestige gwo bout", prices: { grenn: 135, demi: 1525, kes: 3050 } },
-        { id: 10, name: "Prestige bwat", prices: { grenn: 90, demi: 950, kes: 1900 } },
-        { id: 11, name: "Heineken bwat", prices: { grenn: 125, demi: 1350, kes: 2700 } },
-        { id: 12, name: "Guinness bout", prices: { grenn: 110, demi: 1225, kes: 2450 } },
-        { id: 13, name: "Guinness bwat", prices: { grenn: 125, demi: 1350, kes: 2700 } },
-        { id: 14, name: "Red bull", prices: { grenn: 175, demi: 1925, kes: 3850 } },
-        { id: 15, name: "Robusto", prices: { grenn: 50, demi: 525, kes: 1050 } },
-        { id: 16, name: "Rani bwat", prices: { grenn: 55, demi: 550, kes: 1100 } },
-        { id: 17, name: "Ceres bwat", prices: { grenn: 75, demi: 800, kes: 1600 } },
-        { id: 18, name: "Gatorade gwo", prices: { grenn: 125, demi: 1350, kes: 2700 } },
-        { id: 19, name: "Coca ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
-        { id: 20, name: "Coca bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
-        { id: 21, name: "Sprite ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
-        { id: 22, name: "Sprite bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
-        { id: 23, name: "Fanta ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
-        { id: 24, name: "Fanta bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
-        { id: 25, name: "Couronne ti bout", prices: { grenn: 45, demi: 475, kes: 950 } },
-        { id: 26, name: "Couronne bwat", prices: { grenn: 55, demi: 575, kes: 1150 } },
-        { id: 27, name: "King Malta bout", prices: { grenn: 55, demi: 550, kes: 1100 } },
-        { id: 28, name: "Delice bwat", prices: { grenn: 45, demi: 475, kes: 950 } },
-        { id: 29, name: "Eau kleren ti bout", prices: { grenn: 25, demi: 250, kes: 500 } },
-        { id: 30, name: "Eau kleren gwo", prices: { grenn: 45, demi: 450, kes: 900 } },
-        { id: 31, name: "Ti Couronne", prices: { grenn: 35, demi: 375, kes: 750 } }
+        { id: "fanta_orange", name: "Fanta Orange", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "fanta_grape", name: "Fanta Grape", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "fanta_fruit", name: "Fanta Fruit Punch", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "coca_cola", name: "Coca Cola", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "sprite", name: "Sprite", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "malta_h", name: "Malta H", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "malta_india", name: "Malta India", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "prestige", name: "Bière Prestige", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "heineken", name: "Bière Heineken", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "corona", name: "Bière Corona", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "guinness", name: "Guinness", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "toro", name: "Toro Energy", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "red_bull", name: "Red Bull", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "ragaman", name: "Ragaman", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "baba_juice", name: "Baba Juice", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "tampico", name: "Juice Tampico", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "rob_jus", name: "Robin Juice", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "fontaine_dlo", name: "Dlo Fontaine (Bwat)", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "aquafina", name: "Dlo Aquafina", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "culligan", name: "Dlo Culligan", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "perrier", name: "Eau Perrier", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "schweppes", name: "Schweppes Tonic", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "vitamalt", name: "Vitamalt", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "smirnoff", name: "Smirnoff Ice", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "monster", name: "Monster Energy", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "gatorade", name: "Gatorade", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "powerade", name: "Powerade", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "snapple", name: "Snapple Juice", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "arizona", name: "Arizona Tea", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "welchs", name: "Welch's Juice", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } },
+        { id: "v8_juice", name: "V8 Splash", prices: { grenn: 0, demi: 0, kes: 0, pwofiDetay: 0, pwofiGro: 0 } }
     ];
+
+    let lokalState = {};
 
     // Koute Firebase nan tan reyèl
     onValue(appRef, (snapshot) => {
@@ -387,7 +416,8 @@
                         id: p.id,
                         name: p.name,
                         stockGrenn: 0,
-                        stockFrizerGrenn: 0,
+                        stockPòtFrizèGrenn: 0, // Stòk kach (jete) ki la pou mete nan frizè
+                        stockFrizerGrenn: 0,   // Sa ki anndan frizè a nèt kounye a
                         prices: p.prices
                     };
                 });
@@ -450,6 +480,7 @@
         if (lokalState.inventory) {
             Object.values(lokalState.inventory).forEach(p => {
                 let stkWandis = p.stockGrenn ?? 0;
+                let stkPouFrizer = p.stockPòtFrizèGrenn ?? 0;
                 let stkFriz = p.stockFrizerGrenn ?? 0;
                 let kèsPri = p.prices?.kes ?? 0;
                 
@@ -462,7 +493,7 @@
                     <tr>
                         <td><strong>${p.name}</strong></td>
                         <td><span class="badge badge-depot">${stkWandis} gr</span></td>
-                        <td><span class="badge badge-frizer">${stkFriz} gr</span></td>
+                        <td><span class="badge" style="background-color: #475569; color: #f1f5f9;">${stkPouFrizer} jete</span> / <span class="badge badge-frizer">${stkFriz} friz</span></td>
                         <td>${kesDepoKalkile} kès</td>
                     </tr>
                 `;
@@ -554,9 +585,9 @@
 
         let grennPouAjoute = 0;
         if (inite === "kes") {
-            grennPouAjoute = kantite * 24; // Yon kès gen 24 grenn
+            grennPouAjoute = kantite * 24;
         } else if (inite === "demi") {
-            grennPouAjoute = kantite * 12; // Yon demi kès gen 12 grenn
+            grennPouAjoute = kantite * 12;
         } else if (inite === "grenn") {
             grennPouAjoute = kantite;
         }
@@ -574,35 +605,53 @@
         document.getElementById('input-kantite-bwat').value = '';
     };
 
-    // LOJIK TRANSFÈ DEPO ➔ FRIZÈ (AN DEMI-KÈS)
+    // LOJIK TRANSFÈ DEPO ➔ PÒT FRIZÈ (STÒK KACH)
     window.transfereNanFrizerAdmin = function() {
         let pId = document.getElementById('select-pwodwi-transfere').value;
         let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere-demi').value);
 
         if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
 
-        let grennPouTransfere = kantiteDemiKes * 12; // 1 Demi-Kès = 12 grenn
+        let grennPouTransfere = kantiteDemiKes * 12;
 
         if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn nan baz done a!"); return; }
 
         let p = lokalState.inventory[pId];
 
-        // Verifye si gen ase stòk nan depo a anvan nou transfere l
         if ((p.stockGrenn ?? 0) < grennPouTransfere) {
             alert(`Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
             return;
         }
 
-        // Retire nan depo, mete nan frizè
+        // Retire nan depo, mete nan sa k ap tann pou antre nan frizè
         p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
-        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPouTransfere;
+        p.stockPòtFrizèGrenn = (p.stockPòtFrizèGrenn ?? 0) + grennPouTransfere;
 
         let updateObj = {};
         updateObj[`inventory/${pId}`] = p;
         update(appRef, updateObj);
 
-        alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} nan Frizè a.`);
+        alert(`Siksè! Ou deklare ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} la pou mete nan Frizè a.`);
         document.getElementById('input-kantite-transfere-demi').value = '';
+    };
+
+    // LOJIK LÈ NOU AKSEPTE/METE KANTITE GRENN PRESI ANNDAN FRIZÈ A
+    window.meteGrennNanFrizerEgzak = function(pId, kantiteGrenn) {
+        if (!pId || isNaN(kantiteGrenn) || kantiteGrenn <= 0) return;
+        let p = lokalState.inventory[pId];
+        if (!p) return;
+
+        if ((p.stockPòtFrizèGrenn ?? 0) < kantiteGrenn) {
+            alert(`Mank stòk ki pare! Gen sèlman ${p.stockPòtFrizèGrenn ?? 0} grenn ki an atant.`);
+            return;
+        }
+
+        p.stockPòtFrizèGrenn = (p.stockPòtFrizèGrenn ?? 0) - kantiteGrenn;
+        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + kantiteGrenn;
+
+        let updateObj = {};
+        updateObj[`inventory/${pId}`] = p;
+        update(appRef, updateObj);
     };
 
     function aficheEstatistik() {
@@ -617,7 +666,7 @@
                 let kantiteVann = stats[p.id] ?? stats[p.name.toLowerCase()] ?? 0;
                 let pousantaj = (kantiteVann / maxVant) * 100;
 
-                if (kantiteVann > 0) { // Afiche sèlman sa ki gen vant pou jounen an
+                if (kantiteVann > 0) {
                     html += `
                         <div class="stat-row">
                             <div class="stat-label">${p.name}</div>
@@ -679,7 +728,6 @@
 
         push(achivRef, nouvoRapò);
 
-        // Reyinisyalize kontè lavant yo pou tou de paj yo
         let resetLavantKonte = {};
         if (lokalState.inventory) {
             Object.keys(lokalState.inventory).forEach(id => {
