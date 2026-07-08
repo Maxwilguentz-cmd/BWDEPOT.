@@ -41,7 +41,6 @@
 
         body { background-color: var(--bg-body); color: var(--text-main); padding-top: 100px; padding-bottom: 40px; }
 
-        /* LOCK SCREEN STYLE */
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg-body); z-index: 9999;
@@ -92,15 +91,24 @@
         .log-box { font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: var(--bg-body); padding: 10px; border-radius: 6px; }
         .log-item { padding: 6px 0; border-bottom: 1px dashed var(--border); }
 
-        /* STATS BAR CHART */
         .stat-bar-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .stat-row { display: flex; align-items: center; gap: 10px; }
-        .stat-label { width: 100px; font-size: 13px; font-weight: bold; }
+        .stat-label { width: 140px; font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .stat-progress-bg { flex: 1; background: var(--border); height: 15px; border-radius: 10px; overflow: hidden; }
         .stat-progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; }
         .stat-count { font-size: 12px; font-weight: bold; width: 40px; text-align: right; }
 
         .alert-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+
+        /* REKÒT STYLE POU TABLO STÒK LA */
+        .stock-table-wrapper { max-height: 350px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .stock-table th, .stock-table td { padding: 10px; border-bottom: 1px solid var(--border); }
+        .stock-table th { background-color: var(--primary); color: white; position: sticky; top: 0; }
+        .stock-table tr:nth-child(even) { background-color: rgba(0,0,0,0.02); }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-depot { background-color: var(--primary-light); }
+        .badge-frizer { background-color: var(--warning); color: #000; }
     </style>
 </head>
 <body>
@@ -167,6 +175,27 @@
             </div>
         </div>
 
+        <!-- SEKSYON ETA AN TAN REYÈL POU TOUT 31 BWASON YO -->
+        <h2 style="margin-bottom: 15px;">🔍 Eta Kantite nan chak Bwason</h2>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📋 Lis tout 31 Pwodwi yo (Depo vs Frizè)</div>
+            <div class="stock-table-wrapper">
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>Non Bwason</th>
+                            <th>Stòk Depo (Grenn)</th>
+                            <th>Stòk Frizè (Grenn)</th>
+                            <th>Kès nan Depo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-stock-body">
+                        <tr><td colspan="4" style="text-align:center;">Ap chaje done yo...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 2. KONTWÒL AK PARAMÈT ADMIN -->
         <div class="grid-2">
             <!-- KONFIGIRASYON MATEN AK TELEFÒN -->
@@ -191,13 +220,12 @@
                 <h3 style="margin-bottom: 5px;">🔥 Pwodwi ki pi Vann yo</h3>
                 <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Estatistik baze sou kantite grenn ak bwat ki soti</p>
                 <div class="stat-bar-container" id="stats-container">
-                    <!-- Dinamikman ranpli pa JS -->
                     Pa gen vant ki fèt pou jounen an ankò.
                 </div>
             </div>
         </div>
 
-        <!-- 3. RETRÈ LAJAN AK ENJEKSYON ESTOK -->
+        <!-- 3. RETRÈ LAJAN, ENJEKSYON, AK TRANSFÈ FRIZÈ -->
         <div class="grid-2">
             <!-- JESTYON RETRÈ LAJAN DEPI NAN KÈS -->
             <div class="card">
@@ -218,14 +246,7 @@
                 <h3 style="margin-bottom: 12px;">📥 Mete nouvo Pwodwi nan Estok (Gwo Depo)</h3>
                 <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi a:</label>
                 <select id="select-pwodwi-estok" class="input-field">
-                    <option value="fritop">Fritop</option>
-                    <option value="malta">Malta</option>
-                    <option value="ragaman">Ragaman</option>
-                    <option value="tampico">Tampico</option>
-                    <option value="toro">Toro</option>
-                    <option value="prestige">Prestige</option>
-                    <option value="cola">Coca-Cola</option>
-                    <option value="sprite">Sprite</option>
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
                 </select>
                 
                 <label style="font-size:12px; font-weight:bold;">Chwazi Kalite Inite w ap ajoute a:</label>
@@ -238,6 +259,25 @@
                 <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite">
                 <button class="btn btn-accent" onclick="ajouteEstokAdmin()">Mete nan Estok Jeneral 📦</button>
             </div>
+        </div>
+
+        <!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
+        <div class="grid-2">
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">❄️ Voye Bwason nan Frizè (Transfè)</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Lojik sa a ap retire stòk nan Depo jeneral la pou l mete l nan Frizè a pou detay.</p>
+                
+                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi pou Transfere a:</label>
+                <select id="select-pwodwi-transfere" class="input-field">
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
+                </select>
+
+                <label style="font-size:12px; font-weight:bold;">Kantite Demi-Kès pou voye nan Frizè:</label>
+                <input type="number" id="input-kantite-transfere-demi" class="input-field" placeholder="Egzanp: 2">
+                <button class="btn btn-warning" onclick="transfereNanFrizerAdmin()">Valide Transfè Frizè a ❄️</button>
+            </div>
+            
+            <div class="card" style="visibility: hidden; display: none;"></div>
         </div>
 
         <!-- 4. TI RECHÈCH PA DAT EPI ISTORIK YO -->
@@ -298,29 +338,92 @@
 
     let lokalState = {};
 
-    // Pri ak lojik estok ak tout pwodwi yo
-    const priReferans = {
-        fritop: { kèsPri: 475, grennPri: 50, nanKès: 12 },
-        malta: { kèsPri: 600, grennPri: 65, nanKès: 12 },
-        ragaman: { kèsPri: 550, grennPri: 60, nanKès: 12 },
-        tampico: { kèsPri: 400, grennPri: 45, nanKès: 12 },
-        toro: { kèsPri: 525, grennPri: 55, nanKès: 12 },
-        prestige: { kèsPri: 800, grennPri: 85, nanKès: 12 },
-        cola: { kèsPri: 450, grennPri: 50, nanKès: 12 },
-        sprite: { kèsPri: 450, grennPri: 50, nanKès: 12 }
-    };
+    // Lis 31 pwodwi yo ekzakteman jan yo ye nan index.html la pou sekirite si Firebase vid
+    const defaultPwodwiLis = [
+        { id: 1, name: "Ti Fritop", prices: { grenn: 45, demi: 475, kes: 950 } },
+        { id: 2, name: "Gwo Fritop", prices: { grenn: 65, demi: 700, kes: 1400 } },
+        { id: 3, name: "Frutop bwat", prices: { grenn: 55, demi: 550, kes: 1100 } },
+        { id: 4, name: "Malta H bwat", prices: { grenn: 65, demi: 650, kes: 1300 } },
+        { id: 5, name: "Ragaman", prices: { grenn: 60, demi: 625, kes: 1250 } },
+        { id: 6, name: "Tampico", prices: { grenn: 45, demi: 425, kes: 850 } },
+        { id: 7, name: "Toro", prices: { grenn: 55, demi: 575, kes: 1150 } },
+        { id: 8, name: "Prestige ti bout", prices: { grenn: 85, demi: 925, kes: 1850 } },
+        { id: 9, name: "Prestige gwo bout", prices: { grenn: 135, demi: 1525, kes: 3050 } },
+        { id: 10, name: "Prestige bwat", prices: { grenn: 90, demi: 950, kes: 1900 } },
+        { id: 11, name: "Heineken bwat", prices: { grenn: 125, demi: 1350, kes: 2700 } },
+        { id: 12, name: "Guinness bout", prices: { grenn: 110, demi: 1225, kes: 2450 } },
+        { id: 13, name: "Guinness bwat", prices: { grenn: 125, demi: 1350, kes: 2700 } },
+        { id: 14, name: "Red bull", prices: { grenn: 175, demi: 1925, kes: 3850 } },
+        { id: 15, name: "Robusto", prices: { grenn: 50, demi: 525, kes: 1050 } },
+        { id: 16, name: "Rani bwat", prices: { grenn: 55, demi: 550, kes: 1100 } },
+        { id: 17, name: "Ceres bwat", prices: { grenn: 75, demi: 800, kes: 1600 } },
+        { id: 18, name: "Gatorade gwo", prices: { grenn: 125, demi: 1350, kes: 2700 } },
+        { id: 19, name: "Coca ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
+        { id: 20, name: "Coca bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
+        { id: 21, name: "Sprite ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
+        { id: 22, name: "Sprite bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
+        { id: 23, name: "Fanta ti bout", prices: { grenn: 50, demi: 525, kes: 1050 } },
+        { id: 24, name: "Fanta bwat", prices: { grenn: 60, demi: 625, kes: 1250 } },
+        { id: 25, name: "Couronne ti bout", prices: { grenn: 45, demi: 475, kes: 950 } },
+        { id: 26, name: "Couronne bwat", prices: { grenn: 55, demi: 575, kes: 1150 } },
+        { id: 27, name: "King Malta bout", prices: { grenn: 55, demi: 550, kes: 1100 } },
+        { id: 28, name: "Delice bwat", prices: { grenn: 45, demi: 475, kes: 950 } },
+        { id: 29, name: "Eau kleren ti bout", prices: { grenn: 25, demi: 250, kes: 500 } },
+        { id: 30, name: "Eau kleren gwo", prices: { grenn: 45, demi: 450, kes: 900 } },
+        { id: 31, name: "Ti Couronne", prices: { grenn: 35, demi: 375, kes: 750 } }
+    ];
 
-    // Koute Firebase
+    // Koute Firebase nan tan reyèl
     onValue(appRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             lokalState = data;
+            
+            // Si pa gen entandone inventory ditou, nou inisyalize l kòm sekirite
+            if (!lokalState.inventory) {
+                lokalState.inventory = {};
+                defaultPwodwiLis.forEach(p => {
+                    lokalState.inventory[p.id] = {
+                        id: p.id,
+                        name: p.name,
+                        stockGrenn: 0,
+                        stockFrizerGrenn: 0,
+                        prices: p.prices
+                    };
+                });
+                update(appRef, { inventory: lokalState.inventory });
+            }
+            
+            ranpliSelectDropdowns();
             majEkranAdmin();
         }
     });
 
+    // Ranpli lis deroulant yo pou chwazi pwodwi yo otomatikman
+    function ranpliSelectDropdowns() {
+        const estokSelect = document.getElementById('select-pwodwi-estok');
+        const transSelect = document.getElementById('select-pwodwi-transfere');
+        
+        if (!estokSelect || !transSelect || !lokalState.inventory) return;
+        
+        // Sove chwa itilizatè a te fè a pou l pa sote pandan paj la ap refresh
+        const valEstok = estokSelect.value;
+        const valTrans = transSelect.value;
+
+        let html = "";
+        Object.values(lokalState.inventory).forEach(p => {
+            html += `<option value="${p.id}">${p.name}</option>`;
+        });
+
+        estokSelect.innerHTML = html;
+        transSelect.innerHTML = html;
+
+        if (valEstok) estokSelect.value = valEstok;
+        if (valTrans) transSelect.value = valTrans;
+    }
+
     function majEkranAdmin() {
-        // Balans yo
+        // Balans Kès yo
         document.getElementById('disp-kes-frijide').innerText = (lokalState.stokBwasonFrijidè ?? 0).toLocaleString('en-US') + " HTG";
         document.getElementById('disp-kes-gro').innerText = (lokalState.stokVenteEnGro ?? 0).toLocaleString('en-US') + " HTG";
         document.getElementById('disp-nat-cash').innerText = (lokalState.kobfiziknatcash ?? 0).toLocaleString('en-US') + " HTG";
@@ -340,15 +443,33 @@
         document.getElementById('sub-ben-detay').innerText = benDetay.toLocaleString('en-US');
         document.getElementById('sub-ben-gro').innerText = benGro.toLocaleString('en-US');
 
-        // Kalkile Valè Estok total nan gwo Depo a
-        let estokJeneral = lokalState.estokJeneral ?? {};
-        let valeEstok = 0;
-        for (let pwodwi in estokJeneral) {
-            if (priReferans[pwodwi]) {
-                valeEstok += estokJeneral[pwodwi] * priReferans[pwodwi].kèsPri;
-            }
+        // Dinamik: Kalkile Valè Estok total nan gwo Depo a baze sou 31 pwodwi nan inventory yo
+        let valeEstokTotal = 0;
+        let tblBodyHtml = "";
+
+        if (lokalState.inventory) {
+            Object.values(lokalState.inventory).forEach(p => {
+                let stkWandis = p.stockGrenn ?? 0;
+                let stkFriz = p.stockFrizerGrenn ?? 0;
+                let kèsPri = p.prices?.kes ?? 0;
+                
+                // Valè estok la kalkile sou kòb kès depo a vaut
+                valeEstokTotal += (stkWandis / 24) * kèsPri;
+
+                let kesDepoKalkile = (stkWandis / 24).toFixed(1);
+
+                tblBodyHtml += `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td><span class="badge badge-depot">${stkWandis} gr</span></td>
+                        <td><span class="badge badge-frizer">${stkFriz} gr</span></td>
+                        <td>${kesDepoKalkile} kès</td>
+                    </tr>
+                `;
+            });
         }
-        document.getElementById('disp-vale-estok').innerText = valeEstok.toLocaleString('en-US') + " HTG";
+        document.getElementById('disp-vale-estok').innerText = valeEstokTotal.toLocaleString('en-US', {maximumFractionDigits: 2}) + " HTG";
+        document.getElementById('tbl-stock-body').innerHTML = tblBodyHtml || `<tr><td colspan="4" style="text-align:center;">Pa gen pwodwi ki disponib.</td></tr>`;
 
         // Alèt yo
         const alertBox = document.getElementById('admin-alert');
@@ -423,31 +544,65 @@
         document.getElementById('input-retre-motive').value = '';
     };
 
-    // PATI KI MODIFIE A POU JERE GRENN, 1/2 KÈS, AK KÈS ANTYE
+    // JESTYON METE NOUVO ESTOK NAN DEPO
     window.ajouteEstokAdmin = function() {
-        let pwodwi = document.getElementById('select-pwodwi-estok').value;
+        let pId = document.getElementById('select-pwodwi-estok').value;
         let inite = document.getElementById('select-inite-estok').value;
         let kantite = parseFloat(document.getElementById('input-kantite-bwat').value);
 
-        if (isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite valab!"); return; }
+        if (!pId || isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite valab!"); return; }
 
-        let kèsPouAjoute = 0;
-        let grennNanKès = priReferans[pwodwi].nanKès; // Konbyen grenn ki gen nan yon kès pou pwodwi sa a
-
+        let grennPouAjoute = 0;
         if (inite === "kes") {
-            kèsPouAjoute = kantite;
+            grennPouAjoute = kantite * 24; // Yon kès gen 24 grenn
         } else if (inite === "demi") {
-            kèsPouAjoute = kantite * 0.5; // Yon demi kès se 0.5 kès
+            grennPouAjoute = kantite * 12; // Yon demi kès gen 12 grenn
         } else if (inite === "grenn") {
-            kèsPouAjoute = kantite / grennNanKès; // Konvèti grenn yo an fraksyon kès antye
+            grennPouAjoute = kantite;
         }
 
-        let estokJeneral = lokalState.estokJeneral ?? {};
-        estokJeneral[pwodwi] = (estokJeneral[pwodwi] ?? 0) + kèsPouAjoute;
+        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn nan baz done a!"); return; }
 
-        update(appRef, { estokJeneral: estokJeneral });
-        alert(`Siksè! Valè estok ${pwodwi.toUpperCase()} la mete ajou nan Depo a.`);
+        let p = lokalState.inventory[pId];
+        p.stockGrenn = (p.stockGrenn ?? 0) + grennPouAjoute;
+
+        let updateObj = {};
+        updateObj[`inventory/${pId}`] = p;
+        update(appRef, updateObj);
+
+        alert(`Siksè! Nouvo estok pou ${p.name.toUpperCase()} la sove nan Depo a.`);
         document.getElementById('input-kantite-bwat').value = '';
+    };
+
+    // LOJIK TRANSFÈ DEPO ➔ FRIZÈ (AN DEMI-KÈS)
+    window.transfereNanFrizerAdmin = function() {
+        let pId = document.getElementById('select-pwodwi-transfere').value;
+        let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere-demi').value);
+
+        if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
+
+        let grennPouTransfere = kantiteDemiKes * 12; // 1 Demi-Kès = 12 grenn
+
+        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn nan baz done a!"); return; }
+
+        let p = lokalState.inventory[pId];
+
+        // Verifye si gen ase stòk nan depo a anvan nou transfere l
+        if ((p.stockGrenn ?? 0) < grennPouTransfere) {
+            alert(`Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
+            return;
+        }
+
+        // Retire nan depo, mete nan frizè
+        p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
+        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPouTransfere;
+
+        let updateObj = {};
+        updateObj[`inventory/${pId}`] = p;
+        update(appRef, updateObj);
+
+        alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} nan Frizè a.`);
+        document.getElementById('input-kantite-transfere-demi').value = '';
     };
 
     function aficheEstatistik() {
@@ -457,21 +612,25 @@
         let maxVant = Math.max(...Object.values(stats), 1); 
         let html = "";
 
-        for (let pwodwi in priReferans) {
-            let kantiteVann = stats[pwodwi] ?? 0;
-            let pousantaj = (kantiteVann / maxVant) * 100;
+        if (lokalState.inventory) {
+            Object.values(lokalState.inventory).forEach(p => {
+                let kantiteVann = stats[p.id] ?? stats[p.name.toLowerCase()] ?? 0;
+                let pousantaj = (kantiteVann / maxVant) * 100;
 
-            html += `
-                <div class="stat-row">
-                    <div class="stat-label">${pwodwi.toUpperCase()}</div>
-                    <div class="stat-progress-bg">
-                        <div class="stat-progress-fill" style="width: ${pousantaj}%;"></div>
-                    </div>
-                    <div class="stat-count">${kantiteVann}</div>
-                </div>
-            `;
+                if (kantiteVann > 0) { // Afiche sèlman sa ki gen vant pou jounen an
+                    html += `
+                        <div class="stat-row">
+                            <div class="stat-label">${p.name}</div>
+                            <div class="stat-progress-bg">
+                                <div class="stat-progress-fill" style="width: ${pousantaj}%;"></div>
+                            </div>
+                            <div class="stat-count">${kantiteVann}</div>
+                        </div>
+                    `;
+                }
+            });
         }
-        container.innerHTML = html;
+        container.innerHTML = html || "Pa gen vant ki fèt pou jounen an ankò.";
     }
 
     function ranpliIstorikEkran(datFiltre = "") {
@@ -520,12 +679,20 @@
 
         push(achivRef, nouvoRapò);
 
+        // Reyinisyalize kontè lavant yo pou tou de paj yo
+        let resetLavantKonte = {};
+        if (lokalState.inventory) {
+            Object.keys(lokalState.inventory).forEach(id => {
+                resetLavantKonte[id] = 0;
+            });
+        }
+
         update(appRef, {
             benefisDetay: 0,
             benefisGro: 0,
             totalKomisyonDepo: 0,
             totalKomisyonRetre: 0,
-            lavantKonte: { fritop: 0, malta: 0, ragaman: 0, tampico: 0, toro: 0, prestige: 0, cola: 0, sprite: 0 },
+            lavantKonte: resetLavantKonte,
             clotureAveg: null,
             kontestasyonKès: null
         });
