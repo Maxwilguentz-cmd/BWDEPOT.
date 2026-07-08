@@ -488,7 +488,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
@@ -544,6 +544,29 @@ function saveAppStateToFirebase() {
 
 // Koute chanjman yo an tan reyèl pou tout lòt telefòn ka wè yo lamenm
 onValue(dbRef, (snapshot) => {
+    // 🌟 LOJIK SEKIRITE SI BAZ DONE A VID OYWA SI "inventory" PA LA NÈT
+    if (!snapshot.exists() || !snapshot.val() || !snapshot.val().inventory) {
+        console.log("Firebase vid! Inisyalizasyon otomatik...");
+        const initialAppState = {
+            inventory: [
+                { id: 1, name: "Fritop", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=200", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 0, demi: 0, kes: 0 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
+            ],
+            totalRevenue: 0,
+            totalProfit: 0,
+            natCashBalance: 5000,
+            physicalCashBalance: 0,
+            stokBwasonFrijidè: 0,
+            stokVenteEnGro: 0,
+            kobfiziknatcash: 0,
+            adminFonDeKes: { natcash: 0, gwo: 0, detay: 0 },
+            verifiedSections: { natcash: false, bwason: false },
+            logsAnGwo: "",
+            logsAnDetay: ""
+        };
+        set(dbRef, initialAppState);
+        return;
+    }
+
     const data = snapshot.val();
     if (data) {
         if (data.inventory) inventory = data.inventory;
