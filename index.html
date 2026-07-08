@@ -511,7 +511,8 @@ let totalProfit = 0;
 let natCashBalance = 5000;
 
 // 3 Gwo Estok lajan yo senkronize
-let physicalCashBalance = 0;    // Kòb total ki nan kès la (Kach total)
+let physicalCashBalance = 0;    // Kòb total ki nan kès la (Kach jeneral)
+let kobfiziknatcash = 0;        // 🌟 Nouvo varyab pou pran kòb natcash la nan Firebase
 let stokBwasonFrijidè = 0.00;    // STOK 2: Kès detay (Bwason ti glase)
 let stokVenteEnGro = 0.00;      // STOK 3: Kès Vann an gwo (BW)
 
@@ -530,7 +531,7 @@ function saveAppStateToFirebase() {
         totalRevenue: totalRevenue,
         totalProfit: totalProfit,
         natCashBalance: natCashBalance,
-        physicalCashBalance: physicalCashBalance,
+        physicalCashBalance: physicalCashBalance, // 🌟 Reantre kach total la ki gen adisyon an ladan l
         stokBwasonFrijidè: stokBwasonFrijidè,
         stokVenteEnGro: stokVenteEnGro,
         adminFonDeKes: adminFonDeKes,
@@ -549,7 +550,11 @@ onValue(dbRef, (snapshot) => {
         totalRevenue = data.totalRevenue || 0;
         totalProfit = data.totalProfit || 0;
         natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
-        physicalCashBalance = data.physicalCashBalance || 0;
+        
+        // 🌟 ISIT LA NOU PRAN DATA A EPI NOU PLUS LI AK PHYSICALCASHBALANCE POU BAY KACH TOTAL LA
+        kobfiziknatcash = data.kobfiziknatcash || 0;
+        physicalCashBalance = (data.physicalCashBalance || 0) + kobfiziknatcash;
+
         stokBwasonFrijidè = data.stokBwasonFrijidè || 0;
         stokVenteEnGro = data.stokVenteEnGro || 0;
         if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
@@ -794,4 +799,5 @@ window.checkoutSale = function() {
     saveAppStateToFirebase();
 }
 </script>
+
 </html>
