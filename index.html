@@ -439,7 +439,7 @@
                     </div>
                 </div>
 
-                <!-- 🌟 DE TI BWAT KÈS DETAY AK KÈS EN GRO (BW) LAN -->
+                <!-- DE TI BWAT KÈS DETAY AK KÈS EN GRO (BW) LAN -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                     <div class="card" style="margin-bottom:0; padding:8px; text-align:center; background-color: rgba(16, 185, 129, 0.05); border: 1px dashed var(--accent);">
                         <span style="font-size:10px; color:var(--text-muted); font-weight:bold; display:block;">KÈS DETAY (TI GLASE):</span>
@@ -510,11 +510,10 @@ let totalRevenue = 0;
 let totalProfit = 0;
 let natCashBalance = 5000;
 
-// 3 Gwo Estok lajan yo senkronize
-let physicalCashBalance = 0;    // Kòb total ki nan kès la (Kach jeneral)
-let kobfiziknatcash = 0;        // 🌟 Nouvo varyab pou pran kòb natcash la nan Firebase
-let stokBwasonFrijidè = 0.00;    // STOK 2: Kès detay (Bwason ti glase)
-let stokVenteEnGro = 0.00;      // STOK 3: Kès Vann an gwo (BW)
+let physicalCashBalance = 0;    
+let kobfiziknatcash = 0;        
+let stokBwasonFrijidè = 0.00;    
+let stokVenteEnGro = 0.00;      
 
 let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
 let verifiedSections = { natcash: false, bwason: false };
@@ -531,7 +530,7 @@ function saveAppStateToFirebase() {
         totalRevenue: totalRevenue,
         totalProfit: totalProfit,
         natCashBalance: natCashBalance,
-        physicalCashBalance: physicalCashBalance, // 🌟 Reantre kach total la ki gen adisyon an ladan l
+        physicalCashBalance: physicalCashBalance, 
         stokBwasonFrijidè: stokBwasonFrijidè,
         stokVenteEnGro: stokVenteEnGro,
         adminFonDeKes: adminFonDeKes,
@@ -542,14 +541,43 @@ function saveAppStateToFirebase() {
     update(dbRef, updates);
 }
 
-// Koute chanjman yo an tan reyèl pou tout lòt telefòn ka wè yo lamenm
 onValue(dbRef, (snapshot) => {
-    // 🌟 LOJIK SEKIRITE SI BAZ DONE A VID OYWA SI "inventory" PA LA NÈT
+    // 🌟 SI FIREBASE VID, ENTÈGRASYON OTOMATIK TOUT 31 PWODWI YO SOU KOUP DEFAUT!
     if (!snapshot.exists() || !snapshot.val() || !snapshot.val().inventory) {
-        console.log("Firebase vid! Inisyalizasyon otomatik...");
+        console.log("Firebase vid! Inisyalizasyon otomatik ak 31 pwodwi yo...");
         const initialAppState = {
             inventory: [
-                { id: 1, name: "Fritop", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=200", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 0, demi: 0, kes: 0 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
+                { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 240, stockFrizerGrenn: 30, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 100, stockFrizerGrenn: 6, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 80, stockFrizerGrenn: 12, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 90, stockFrizerGrenn: 8, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 150, stockFrizerGrenn: 12, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 100, stockFrizerGrenn: 10, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 120, stockFrizerGrenn: 15, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 19, name: "Limonade", img: "Limonade.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 180, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
             ],
             totalRevenue: 0,
             totalProfit: 0,
@@ -574,7 +602,6 @@ onValue(dbRef, (snapshot) => {
         totalProfit = data.totalProfit || 0;
         natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
         
-        // 🌟 ISIT LA NOU PRAN DATA A EPI NOU PLUS LI AK PHYSICALCASHBALANCE POU BAY KACH TOTAL LA
         kobfiziknatcash = data.kobfiziknatcash || 0;
         physicalCashBalance = (data.physicalCashBalance || 0) + kobfiziknatcash;
 
@@ -635,7 +662,6 @@ window.submitDispute = function() {
         let adminAmountExpected = adminFonDeKes.gwo + adminFonDeKes.detay;
         verifiedSections.bwason = true;
         
-        // Si gen erè, nou mete lajan an nan kès detay pa defo pou jounen an ka kòmanse
         stokBwasonFrijidè += realAmount;
         physicalCashBalance += realAmount;
         alert(`⚠️ Kontestasyon voye bay Admin nan. Ou te dwe jwenn ${adminAmountExpected} HTG, ou deklare ${realAmount} HTG.`);
@@ -664,7 +690,6 @@ window.submitExpense = function() {
     if (reason === "") return alert("Tanpri ekri rezon depans lan!");
     if (amt > physicalCashBalance) return alert("⚠️ Kòb ki nan kès la mwens pase depans sa a!");
 
-    // Depans lan retire nan kès total ak nan kès detay pa defo
     physicalCashBalance -= amt;
     if(stokBwasonFrijidè >= amt) {
         stokBwasonFrijidè -= amt;
@@ -696,7 +721,6 @@ function updatePosCashDisplay() {
     const el = document.getElementById('pos-cash-display');
     if (el) el.innerHTML = physicalCashBalance.toLocaleString() + " HTG <span style='font-size:12px;font-weight:normal;opacity:0.7;'>[S" + (physicalCashBalance / 5).toLocaleString() + "]</span>";
     
-    // Ajou nan de ti bwat afichaj yo
     const elDetay = document.getElementById('kes-detay-display');
     const elGro = document.getElementById('kes-gro-display');
     if (elDetay) elDetay.innerText = stokBwasonFrijidè.toLocaleString() + " HTG";
@@ -798,12 +822,10 @@ window.checkoutSale = function() {
         
         if (item.type === 'detail') {
             p.stockFrizerGrenn -= item.qtyNeeded;
-            // 🌟 OGMANTE KÈS DETAY (TI GLASE)
             stokBwasonFrijidè += item.price;
             logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnDetay;
         } else {
             p.stockGrenn -= item.qtyNeeded;
-            // 🌟 OGMANTE KÈS VANN AN GWO (BW)
             stokVenteEnGro += item.price;
             logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnGwo;
         }
@@ -812,7 +834,7 @@ window.checkoutSale = function() {
 
     totalRevenue += billTotal; 
     totalProfit += billProfit; 
-    physicalCashBalance += billTotal; // Kès jeneral kach la moute tou otomatikman
+    physicalCashBalance += billTotal; 
     
     alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
     currentCart = [];
