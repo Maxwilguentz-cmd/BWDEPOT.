@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BWdepot - NatCash</title>
+    <title>BWdepot - _</title>
     <style>
         :root {
             --bg-body: #F1F5F9;
@@ -262,7 +262,7 @@
 
         <!-- Ti afichaj enfòmasyon pou kapab wè estok vann en gro (BW) la sou paj sa a tou pou verifikasyon -->
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: right; padding-right: 5px;">
-            Estok Lajan Disponib nan Vann En Gro (BW): <span id="stok-bw-display" style="font-weight: bold; color: var(--primary);">0.00 HTG</span>
+            Estok Lajan Disponib nan Vann En Gro (BW): <span id="kes-gro-display" style="font-weight: bold; color: var(--primary);">0.00 HTG</span>
         </div>
 
         <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
@@ -303,13 +303,13 @@
     // Inisyalize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const natcashRef = ref(db, "natcash_system");
+    const natcashRef = ref(db, "appState");
 
     // Lojik 3 Stok Lajan yo (Nou inisyalize yo pou yo pare pou tout sistèm nan)
     let natcashCardBalance = 41812.00;
-    let physicalCashBalance = 90650.00; // STOK 1: Kòb fizik ki nan menw pou NatCash
+    let kobfiziknatcash = 0.00; // STOK 1: Kòb fizik ki nan menw pou NatCash
     let stokBwasonFrijidè = 0.00;        // STOK 2: Pou kòb bwason nan frijidè (pou paj bwason)
-    let stokVenteEnGro = 150000.00;      // STOK 3: Kòb vann an grwo (BW) - Nou mete yon valè inisyal pou tès
+    let stokVenteEnGro = 0.00;      // STOK 3: Kòb vann an grwo (BW) - Nou mete yon valè inisyal pou tès
 
     let accumulatedCommission = 0.00; 
     let lisTranzaksyon  = [];
@@ -319,7 +319,7 @@
         const data = snapshot.val();
         if (data) {
             natcashCardBalance = data.natcashCardBalance ?? 41812.00;
-            physicalCashBalance = data.physicalCashBalance ?? 90650.00;
+            kobfiziknatcash = data.kobfiziknatcash ?? 0.00;
             stokBwasonFrijidè = data.stokBwasonFrijidè ?? 0.00;
             stokVenteEnGro = data.stokVenteEnGro ?? 150000.00;
             accumulatedCommission = data.accumulatedCommission ?? 0.00;
@@ -350,7 +350,7 @@
 
         update(natcashRef, {
             natcashCardBalance: natcashCardBalance,
-            physicalCashBalance: physicalCashBalance,
+            kobfiziknatcash: kobfiziknatcash,
             stokBwasonFrijidè: stokBwasonFrijidè,
             stokVenteEnGro: stokVenteEnGro,
             accumulatedCommission: accumulatedCommission,
@@ -411,13 +411,13 @@
         let cardDisp = document.getElementById('vandes-natcash-display');
         let cashDisp = document.getElementById('vandes-cash-display');
         let komiDisp = document.getElementById('vandes-komisyon-display');
-        let stokBwDisp = document.getElementById('stok-bw-display');
+        let stokBwDisp = document.getElementById('kes-gro-display');
 
         if (cardDisp) {
             cardDisp.innerText = natcashCardBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
         if (cashDisp) {
-            cashDisp.innerText = physicalCashBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+            cashDisp.innerText = kobfiziknatcash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
         if (komiDisp) {
             komiDisp.innerText = accumulatedCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
@@ -473,10 +473,10 @@
         if (aksyon.toUpperCase() === "SUPRIME") {
             if (tranzaksyon.tip === 'depo') {
                 natcashCardBalance += tranzaksyon.montan;
-                physicalCashBalance -= tranzaksyon.montan;
+                kobfiziknatcash -= tranzaksyon.montan;
             } else if (tranzaksyon.tip === 'retre') {
                 natcashCardBalance -= tranzaksyon.montan;
-                physicalCashBalance += tranzaksyon.montan;
+                kobfiziknatcash += tranzaksyon.montan;
             }
             accumulatedCommission -= tranzaksyon.komisyon;
             
@@ -494,10 +494,10 @@
             
             if (tranzaksyon.tip === 'depo') {
                 natcashCardBalance += tranzaksyon.montan;
-                physicalCashBalance -= tranzaksyon.montan;
+                kobfiziknatcash -= tranzaksyon.montan;
             } else if (tranzaksyon.tip === 'retre') {
                 natcashCardBalance -= tranzaksyon.montan;
-                physicalCashBalance += tranzaksyon.montan;
+                kobfiziknatcash += tranzaksyon.montan;
             }
             accumulatedCommission -= tranzaksyon.komisyon;
             
@@ -505,12 +505,12 @@
             if (tranzaksyon.tip === 'depo') {
                 tranzaksyon.komisyon = jwennKomisyonDepo(nouvoMontan);
                 natcashCardBalance -= nouvoMontan;
-                physicalCashBalance += nouvoMontan;
+                kobfiziknatcash += nouvoMontan;
                 tranzaksyon.mesaj = `Kliyan voye ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
             } else if (tranzaksyon.tip === 'retre') {
                 tranzaksyon.komisyon = jwennKomisyonRetrè(nouvoMontan);
                 natcashCardBalance += nouvoMontan;
-                physicalCashBalance -= nouvoMontan;
+                kobfiziknatcash -= nouvoMontan;
                 tranzaksyon.mesaj = `Kliyan retire ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
             }
             accumulatedCommission += tranzaksyon.komisyon;
@@ -545,7 +545,7 @@
 
             // APLIKE LOJIK LA: Diminye nan gro, ogmante nan kach natcash
             stokVenteEnGro -= montan;
-            physicalCashBalance += montan;
+            kobfiziknatcash += montan;
             
             ajouteNanNatLog(`SISTÈM: Yo pran ${montan} HTG nan Stok En Gro (BW) pou ranfòse Kach NatCash la.`, 0, 'sistèm', 0);
             alert(`Siksè! ${montan.toFixed(2)} HTG pran nan Stok BW epi li ajoute nan Kòb Fizik NatCash la.`);
@@ -557,7 +557,7 @@
                 alert("⚠️ Montan sa a pa valab!");
                 return;
             }
-            if (physicalCashBalance < montan) {
+            if (kobfiziknatcash < montan) {
                 alert("❌ Pa gen ase kòb fizik pou w retire montan sa a!");
                 return;
             }
@@ -570,7 +570,7 @@
                 stokVenteEnGro += montan;
             }
             
-            physicalCashBalance -= montan;
+            kobfiziknatcash -= montan;
             alert(`Ou retire ${montan.toFixed(2)} HTG nan Kòb Fizik la. Direksyon: ${destinasyon.toUpperCase()}. Sove pou kès admin an pita!`);
         }
         
@@ -597,7 +597,7 @@
             return;
         }
         
-        alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${disputedAmt} HTG olye de ${physicalCashBalance} HTG.`);
+        alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${disputedAmt} HTG olye de ${kobfiziknatcash} HTG.`);
         document.getElementById('verification-popup').style.display = 'none';
         
         // Sove kontestasyon an nan Firebase pou admin ka wè l
@@ -605,7 +605,7 @@
             mandeVerifikasyon: false,
             kontestasyonKès: {
                 dat: new Date().toLocaleString(),
-                kòbSistèm: physicalCashBalance,
+                kòbSistèm: kobfiziknatcash,
                 kòbMounNanWè: parseFloat(disputedAmt)
             }
         });
@@ -641,18 +641,18 @@
             }
             let komisyon = jwennKomisyonDepo(montan);
             natcashCardBalance -= montan;
-            physicalCashBalance += montan;
+            kobfiziknatcash += montan;
             accumulatedCommission += komisyon;
             ajouteNanNatLog(`Kliyan voye ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'depo', komisyon);
             
         } else if (type === 'retre') {
-            if (physicalCashBalance < montan) {
+            if (kobfiziknatcash < montan) {
                 alert("❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!");
                 return;
             }
             let komisyon = jwennKomisyonRetrè(montan);
             natcashCardBalance += montan;
-            physicalCashBalance -= montan;
+            kobfiziknatcash -= montan;
             accumulatedCommission += komisyon;
             ajouteNanNatLog(`Kliyan retire ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'retre', komisyon);
         }
