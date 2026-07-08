@@ -306,7 +306,7 @@
     const natcashRef = ref(db, "appState");
 
     // Lojik 3 Stok Lajan yo (Nou inisyalize yo pou yo pare pou tout sistèm nan)
-    let natcashCardBalance = 41812.00;
+    let natcashCardBalance = 0.00;
     let kobfiziknatcash = 0.00; // STOK 1: Kòb fizik ki nan menw pou NatCash
     let stokBwasonFrijidè = 0.00;        // STOK 2: Pou kòb bwason nan frijidè (pou paj bwason)
     let stokVenteEnGro = 0.00;      // STOK 3: Kòb vann an grwo (BW) - Nou mete yon valè inisyal pou tès
@@ -318,7 +318,7 @@
     onValue(natcashRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            natcashCardBalance = data.natcashCardBalance ?? 41812.00;
+            natcashCardBalance = data.natcashCardBalance ?? 0.00;
             kobfiziknatcash = data.kobfiziknatcash ?? 0.00;
             stokBwasonFrijidè = data.stokBwasonFrijidè ?? 0.00;
             stokVenteEnGro = data.stokVenteEnGro ?? 150000.00;
