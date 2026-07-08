@@ -100,6 +100,7 @@
 
         .alert-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
 
+        /* REKÒT STYLE POU TABLO STÒK LA */
         .stock-table-wrapper { max-height: 350px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 6px; }
         .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
         .stock-table th, .stock-table td { padding: 10px; border-bottom: 1px solid var(--border); }
@@ -107,7 +108,6 @@
         .stock-table tr:nth-child(even) { background-color: rgba(0,0,0,0.02); }
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
         .badge-depot { background-color: var(--primary-light); }
-        .badge-tranzit { background-color: #A855F7; } /* Koulè vyolèt pou tranzit */
         .badge-frizer { background-color: var(--warning); color: #000; }
     </style>
 </head>
@@ -178,20 +178,19 @@
         <!-- SEKSYON ETA AN TAN REYÈL POU TOUT 31 BWASON YO -->
         <h2 style="margin-bottom: 15px;">🔍 Eta Kantite nan chak Bwason</h2>
         <div class="card" style="margin-bottom: 20px;">
-            <div class="card-title">📋 Lis tout 31 Pwodwi yo (Depo vs Tranzit vs Frizè)</div>
+            <div class="card-title">📋 Lis tout 31 Pwodwi yo (Depo vs Frizè)</div>
             <div class="stock-table-wrapper">
                 <table class="stock-table">
                     <thead>
                         <tr>
                             <th>Non Bwason</th>
                             <th>Stòk Depo (Grenn)</th>
-                            <th>Stòk Tranzit (Grenn)</th>
                             <th>Stòk Frizè (Grenn)</th>
                             <th>Kès nan Depo</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-stock-body">
-                        <tr><td colspan="5" style="text-align:center;">Ap chaje done yo...</td></tr>
+                        <tr><td colspan="4" style="text-align:center;">Ap chaje done yo...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -226,7 +225,7 @@
             </div>
         </div>
 
-        <!-- 3. RETRÈ LAJAN AK ENJEKSYON NOUVO STÒK -->
+        <!-- 3. RETRÈ LAJAN, ENJEKSYON, AK TRANSFÈ FRIZÈ -->
         <div class="grid-2">
             <!-- JESTYON RETRÈ LAJAN DEPI NAN KÈS -->
             <div class="card">
@@ -247,7 +246,7 @@
                 <h3 style="margin-bottom: 12px;">📥 Mete nouvo Pwodwi nan Estok (Gwo Depo)</h3>
                 <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi a:</label>
                 <select id="select-pwodwi-estok" class="input-field">
-                    <!-- Ranpli otomatikman pa JS -->
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
                 </select>
                 
                 <label style="font-size:12px; font-weight:bold;">Chwazi Kalite Inite w ap ajoute a:</label>
@@ -262,37 +261,23 @@
             </div>
         </div>
 
-        <!-- JESTYON TRANSFÈ EN DE FWA: ETAP 1 (DEPO ➔ TRANZIT) AK ETAP 2 (TRANZIT ➔ FRIZÈ) -->
+        <!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
         <div class="grid-2">
-            <!-- ETAP 1: VOYE KÈS NAN TRANZIT -->
             <div class="card">
-                <h3 style="margin-bottom: 12px;">📦 Etap 1: Sere stòk pou Frizè (Depo ➔ Tranzit)</h3>
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Lojik sa a sèlman make kès yo la kòm stòk rezèv tranzit, yo poko ka vann sou paj la.</p>
+                <h3 style="margin-bottom: 12px;">❄️ Voye Bwason nan Frizè (Transfè)</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Lojik sa a ap retire stòk nan Depo jeneral la pou l mete l nan Frizè a pou detay.</p>
                 
-                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi:</label>
+                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi pou Transfere a:</label>
                 <select id="select-pwodwi-transfere" class="input-field">
-                    <!-- Ranpli otomatikman pa JS -->
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
                 </select>
 
-                <label style="font-size:12px; font-weight:bold;">Kantite Demi-Kès pou sere nan Tranzit:</label>
+                <label style="font-size:12px; font-weight:bold;">Kantite Demi-Kès pou voye nan Frizè:</label>
                 <input type="number" id="input-kantite-transfere-demi" class="input-field" placeholder="Egzanp: 2">
-                <button class="btn btn-primary" onclick="transfereNanTranzitAdmin()">Sere nan Tranzit 📥</button>
+                <button class="btn btn-warning" onclick="transfereNanFrizerAdmin()">Valide Transfè Frizè a ❄️</button>
             </div>
             
-            <!-- ETAP 2: PRAN GRENN NAN TRANZIT POU FRIZÈ COULANTE -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px;">❄️ Etap 2: Mete grenn nan Frizè a (Tranzit ➔ Frizè)</h3>
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Pran grenn nan stòk tranzit la pou lage yo nan frizè a nèt pou yo ka vann imedyatman.</p>
-                
-                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi:</label>
-                <select id="select-pwodwi-lage-frizer" class="input-field">
-                    <!-- Ranpli otomatikman pa JS -->
-                </select>
-
-                <label style="font-size:12px; font-weight:bold;">Kantite Grenn pou lage nan Frizè a:</label>
-                <input type="number" id="input-kantite-lage-grenn" class="input-field" placeholder="Egzanp: 5">
-                <button class="btn btn-warning" onclick="lageNanFrizerNètAdmin()">Lage nan Frizè pou Vann ❄️</button>
-            </div>
+            <div class="card" style="visibility: hidden; display: none;"></div>
         </div>
 
         <!-- 4. TI RECHÈCH PA DAT EPI ISTORIK YO -->
@@ -353,6 +338,7 @@
 
     let lokalState = {};
 
+    // Lis 31 pwodwi yo ekzakteman jan yo ye nan index.html la pou sekirite si Firebase vid
     const defaultPwodwiLis = [
         { id: 1, name: "Ti Fritop", prices: { grenn: 45, demi: 475, kes: 950 } },
         { id: 2, name: "Gwo Fritop", prices: { grenn: 65, demi: 700, kes: 1400 } },
@@ -387,11 +373,13 @@
         { id: 31, name: "Ti Couronne", prices: { grenn: 35, demi: 375, kes: 750 } }
     ];
 
+    // Koute Firebase nan tan reyèl
     onValue(appRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
             lokalState = data;
             
+            // Si pa gen entandone inventory ditou, nou inisyalize l kòm sekirite
             if (!lokalState.inventory) {
                 lokalState.inventory = {};
                 defaultPwodwiLis.forEach(p => {
@@ -399,7 +387,6 @@
                         id: p.id,
                         name: p.name,
                         stockGrenn: 0,
-                        stockTranzitGrenn: 0, // Varyab transit sekirite
                         stockFrizerGrenn: 0,
                         prices: p.prices
                     };
@@ -412,16 +399,16 @@
         }
     });
 
+    // Ranpli lis deroulant yo pou chwazi pwodwi yo otomatikman
     function ranpliSelectDropdowns() {
         const estokSelect = document.getElementById('select-pwodwi-estok');
         const transSelect = document.getElementById('select-pwodwi-transfere');
-        const lageSelect = document.getElementById('select-pwodwi-lage-frizer');
         
-        if (!estokSelect || !transSelect || !lageSelect || !lokalState.inventory) return;
+        if (!estokSelect || !transSelect || !lokalState.inventory) return;
         
+        // Sove chwa itilizatè a te fè a pou l pa sote pandan paj la ap refresh
         const valEstok = estokSelect.value;
         const valTrans = transSelect.value;
-        const valLage = lageSelect.value;
 
         let html = "";
         Object.values(lokalState.inventory).forEach(p => {
@@ -430,18 +417,18 @@
 
         estokSelect.innerHTML = html;
         transSelect.innerHTML = html;
-        lageSelect.innerHTML = html;
 
         if (valEstok) estokSelect.value = valEstok;
         if (valTrans) transSelect.value = valTrans;
-        if (valLage) lageSelect.value = valLage;
     }
 
     function majEkranAdmin() {
+        // Balans Kès yo
         document.getElementById('disp-kes-frijide').innerText = (lokalState.stokBwasonFrijidè ?? 0).toLocaleString('en-US') + " HTG";
         document.getElementById('disp-kes-gro').innerText = (lokalState.stokVenteEnGro ?? 0).toLocaleString('en-US') + " HTG";
         document.getElementById('disp-nat-cash').innerText = (lokalState.kobfiziknatcash ?? 0).toLocaleString('en-US') + " HTG";
 
+        // Kalkile Benefis ak Komisyon NatCash
         let komiDepo = lokalState.totalKomisyonDepo ?? 0;
         let komiRetre = lokalState.totalKomisyonRetre ?? 0;
         let totalKomi = komiDepo + komiRetre;
@@ -456,24 +443,25 @@
         document.getElementById('sub-ben-detay').innerText = benDetay.toLocaleString('en-US');
         document.getElementById('sub-ben-gro').innerText = benGro.toLocaleString('en-US');
 
+        // Dinamik: Kalkile Valè Estok total nan gwo Depo a baze sou 31 pwodwi nan inventory yo
         let valeEstokTotal = 0;
         let tblBodyHtml = "";
 
         if (lokalState.inventory) {
             Object.values(lokalState.inventory).forEach(p => {
                 let stkWandis = p.stockGrenn ?? 0;
-                let stktranz = p.stockTranzitGrenn ?? 0; // Afiche stòk tranzit
                 let stkFriz = p.stockFrizerGrenn ?? 0;
                 let kèsPri = p.prices?.kes ?? 0;
                 
+                // Valè estok la kalkile sou kòb kès depo a vaut
                 valeEstokTotal += (stkWandis / 24) * kèsPri;
+
                 let kesDepoKalkile = (stkWandis / 24).toFixed(1);
 
                 tblBodyHtml += `
                     <tr>
                         <td><strong>${p.name}</strong></td>
                         <td><span class="badge badge-depot">${stkWandis} gr</span></td>
-                        <td><span class="badge badge-tranzit">${stktranz} gr</span></td>
                         <td><span class="badge badge-frizer">${stkFriz} gr</span></td>
                         <td>${kesDepoKalkile} kès</td>
                     </tr>
@@ -481,8 +469,9 @@
             });
         }
         document.getElementById('disp-vale-estok').innerText = valeEstokTotal.toLocaleString('en-US', {maximumFractionDigits: 2}) + " HTG";
-        document.getElementById('tbl-stock-body').innerHTML = tblBodyHtml || `<tr><td colspan="5" style="text-align:center;">Pa gen pwodwi ki disponib.</td></tr>`;
+        document.getElementById('tbl-stock-body').innerHTML = tblBodyHtml || `<tr><td colspan="4" style="text-align:center;">Pa gen pwodwi ki disponib.</td></tr>`;
 
+        // Alèt yo
         const alertBox = document.getElementById('admin-alert');
         if (lokalState.kontestasyonKès) {
             alertBox.style.display = 'block';
@@ -555,6 +544,7 @@
         document.getElementById('input-retre-motive').value = '';
     };
 
+    // JESTYON METE NOUVO ESTOK NAN DEPO
     window.ajouteEstokAdmin = function() {
         let pId = document.getElementById('select-pwodwi-estok').value;
         let inite = document.getElementById('select-inite-estok').value;
@@ -564,9 +554,9 @@
 
         let grennPouAjoute = 0;
         if (inite === "kes") {
-            grennPouAjoute = kantite * 24;
+            grennPouAjoute = kantite * 24; // Yon kès gen 24 grenn
         } else if (inite === "demi") {
-            grennPouAjoute = kantite * 12;
+            grennPouAjoute = kantite * 12; // Yon demi kès gen 12 grenn
         } else if (inite === "grenn") {
             grennPouAjoute = kantite;
         }
@@ -584,62 +574,35 @@
         document.getElementById('input-kantite-bwat').value = '';
     };
 
-    // ETAP 1: DEPO ➔ TRANZIT (AN DEMI-KÈS)
-    window.transfereNanTranzitAdmin = function() {
+    // LOJIK TRANSFÈ DEPO ➔ FRIZÈ (AN DEMI-KÈS)
+    window.transfereNanFrizerAdmin = function() {
         let pId = document.getElementById('select-pwodwi-transfere').value;
         let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere-demi').value);
 
         if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
 
-        let grennPouTransfere = kantiteDemiKes * 12; 
+        let grennPouTransfere = kantiteDemiKes * 12; // 1 Demi-Kès = 12 grenn
 
-        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn!"); return; }
+        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn nan baz done a!"); return; }
 
         let p = lokalState.inventory[pId];
 
+        // Verifye si gen ase stòk nan depo a anvan nou transfere l
         if ((p.stockGrenn ?? 0) < grennPouTransfere) {
-            alert(`Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn.`);
+            alert(`Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
             return;
         }
 
+        // Retire nan depo, mete nan frizè
         p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
-        p.stockTranzitGrenn = (p.stockTranzitGrenn ?? 0) + grennPouTransfere; // Sere yo nan tranzit
+        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPouTransfere;
 
         let updateObj = {};
         updateObj[`inventory/${pId}`] = p;
         update(appRef, updateObj);
 
-        alert(`Siksè! Ou voye ${kantiteDemiKes} Demi-Kès nan stòk Tranzit pou ${p.name}.`);
+        alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} nan Frizè a.`);
         document.getElementById('input-kantite-transfere-demi').value = '';
-    };
-
-    // ETAP 2: TRANZIT ➔ FRIZÈ (AN GRENN)
-    window.lageNanFrizerNètAdmin = function() {
-        let pId = document.getElementById('select-pwodwi-lage-frizer').value;
-        let kantiteGrenn = parseInt(document.getElementById('input-kantite-lage-grenn').value);
-
-        if (!pId || isNaN(kantiteGrenn) || kantiteGrenn <= 0) { alert("Antre yon kantite grenn valab!"); return; }
-
-        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn!"); return; }
-
-        let p = lokalState.inventory[pId];
-        let tranzitKounye a = p.stockTranzitGrenn ?? 0;
-
-        if (tranzitKounye a < kantiteGrenn) {
-            alert(`Mank stòk nan Tranzit! Ou gen sèlman ${tranzitKounye a} grenn ${p.name} ki sere nan tranzit.`);
-            return;
-        }
-
-        // Retire nan tranzit epi mete nan frizè pou vann nèt
-        p.stockTranzitGrenn = tranzitKounye a - kantiteGrenn;
-        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + kantiteGrenn;
-
-        let updateObj = {};
-        updateObj[`inventory/${pId}`] = p;
-        update(appRef, updateObj);
-
-        alert(`Siksè! Ou pran ${kantiteGrenn} grenn ${p.name} nan tranzit la epi ou lage l nan Frizè a pou vann.`);
-        document.getElementById('input-kantite-lage-grenn').value = '';
     };
 
     function aficheEstatistik() {
@@ -654,7 +617,7 @@
                 let kantiteVann = stats[p.id] ?? stats[p.name.toLowerCase()] ?? 0;
                 let pousantaj = (kantiteVann / maxVant) * 100;
 
-                if (kantiteVann > 0) {
+                if (kantiteVann > 0) { // Afiche sèlman sa ki gen vant pou jounen an
                     html += `
                         <div class="stat-row">
                             <div class="stat-label">${p.name}</div>
@@ -716,6 +679,7 @@
 
         push(achivRef, nouvoRapò);
 
+        // Reyinisyalize kontè lavant yo pou tou de paj yo
         let resetLavantKonte = {};
         if (lokalState.inventory) {
             Object.keys(lokalState.inventory).forEach(id => {
