@@ -485,7 +485,6 @@
 
         </div>
     </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -505,7 +504,8 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const dbRef = ref(database, 'appState');
 
-let inventory = [];
+// Nou inisyalize inventory kòm yon Objè {} kounye a pou evite fòma Array []
+let inventory = {}; 
 let totalRevenue = 0;
 let totalProfit = 0;
 let natCashBalance = 5000;
@@ -524,9 +524,19 @@ let logsAnDetay = "";
 let currentCart = [];
 let currentTheme = "light";
 
+// 🔥 MODIFIKASYON: Sove envantè a sou fòm Objè (Diksyonè) pa ID pwodwi
 function saveAppStateToFirebase() {
+    const inventoryObj = {};
+    
+    // Si se te yon lis oswa si se yon objè deja, nou asire nou chak pwodwi ale nan kle ID li
+    Object.values(inventory).forEach(p => {
+        if (p && p.id) {
+            inventoryObj[p.id] = p;
+        }
+    });
+
     const updates = {
-        inventory: inventory,
+        inventory: inventoryObj, // Sove kòm { "1": {...}, "2": {...} }
         totalRevenue: totalRevenue,
         totalProfit: totalProfit,
         natCashBalance: natCashBalance,
@@ -542,43 +552,51 @@ function saveAppStateToFirebase() {
 }
 
 onValue(dbRef, (snapshot) => {
-    // 🌟 SI FIREBASE VID, ENTÈGRASYON OTOMATIK TOUT 31 PWODWI YO SOU KOUP DEFAUT!
+    // 🌟 SI FIREBASE VID, ENTÈGRASYON OTOMATIK SOU FÒM OBJÈ MAPPE PA ID!
     if (!snapshot.exists() || !snapshot.val() || !snapshot.val().inventory) {
         console.log("Firebase vid! Inisyalizasyon otomatik ak 31 pwodwi yo...");
+        
+        const initialProducts = [
+            { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 19, name: "Limonade", img: "Limonade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+            { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
+        ];
+
+        const initialInventoryObj = {};
+        initialProducts.forEach(p => {
+            initialInventoryObj[p.id] = p;
+        });
+
         const initialAppState = {
-            inventory: [
-                { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 19, name: "Limonade", img: "Limonade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
-            ],
+            inventory: initialInventoryObj,
             totalRevenue: 0,
             totalProfit: 0,
             natCashBalance: 5000,
@@ -597,7 +615,8 @@ onValue(dbRef, (snapshot) => {
 
     const data = snapshot.val();
     if (data) {
-        if (data.inventory) inventory = data.inventory;
+        // Nou asire nou ke nou pran done yo menm si Firebase voye yo sou fòm objè
+        inventory = data.inventory || {};
         totalRevenue = data.totalRevenue || 0;
         totalProfit = data.totalProfit || 0;
         natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
@@ -727,12 +746,15 @@ function updatePosCashDisplay() {
     if (elGro) elGro.innerText = stokVenteEnGro.toLocaleString() + " HTG";
 }
 
+// 🔥 MODIFIKASYON: renderProducts kounye a ka li done yo kit yo se Objè kit yo se Lis
 function renderProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
     container.innerHTML = '';
 
-    inventory.forEach(p => {
+    // Piske inventory se yon objè kounye a, nou itilize Object.values pou nou ka boucle ladan l fasil
+    Object.values(inventory).forEach(p => {
+        if (!p) return;
         let isLowStock = p.stockGrenn < 24;
         let alertBadge = isLowStock ? `<div class="stock-alert">⚠️ Stòk ba!</div>` : '';
 
@@ -774,8 +796,9 @@ window.toggleTheme = function() {
     }
 }
 
+// 🔥 MODIFIKASYON: Piske se yon objè, nou chèche pa kle dirèkteman oswa ak Object.values
 window.addToCart = function(prodId, type) {
-    let p = inventory.find(item => item.id === prodId);
+    let p = inventory[prodId]; // Chèche l dirèkteman nan objè a ak ID a kòm kle!
     if (!p) return;
     let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
     let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
@@ -811,13 +834,14 @@ function renderCart() {
     document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
 }
 
+// 🔥 MODIFIKASYON: checkoutSale modifye pwodwi a dirèkteman nan objè kès la
 window.checkoutSale = function() {
     if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
     let billTotal = 0; let billProfit = 0;
     let timeStr = new Date().toLocaleTimeString();
 
     currentCart.forEach(item => {
-        let p = inventory.find(prod => prod.id === item.prodId);
+        let p = inventory[item.prodId]; // Aksè dirèk nan bwat objè a ak ID a
         if (!p) return;
         
         if (item.type === 'detail') {
