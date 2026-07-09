@@ -261,7 +261,7 @@
             </div>
         </div>
 
-        <!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
+<!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
         <div class="grid-2">
             <div class="card">
                 <h3 style="margin-bottom: 12px;">❄️ Voye Bwason nan Frizè (Transfè)</h3>
@@ -272,8 +272,21 @@
                     <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
                 </select>
 
-                <label style="font-size:12px; font-weight:bold;">Kantite Demi-Kès pou voye nan Frizè:</label>
-                <input type="number" id="input-kantite-transfere-demi" class="input-field" placeholder="Egzanp: 2">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:bold;">Kalite Inite:</label>
+                        <select id="select-inite-transfere" class="input-field">
+                            <option value="kes">Kès (24 grenn)</option>
+                            <option value="demi">Demi-Kès (12 grenn)</option>
+                            <option value="grenn">Grenn</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:bold;">Kantite:</label>
+                        <input type="number" id="input-kantite-transfere" class="input-field" placeholder="Egzanp: 2">
+                    </div>
+                </div>
+                
                 <button class="btn btn-warning" onclick="transfereNanFrizerAdmin()">Valide Transfè Frizè a ❄️</button>
             </div>
             
@@ -368,7 +381,7 @@
                 { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 29, name: "Frooty", img: "Frooty.JPG", prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
             
@@ -389,7 +402,8 @@
                         name: p.name,
                         stockGrenn: 0,
                         stockFrizerGrenn: 0,
-                        prices: p.prices
+                        prices: p.prices,
+                        img:p.img
                     };
                 });
                 update(appRef, { inventory: lokalState.inventory });
