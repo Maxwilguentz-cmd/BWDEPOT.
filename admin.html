@@ -381,10 +381,9 @@
                 { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-                { id: 29, name: "Frooty", img: "Frooty.JPG", prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
+                { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
                 { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } }
-            
     ];
 
     // Koute Firebase nan tan reyèl
@@ -403,7 +402,7 @@
                         stockGrenn: 0,
                         stockFrizerGrenn: 0,
                         prices: p.prices,
-                        img:p.img
+                        img: p.img
                     };
                 });
                 update(appRef, { inventory: lokalState.inventory });
@@ -444,9 +443,11 @@
         document.getElementById('disp-nat-cash').innerText = (lokalState.kobfiziknatcash ?? 0).toLocaleString('en-US') + " HTG";
 
         // Kalkile Benefis ak Komisyon NatCash
+        let komiAkimile = lokalState.accumulatedCommission ?? 0;
+        let totalKomi = komiAkimile;
         let komiDepo = lokalState.totalKomisyonDepo ?? 0;
         let komiRetre = lokalState.totalKomisyonRetre ?? 0;
-        let totalKomi = komiDepo + komiRetre;
+
         document.getElementById('disp-komisyon').innerText = totalKomi.toLocaleString('en-US') + " HTG";
         document.getElementById('sub-kom-depo').innerText = komiDepo.toFixed(2);
         document.getElementById('sub-kom-retre').innerText = komiRetre.toFixed(2);
@@ -560,55 +561,54 @@
     };
 
     // JESTYON METE NOUVO ESTOK NAN DEPO
-// JESTYON METE NOUVO ESTOK NAN DEPO
-window.ajouteEstokAdmin = function() {
-    let pId = document.getElementById('select-pwodwi-estok').value;
-    let inite = document.getElementById('select-inite-estok').value;
-    let inputKantite = document.getElementById('input-kantite-bwat');
-    let kantite = parseFloat(inputKantite.value);
+    window.ajouteEstokAdmin = function() {
+        let pId = document.getElementById('select-pwodwi-estok').value;
+        let inite = document.getElementById('select-inite-estok').value;
+        let inputKantite = document.getElementById('input-kantite-bwat');
+        let kantite = parseFloat(inputKantite.value);
 
-    if (!pId || isNaN(kantite) || kantite <= 0) { 
-        alert("Antre yon kantite valab!"); 
-        return; 
-    }
+        if (!pId || isNaN(kantite) || kantite <= 0) { 
+            alert("Antre yon kantite valab!"); 
+            return; 
+        }
 
-    let grennPouAjoute = 0;
-    if (inite === "kes") {
-        grennPouAjoute = kantite * 24; // Yon kès gen 24 grenn
-    } else if (inite === "demi") {
-        grennPouAjoute = kantite * 12; // Yon demi kès gen 12 grenn
-    } else if (inite === "grenn") {
-        grennPouAjoute = kantite;
-    }
+        let grennPouAjoute = 0;
+        if (inite === "kes") {
+            grennPouAjoute = kantite * 24; // Yon kès gen 24 grenn
+        } else if (inite === "demi") {
+            grennPouAjoute = kantite * 12; // Yon demi kès gen 12 grenn
+        } else if (inite === "grenn") {
+            grennPouAjoute = kantite;
+        }
 
-    if (!lokalState.inventory || !lokalState.inventory[pId]) { 
-        alert("Pwodwi sa a pa jwenn nan baz done a!"); 
-        return; 
-    }
+        if (!lokalState.inventory || !lokalState.inventory[pId]) { 
+            alert("Pwodwi sa a pa jwenn nan baz done a!"); 
+            return; 
+        }
 
-    // Kalkile nouvo kantite a baze sou sa ki te la deja
-    let stòkKounye  = lokalState.inventory[pId].stockGrenn ?? 0;
-    let nouvoStokGrenn = stòkKounye  + grennPouAjoute;
-    let nonPwodwi = lokalState.inventory[pId].name;
+        // Kalkile nouvo kantite a baze sou sa ki te la deja
+        let stòkKounye  = lokalState.inventory[pId].stockGrenn ?? 0;
+        let nouvoStokGrenn = stòkKounye  + grennPouAjoute;
+        let nonPwodwi = lokalState.inventory[pId].name;
 
-    // Sible chemen stockGrenn nan ekzakteman pou l pa manyen lòt bagay yo
-    let updateObj = {};
-    updateObj[`inventory/${pId}/stockGrenn`] = nouvoStokGrenn;
+        // Sible chemen stockGrenn nan ekzakteman pou l pa manyen lòt bagay yo
+        let updateObj = {};
+        updateObj[`inventory/${pId}/stockGrenn`] = nouvoStokGrenn;
 
-    update(appRef, updateObj)
-        .then(() => {
-            alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
-            inputKantite.value = ''; // Vwade chan an apre siksè
-        })
-        .catch((error) => {
-            alert("Gen yon erè ki rive: " + error.message);
-        });
-};
+        update(appRef, updateObj)
+            .then(() => {
+                alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
+                inputKantite.value = ''; // Vwade chan an apre siksè
+            })
+            .catch((error) => {
+                alert("Gen yon erè ki rive: " + error.message);
+            });
+    };
 
     // LOJIK TRANSFÈ DEPO ➔ FRIZÈ (AN DEMI-KÈS)
     window.transfereNanFrizerAdmin = function() {
         let pId = document.getElementById('select-pwodwi-transfere').value;
-        let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere-demi').value);
+        let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere').value);
 
         if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
 
@@ -620,7 +620,7 @@ window.ajouteEstokAdmin = function() {
 
         // Verifye si gen ase stòk nan depo a anvan nou transfere l
         if ((p.stockGrenn ?? 0) < grennPouTransfere) {
-            alert(`Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
+            alert(`Mank stòk nan Depo! Depo a gen swlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
             return;
         }
 
@@ -633,7 +633,7 @@ window.ajouteEstokAdmin = function() {
         update(appRef, updateObj);
 
         alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} nan Frizè a.`);
-        document.getElementById('input-kantite-transfere-demi').value = '';
+        document.getElementById('input-kantite-transfere').value = '';
     };
 
     function aficheEstatistik() {
