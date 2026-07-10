@@ -234,7 +234,7 @@
     <header>
         <div class="header-container">
             <div class="header-top">
-                <div class="logo">📦 <span>BWdepo</span></div>
+                <div class="logo">📦 <span>BWdepot</span></div>
                 <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
             </div>
             <nav>
@@ -253,14 +253,12 @@
                 <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
                 <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
             </div>
-            <!-- OK: Nou ajoute onclick ak cursor pointer pou ti bwat kòb fizik la ka klike -->
             <div class="card" onclick="manijeKòbFizikKach()" style="background-color: rgba(30, 58, 138, 0.08); border: 1px solid var(--primary); text-align: center; padding: 14px; margin-bottom: 0; cursor: pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
                 <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Kòb Fizik nan Menw (Kach):</span>
                 <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
             </div>
         </div>
 
-        <!-- Ti afichaj enfòmasyon pou kapab wè estok vann en gro (BW) la sou paj sa a tou pou verifikasyon -->
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: right; padding-right: 5px;">
             Estok Lajan Disponib nan Vann En Gro (BW): <span id="kes-gro-display" style="font-weight: bold; color: var(--primary);">0.00 HTG</span>
         </div>
@@ -284,11 +282,9 @@
     </div>
 
 <script type="module">
-    // 1. Enpòte Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Konfigirasyon Firebase ou a
     const firebaseConfig = {
         apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
         authDomain: "bwdepot-61214.firebaseapp.com",
@@ -300,21 +296,41 @@
         measurementId: "G-8VEN9QQF7B"
     };
 
-    // Inisyalize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const natcashRef = ref(db, "appState");
 
-    // Lojik 3 Stok Lajan yo (Nou inisyalize yo pou yo pare pou tout sistèm nan)
     let natcashCardBalance = 0.00;
-    let kobfiziknatcash = 0.00; // STOK 1: Kòb fizik ki nan menw pou NatCash
-    let stokBwasonFrijidè = 0.00;        // STOK 2: Pou kòb bwason nan frijidè (pou paj bwason)
-    let stokVenteEnGro = 0.00;      // STOK 3: Kòb vann an grwo (BW) - Nou mete yon valè inisyal pou tès
+    let kobfiziknatcash = 0.00;
+    let stokBwasonFrijidè = 0.00;
+    let stokVenteEnGro = 0.00;
 
     let accumulatedCommission = 0.00; 
-    let lisTranzaksyon  = [];
+    let totalKomisyonDepo = 0.00;
+    let totalKomisyonRetre = 0.00;
+    let lisTranzaksyon = [];
 
-    // 2. Koute chanjman yo an tan reyèl sou Firebase
+    // Inisyalizasyon Theme nan kòmansman an
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        const themeBtn = document.getElementById('theme-btn');
+        if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const themeBtn = document.getElementById('theme-btn');
+        if (currentTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            if (themeBtn) themeBtn.innerText = "☀️ Lajounen";
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
+        }
+    }
+
     onValue(natcashRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -323,6 +339,8 @@
             stokBwasonFrijidè = data.stokBwasonFrijidè ?? 0.00;
             stokVenteEnGro = data.stokVenteEnGro ?? 150000.00;
             accumulatedCommission = data.accumulatedCommission ?? 0.00;
+            totalKomisyonDepo = data.totalKomisyonDepo ?? 0.00;
+            totalKomisyonRetre = data.totalKomisyonRetre ?? 0.00;
             
             if (data.lisTranzaksyon) {
                 lisTranzaksyon = Object.values(data.lisTranzaksyon).sort((a, b) => b.timestamp - a.timestamp);
@@ -330,9 +348,12 @@
                 lisTranzaksyon = [];
             }
             
-            // Tcheke si popup verifikasyon an bezwen afiche nan kòmansman jounen an (si gen lojik sa a nan admin)
             if (data.mandeVerifikasyon === true && document.getElementById('verification-popup')) {
                 document.getElementById('verification-popup').style.display = 'flex';
+                const msgPopup = document.getElementById('modal-msg');
+                if (msgPopup) {
+                    msgPopup.innerText = `Èske ou dakò ou jwenn ${kobfiziknatcash.toLocaleString('en-US')} HTG nan kès NatCash la?`;
+                }
             }
         } else {
             soveDoneSouFirebase();
@@ -341,7 +362,6 @@
         aficheIstorikEkran();
     });
 
-    // 3. Fonksyon pou voye done yo nan Cloud la
     function soveDoneSouFirebase() {
         let tranzaksyonObj = {};
         lisTranzaksyon.forEach(t => {
@@ -354,6 +374,8 @@
             stokBwasonFrijidè: stokBwasonFrijidè,
             stokVenteEnGro: stokVenteEnGro,
             accumulatedCommission: accumulatedCommission,
+            totalKomisyonDepo: totalKomisyonDepo,
+            totalKomisyonRetre: totalKomisyonRetre,
             lisTranzaksyon: tranzaksyonObj
         });
 
@@ -362,15 +384,15 @@
     }
 
     function jwennPwochenSètèA() {
-         let kounye  = new Date();
-         let demen = new Date(kounye);
+        let kounye = new Date();
+        let demen = new Date(kounye);
         demen.setDate(kounye.getDate() + 1);
         demen.setHours(7, 0, 0, 0);
-        return demen;}
+        return demen;
+    }
 
     let datPemanKomisyon = jwennPwochenSètèA();
 
-    // Komisyon Depo an "Tranches"
     function jwennKomisyonDepo(montan) {
         if (montan < 20) return 0;
         if (montan >= 20 && montan <= 99) return 1.65;
@@ -386,9 +408,9 @@
         if (montan >= 40000 && montan <= 59999) return 75.00;
         if (montan >= 60000 && montan <= 74999) return 90.00;
         if (montan >= 75000 && montan <= 99999) return 100.00;
-        return montan * 0.001;}
+        return montan * 0.001;
+    }
 
-    // Komisyon Retrè an "Tranches"
     function jwennKomisyonRetrè(montan) {
         if (montan < 20) return 0;
         if (montan >= 20 && montan <= 99) return 1.50;
@@ -404,13 +426,12 @@
         if (montan >= 40000 && montan <= 59999) return 95.00;
         if (montan >= 60000 && montan <= 74999) return 115.00;
         if (montan >= 75000 && montan <= 99999) return 135.00;
-        return montan * 0.0015;}
+        return montan * 0.0015;
+    }
 
-    // Mete afichaj yo ajou sou ekran an
     function updateNatCashDisplays() {
         let cardDisp = document.getElementById('vandes-natcash-display');
         let cashDisp = document.getElementById('vandes-cash-display');
-        let komiDisp = document.getElementById('vandes-komisyon-display');
         let stokBwDisp = document.getElementById('kes-gro-display');
 
         if (cardDisp) {
@@ -419,9 +440,6 @@
         if (cashDisp) {
             cashDisp.innerText = kobfiziknatcash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
-        if (komiDisp) {
-            komiDisp.innerText = accumulatedCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
-        }
         if (stokBwDisp) {
             stokBwDisp.innerText = stokVenteEnGro.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
@@ -429,6 +447,12 @@
 
     function ajouteNanNatLog(mesaj, montan = 0, tip = 'sistèm', komisyon = 0) {
         let id = "t_" + Date.now() + Math.random().toString(36).substr(2, 5);
+        let kounye = new Date();
+        
+        let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
+        let jou = String(kounye.getDate()).padStart(2, '0');
+        let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
+
         if (tip !== 'sistèm') {
             lisTranzaksyon.unshift({ 
                 id: id, 
@@ -436,7 +460,8 @@
                 montan: montan, 
                 tip: tip, 
                 komisyon: komisyon, 
-                tan: new Date().toLocaleTimeString(),
+                tan: kounye.toLocaleTimeString(),
+                dat: datFòma,
                 timestamp: Date.now()
             });
         }
@@ -449,7 +474,8 @@
         
         if (lisTranzaksyon.length === 0) {
             logDiv.innerHTML = "Pa gen tranzaksyon...";
-            return;}
+            return;
+        }
         
         let htmlKontni = "";
         lisTranzaksyon.forEach(t => {
@@ -459,7 +485,8 @@
             </div>`;
         });
         
-        logDiv.innerHTML = htmlKontni;}
+        logDiv.innerHTML = htmlKontni;
+    }
 
     function manijeTranzaksyon(id) {
         let tIndex = lisTranzaksyon.findIndex(item => item.id === id);
@@ -474,9 +501,11 @@
             if (tranzaksyon.tip === 'depo') {
                 natcashCardBalance += tranzaksyon.montan;
                 kobfiziknatcash -= tranzaksyon.montan;
+                totalKomisyonDepo -= tranzaksyon.komisyon;
             } else if (tranzaksyon.tip === 'retre') {
                 natcashCardBalance -= tranzaksyon.montan;
                 kobfiziknatcash += tranzaksyon.montan;
+                totalKomisyonRetre -= tranzaksyon.komisyon;
             }
             accumulatedCommission -= tranzaksyon.komisyon;
             
@@ -495,9 +524,11 @@
             if (tranzaksyon.tip === 'depo') {
                 natcashCardBalance += tranzaksyon.montan;
                 kobfiziknatcash -= tranzaksyon.montan;
+                totalKomisyonDepo -= tranzaksyon.komisyon;
             } else if (tranzaksyon.tip === 'retre') {
                 natcashCardBalance -= tranzaksyon.montan;
                 kobfiziknatcash += tranzaksyon.montan;
+                totalKomisyonRetre -= tranzaksyon.komisyon;
             }
             accumulatedCommission -= tranzaksyon.komisyon;
             
@@ -506,11 +537,13 @@
                 tranzaksyon.komisyon = jwennKomisyonDepo(nouvoMontan);
                 natcashCardBalance -= nouvoMontan;
                 kobfiziknatcash += nouvoMontan;
+                totalKomisyonDepo += tranzaksyon.komisyon;
                 tranzaksyon.mesaj = `Kliyan voye ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
             } else if (tranzaksyon.tip === 'retre') {
                 tranzaksyon.komisyon = jwennKomisyonRetrè(nouvoMontan);
                 natcashCardBalance += nouvoMontan;
                 kobfiziknatcash -= nouvoMontan;
+                totalKomisyonRetre += tranzaksyon.komisyon;
                 tranzaksyon.mesaj = `Kliyan retire ${nouvoMontan} HTG (Komisyon an rezèv: +${tranzaksyon.komisyon.toFixed(2)} HTG) [Modifye]`;
             }
             accumulatedCommission += tranzaksyon.komisyon;
@@ -520,7 +553,6 @@
         soveDoneSouFirebase();
     }
 
-    // 🌟 OK: NOUVO LOJIK TRANSFÈ DEPI NAN STOK VANN EN GRO (BW) LA
     function manijeKòbFizikKach() {
         let chwa = prompt(`Manadjman Kòb Fizik (NatCash Kach):\n\nEkri "AJOUTE" pou pran kòb nan Stok Vann en Gro (BW) la mete la.\nEkri "RETIRE" pou w pran lajan nan kès la.`);
         
@@ -537,13 +569,11 @@
                 return;
             }
             
-            // Tcheke si gen ase kòb nan estok en grwo a anvan
             if (stokVenteEnGro < montan) {
                 alert(`❌ Pa gen ase kòb nan Stok Vann en Gro (BW)! Ou sèlman gen ${stokVenteEnGro} HTG.`);
                 return;
             }
 
-            // APLIKE LOJIK LA: Diminye nan gro, ogmante nan kach natcash
             stokVenteEnGro -= montan;
             kobfiziknatcash += montan;
             
@@ -565,7 +595,6 @@
             let destinasyon = prompt("Ki kote lajan sa a ap ale? (Pa egzanp: BW, Depans, elatriye):");
             if (!destinasyon) destinasyon = "BW";
             
-            // Si yo chwazi retounen l nan BW, nou ka remete l nan estok en gro a
             if (destinasyon.toUpperCase() === "BW") {
                 stokVenteEnGro += montan;
             }
@@ -577,11 +606,9 @@
         soveDoneSouFirebase();
     }
 
-    // 📋 Lojik pou fonksyonalite Modal Verifikasyon Kès la (Dakò / Konteste)
     function acceptFonDeKes() {
         alert("Mèsi! Ou valide kès la ak siksè.");
         document.getElementById('verification-popup').style.display = 'none';
-        // Nou ka mete yon flbyal nan Firebase pou di verifikasyon fini si admin lan bezwen sa
         update(natcashRef, { mandeVerifikasyon: false });
     }
 
@@ -600,7 +627,6 @@
         alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${disputedAmt} HTG olye de ${kobfiziknatcash} HTG.`);
         document.getElementById('verification-popup').style.display = 'none';
         
-        // Sove kontestasyon an nan Firebase pou admin ka wè l
         update(natcashRef, { 
             mandeVerifikasyon: false,
             kontestasyonKès: {
@@ -612,11 +638,13 @@
     }
 
     setInterval(function tchekePemanKomisyon() {
-        let kounye  = new Date();
-        if (kounye  >= datPemanKomisyon) {
+        let kounye = new Date();
+        if (kounye >= datPemanKomisyon) {
             if (accumulatedCommission > 0) {
                 natcashCardBalance += accumulatedCommission;
                 accumulatedCommission = 0.00;
+                totalKomisyonDepo = 0.00;
+                totalKomisyonRetre = 0.00;
                 ajouteNanNatLog(`SISTÈM (7:00 AM): Komisyon jounen an depoze sou kat la!`, 0, 'sistèm', 0);
             }
             datPemanKomisyon = jwennPwochenSètèA();
@@ -643,6 +671,7 @@
             natcashCardBalance -= montan;
             kobfiziknatcash += montan;
             accumulatedCommission += komisyon;
+            totalKomisyonDepo += komisyon;
             ajouteNanNatLog(`Kliyan voye ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'depo', komisyon);
             
         } else if (type === 'retre') {
@@ -654,6 +683,7 @@
             natcashCardBalance += montan;
             kobfiziknatcash -= montan;
             accumulatedCommission += komisyon;
+            totalKomisyonRetre += komisyon;
             ajouteNanNatLog(`Kliyan retire ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'retre', komisyon);
         }
 
@@ -661,17 +691,16 @@
         soveDoneSouFirebase();
     }
 
-    // Ekspose tout fonksyon yo bay fenèt la (window)
     window.processNatCash = processNatCash;
     window.manijeTranzaksyon = manijeTranzaksyon;
     window.manijeKòbFizikKach = manijeKòbFizikKach;
     window.acceptFonDeKes = acceptFonDeKes;
     window.showDisputeInput = showDisputeInput;
     window.submitDispute = submitDispute;
+    window.toggleTheme = toggleTheme;
 
     updateNatCashDisplays();
     aficheIstorikEkran();
-
 </script>
 </body>
 </html>
