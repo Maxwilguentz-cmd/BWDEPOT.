@@ -506,7 +506,6 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const dbRef = ref(database, 'appState');
 
-// Nou inisyalize inventory kòm yon Objè {} kounye a pou evite fòma Array []
 let inventory = {}; 
 let totalRevenue = 0;
 let totalProfit = 0;
@@ -526,11 +525,8 @@ let logsAnDetay = "";
 let currentCart = [];
 let currentTheme = "light";
 
-// 🔥 MODIFIKASYON: Sove envantè a sou fòm Objè (Diksyonè) pa ID pwodwi
 function saveAppStateToFirebase() {
     const inventoryObj = {};
-    
-    // Si se te yon lis oswa si se yon objè deja, nou asire nou chak pwodwi ale nan kle ID li
     Object.values(inventory).forEach(p => {
         if (p && p.id) {
             inventoryObj[p.id] = p;
@@ -538,7 +534,7 @@ function saveAppStateToFirebase() {
     });
 
     const updates = {
-        inventory: inventoryObj, // Sove kòm { "1": {...}, "2": {...} }
+        inventory: inventoryObj, 
         totalRevenue: totalRevenue,
         totalProfit: totalProfit,
         natCashBalance: natCashBalance,
@@ -554,7 +550,6 @@ function saveAppStateToFirebase() {
 }
 
 onValue(dbRef, (snapshot) => {
-    // 🌟 SI FIREBASE VID, ENTÈGRASYON OTOMATIK SOU FÒM OBJÈ MAPPE PA ID!
     if (!snapshot.exists() || !snapshot.val() || !snapshot.val().inventory) {
         console.log("Firebase vid! Inisyalizasyon otomatik ak 31 pwodwi yo...");
         
@@ -617,14 +612,13 @@ onValue(dbRef, (snapshot) => {
 
     const data = snapshot.val();
     if (data) {
-        // Nou asire nou ke nou pran done yo menm si Firebase voye yo sou fòm objè
         inventory = data.inventory || {};
         totalRevenue = data.totalRevenue || 0;
         totalProfit = data.totalProfit || 0;
         natCashBalance = data.natCashBalance !== undefined ? data.natCashBalance : 5000;
         
         kobfiziknatcash = data.kobfiziknatcash || 0;
-        physicalCashBalance = (data.physicalCashBalance || 0) + kobfiziknatcash;
+        physicalCashBalance = data.physicalCashBalance !== undefined ? data.physicalCashBalance : 0;
 
         stokBwasonFrijidè = data.stokBwasonFrijidè || 0;
         stokVenteEnGro = data.stokVenteEnGro || 0;
@@ -748,13 +742,11 @@ function updatePosCashDisplay() {
     if (elGro) elGro.innerText = stokVenteEnGro.toLocaleString() + " HTG";
 }
 
-// 🔥 MODIFIKASYON: renderProducts kounye a ka li done yo kit yo se Objè kit yo se Lis
 function renderProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
     container.innerHTML = '';
 
-    // Piske inventory se yon objè kounye a, nou itilize Object.values pou nou ka boucle ladan l fasil
     Object.values(inventory).forEach(p => {
         if (!p) return;
         let isLowStock = p.stockGrenn < 24;
@@ -768,10 +760,10 @@ function renderProducts() {
                     <div class="prod-name">${p.name}</div>
                     <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
                     <div class="type-selector">
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'detail')">Detay (${p.prices.detail}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.detail / 5}</span>)</button>
-                        <button class="type-btn" onclick="addToCart(${p.id}, 'demi')">½ Kès (${p.prices.demi}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.demi / 5}</span>)</button>
+                        <button class="type-btn" onclick="window.addToCart('${p.id}', 'detail')">Detay (${p.prices.detail}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.detail / 5}</span>)</button>
+                        <button class="type-btn" onclick="window.addToCart('${p.id}', 'demi')">½ Kès (${p.prices.demi}g <span style="font-size:10px;font-weight:normal;opacity:0.8;">/ S${p.prices.demi / 5}</span>)</button>
                     </div>
-                    <button class="btn-sell" onclick="addToCart(${p.id}, 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g <span style="font-size:11px;font-weight:normal;opacity:0.8;">/ S${p.prices.kes / 5}</span>)</button>
+                    <button class="btn-sell" onclick="window.addToCart('${p.id}', 'kes')" style="background:var(--primary);">+ Kès Depo (${p.prices.kes}g <span style="font-size:11px;font-weight:normal;opacity:0.8;">/ S${p.prices.kes / 5}</span>)</button>
                 </div>
             </div>
         `;
@@ -798,20 +790,41 @@ window.toggleTheme = function() {
     }
 }
 
-// 🔥 MODIFIKASYON: Piske se yon objè, nou chèche pa kle dirèkteman oswa ak Object.values
 window.addToCart = function(prodId, type) {
-    let p = inventory[prodId]; // Chèche l dirèkteman nan objè a ak ID a kòm kle!
-    if (!p) return;
+    console.log("addToCart deklanche pou ID:", prodId, "ak Kalite:", type);
+    
+    let p = inventory[prodId.toString()]; 
+    if (!p) {
+        console.error("Pwodwi sa a pa egziste nan envantè lokal la:", prodId);
+        return;
+    }
+    
     let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
     let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
 
     if (type === 'detail') {
-        if (p.stockFrizerGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a!`);
+        if ((p.stockFrizerGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a! (Stòk aktyèl: ${p.stockFrizerGrenn || 0}g)`);
     } else {
-        if (p.stockGrenn < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la!`);
+        if ((p.stockGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la pou ${labelType}! (Stòk aktyèl: ${p.stockGrenn || 0}g, ou bezwen: ${qtyNeeded}g)`);
     }
 
-    currentCart.push({ uniqueId: Date.now() + Math.random(), prodId: p.id, name: p.name, type: type, labelType: labelType, price: p.prices[type], buyPrice: p.buyingPrice[type], qtyNeeded: qtyNeeded });
+    let prodPrice = (p.prices && p.prices[type] !== undefined) ? p.prices[type] : 0;
+    let prodBuyPrice = (p.buyingPrice && p.buyingPrice[type] !== undefined) ? p.buyingPrice[type] : 0;
+
+    let cartItemId = "cart_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+    currentCart.push({ 
+        uniqueId: cartItemId, 
+        prodId: p.id, 
+        name: p.name, 
+        type: type, 
+        labelType: labelType, 
+        price: prodPrice, 
+        buyPrice: prodBuyPrice, 
+        qtyNeeded: qtyNeeded 
+    });
+    
+    console.log("Atik ajoute nan panyen lokal la. Total atik:", currentCart.length);
     renderCart();
 }
 
@@ -823,27 +836,28 @@ window.removeFromCart = function(uniqueId) {
 function renderCart() {
     const tbody = document.getElementById('cart-rows');
     if (!tbody) return;
-    tbody.innerHTML = ''; let total = 0;
+    tbody.innerHTML = ''; 
+    let total = 0;
+    
     currentCart.forEach(item => {
         total += item.price;
         tbody.innerHTML += `<tr>
             <td><strong>${item.name}</strong></td>
             <td>${item.labelType}</td>
             <td><strong>${item.price} G <span style="font-size:10px;font-weight:normal;opacity:0.7;">(S${item.price / 5})</span></strong></td>
-            <td style="text-align:right;"><button onclick="removeFromCart(${item.uniqueId})" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
+            <td style="text-align:right;"><button onclick="window.removeFromCart('${item.uniqueId}')" style="border:none; background:none; color:var(--danger); font-weight:bold; cursor:pointer;">❌</button></td>
         </tr>`;
     });
     document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
 }
 
-// 🔥 MODIFIKASYON: checkoutSale modifye pwodwi a dirèkteman nan objè kès la
 window.checkoutSale = function() {
     if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
     let billTotal = 0; let billProfit = 0;
     let timeStr = new Date().toLocaleTimeString();
 
     currentCart.forEach(item => {
-        let p = inventory[item.prodId]; // Aksè dirèk nan bwat objè a ak ID a
+        let p = inventory[item.prodId.toString()]; 
         if (!p) return;
         
         if (item.type === 'detail') {
@@ -870,5 +884,8 @@ window.checkoutSale = function() {
     saveAppStateToFirebase();
 }
 </script>
+
+</body>
+
 
 </html>
