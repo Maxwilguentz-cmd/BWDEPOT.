@@ -1,3 +1,335 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWdepot - Admin</title>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --accent: #10B981;
+            --natcash: #00A550;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --border: #E2E8F0;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --accent: #34D399;
+            --natcash: #22C55E;
+            --danger: #F87171;
+            --warning: #FBBF24;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        body { background-color: var(--bg-body); color: var(--text-main); padding-top: 100px; padding-bottom: 40px; }
+
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-body); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
+        }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background-color: var(--primary); color: white; padding: 12px; z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 800; }
+        .logo span { color: #38BDF8; }
+        
+        nav { display: flex; gap: 8px; }
+        nav a {
+            color: rgba(255, 255, 255, 0.8); padding: 8px 12px; border-radius: 6px;
+            font-size: 14px; font-weight: 700; text-decoration: none;
+        }
+        nav a.active { background-color: var(--bg-card); color: var(--primary); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 20px; }
+
+        .card {
+            background-color: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .card-title { font-size: 14px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; }
+        .card-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+
+        .btn {
+            width: 100%; padding: 12px; border-radius: 8px; border: none;
+            font-size: 14px; font-weight: 700; color: white; cursor: pointer; margin-top: 8px;
+        }
+        .btn-primary { background-color: var(--primary-light); }
+        .btn-accent { background-color: var(--accent); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-warning { background-color: var(--warning); color: #000; }
+
+        .input-field {
+            width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+            background-color: var(--bg-body); color: var(--text-main); margin-bottom: 10px; outline: none;
+        }
+        
+        .log-box { font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: var(--bg-body); padding: 10px; border-radius: 6px; }
+        .log-item { padding: 6px 0; border-bottom: 1px dashed var(--border); }
+
+        .stat-bar-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .stat-row { display: flex; align-items: center; gap: 10px; }
+        .stat-label { width: 140px; font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-progress-bg { flex: 1; background: var(--border); height: 15px; border-radius: 10px; overflow: hidden; }
+        .stat-progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; }
+        .stat-count { font-size: 12px; font-weight: bold; width: 40px; text-align: right; }
+
+        .alert-box { background-color: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+
+        /* REKÒT STYLE POU TABLO STÒK LA */
+        .stock-table-wrapper { max-height: 350px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .stock-table th, .stock-table td { padding: 10px; border-bottom: 1px solid var(--border); }
+        .stock-table th { background-color: var(--primary); color: white; position: sticky; top: 0; }
+        .stock-table tr:nth-child(even) { background-color: rgba(0,0,0,0.02); }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
+        .badge-depot { background-color: var(--primary-light); }
+        .badge-frizer { background-color: var(--warning); color: #000; }
+    </style>
+</head>
+<body>
+
+    <!-- LOCK SCREEN DE SIKIRITE -->
+    <div id="lock-screen">
+        <h2>🔒 Aksè Sekirize Admin</h2>
+        <p style="color: var(--text-muted);">Antre kòd sekirite a pou w jere depo a:</p>
+        <input type="password" id="admin-pin" class="input-field" style="width: 200px; text-align: center; font-size: 20px;" placeholder="****" maxlength="4">
+        <button class="btn btn-primary" style="width: 200px;" onclick="checkPin()">Debloke 🔓</button>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">📦 <span>BWdepot Admin</span></div>
+            <nav>
+                <a href="index.html">🛒 Bwason</a>
+                <a href="natcash.html">🟢 NatCash</a>
+                <a href="admin.html" class="active">📊 Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="main-content" style="display: none;">
+        
+        <!-- ALÈT SOU KÈS POU DISPUTE OWA CLÔTURE -->
+        <div id="admin-alert" class="alert-box"></div>
+
+        <!-- 1. DASHBOARD VALÈ AN TAN REYÈL -->
+        <h2 style="margin-bottom: 15px;">📊 Dashboard Finansyè</h2>
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-title">💵 Kès Ti Glase (Frijidè)</div>
+                <div class="card-value" id="disp-kes-frijide">0.00 HTG</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📦 Kès En Gwo (BW)</div>
+                <div class="card-value" id="disp-kes-gro" style="color: var(--primary-light);">0.00 HTG</div>
+            </div>
+            <div class="card">
+                <div class="card-title">📱 NatCash Kach (Fizik)</div>
+                <div class="card-value" id="disp-nat-cash" style="color: var(--natcash);">0.00 HTG</div>
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div class="card" style="border-left: 5px solid var(--accent);">
+                <div class="card-title">📈 Benefis Jounen An</div>
+                <div class="card-value" id="disp-benefis" style="color: var(--accent);">0.00 HTG</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
+                    Ti Glase: <span id="sub-ben-detay">0</span> HTG | BW Gwo: <span id="sub-ben-gro">0</span> HTG
+                </div>
+            </div>
+            <div class="card" style="border-left: 5px solid var(--warning);">
+                <div class="card-title">🪙 Komisyon NatCash jodi a</div>
+                <div class="card-value" id="disp-komisyon" style="color: var(--warning);">0.00 HTG</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top:5px;">
+                    Depo: <span id="sub-kom-depo">0</span> HTG | Retrè: <span id="sub-kom-retre">0</span> HTG
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">💰 Valè Estok Total nan Depo a</div>
+                <div class="card-value" id="disp-vale-estok" style="color: purple;">0.00 HTG</div>
+            </div>
+        </div>
+
+        <!-- SEKSYON ETA AN TAN REYÈL POU TOUT 31 BWASON YO -->
+        <h2 style="margin-bottom: 15px;">🔍 Eta Kantite nan chak Bwason</h2>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📋 Lis tout 31 Pwodwi yo (Depo vs Frizè)</div>
+            <div class="stock-table-wrapper">
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>Non Bwason</th>
+                            <th>Stòk Depo (Grenn)</th>
+                            <th>Stòk Frizè (Grenn)</th>
+                            <th>Kès nan Depo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-stock-body">
+                        <tr><td colspan="4" style="text-align:center;">Ap chaje done yo...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. KONTWÒL AK PARAMÈT ADMIN -->
+        <div class="grid-2">
+            <!-- KONFIGIRASYON MATEN AK TELEFÒN -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">⚙️ Aksyon rapid ak Konfigirasyon</h3>
+                
+                <label style="font-size:12px; font-weight:bold;">Mete Balans Kat NatCash la (Dapre Telefòn ou):</label>
+                <div style="display:flex; gap:5px; margin-bottom:12px;">
+                    <input type="number" id="input-nat-balans" class="input-field" style="margin-bottom:0;" placeholder="Valè sou kat la">
+                    <button class="btn btn-accent" style="margin-top:0; width:auto;" onclick="setNatCardBalance()">Mete l</button>
+                </div>
+
+                <label style="font-size:12px; font-weight:bold;">Mete Fon de Kès Maten pou Vandè a:</label>
+                <input type="number" id="fon-frijide" class="input-field" placeholder="Kès Ti glase">
+                <input type="number" id="fon-gro" class="input-field" placeholder="Kès En Gwo (BW)">
+                <input type="number" id="fon-nat" class="input-field" placeholder="NatCash Kach">
+                <button class="btn btn-primary" onclick="mandeVerifikasyonMaten()">Voye Verifikasyon bay Vandè a 📤</button>
+            </div>
+
+            <!-- TABLO ESTATISTIK PWODWI KI PLI VANN -->
+            <div class="card">
+                <h3 style="margin-bottom: 5px;">🔥 Pwodwi ki pi Vann yo</h3>
+                <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px;">Estatistik baze sou kantite grenn ak bwat ki soti</p>
+                <div class="stat-bar-container" id="stats-container">
+                    Pa gen vant ki fèt pou jounen an ankò.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RETRÈ LAJAN, ENJEKSYON, AK TRANSFÈ FRIZÈ -->
+        <div class="grid-2">
+            <!-- JESTYON RETRÈ LAJAN DEPI NAN KÈS -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">💸 Retire lajan nan yon Kès</h3>
+                <label style="font-size:12px; font-weight:bold;">Chwazi ki kès w ap tire kòb:</label>
+                <select id="select-retre-kes" class="input-field">
+                    <option value="stokBwasonFrijidè">Kès Ti Glase</option>
+                    <option value="stokVenteEnGro">Kès En Gwo (BW)</option>
+                    <option value="kobfiziknatcash">NatCash Kach</option>
+                </select>
+                <input type="number" id="input-retre-montan" class="input-field" placeholder="Montan an HTG">
+                <input type="text" id="input-retre-motive" class="input-field" placeholder="Rezon (Ex: Sere labank, achte glas...)">
+                <button class="btn btn-danger" onclick="retireKòbAdmin()">Valide Retrè Lajan an 📤</button>
+            </div>
+
+            <!-- JESTYON LÈW ACHTE NOUVO ESTOK (ENTRE) -->
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">📥 Mete nouvo Pwodwi nan Estok (Gwo Depo)</h3>
+                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi a:</label>
+                <select id="select-pwodwi-estok" class="input-field">
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
+                </select>
+                
+                <label style="font-size:12px; font-weight:bold;">Chwazi Kalite Inite w ap ajoute a:</label>
+                <select id="select-inite-estok" class="input-field">
+                    <option value="kes">Kès Antye</option>
+                    <option value="demi">1/2 Kès</option>
+                    <option value="grenn">Grenn</option>
+                </select>
+
+                <input type="number" id="input-kantite-bwat" class="input-field" placeholder="Kantite">
+                <button class="btn btn-accent" onclick="ajouteEstokAdmin()">Mete nan Estok Jeneral 📦</button>
+            </div>
+        </div>
+
+<!-- DINAMIK TRANSFÈ: DEPO ➔ FRIZÈ -->
+        <div class="grid-2">
+            <div class="card">
+                <h3 style="margin-bottom: 12px;">❄️ Voye Bwason nan Frizè (Transfè)</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Lojik sa a ap retire stòk nan Depo jeneral la pou l mete l nan Frizè a pou detay.</p>
+                
+                <label style="font-size:12px; font-weight:bold;">Chwazi Pwodwi pou Transfere a:</label>
+                <select id="select-pwodwi-transfere" class="input-field">
+                    <!-- Ranpli otomatikman pa JS ak 31 pwodwi yo -->
+                </select>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:bold;">Kalite Inite:</label>
+                        <select id="select-inite-transfere" class="input-field">
+                            <option value="kes">Kès (24 grenn)</option>
+                            <option value="demi">Demi-Kès (12 grenn)</option>
+                            <option value="grenn">Grenn</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:bold;">Kantite:</label>
+                        <input type="number" id="input-kantite-transfere" class="input-field" placeholder="Egzanp: 2">
+                    </div>
+                </div>
+                
+                <button class="btn btn-warning" onclick="transfereNanFrizerAdmin()">Valide Transfè Frizè a ❄️</button>
+            </div>
+            
+            <div class="card" style="visibility: hidden; display: none;"></div>
+        </div>
+
+        <!-- 4. TI RECHÈCH PA DAT EPI ISTORIK YO -->
+        <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                <h3>📋 Istorik ak Filtraj Jeneral</h3>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <label style="font-size:12px; font-weight:bold;">Filtre pa dat:</label>
+                    <input type="date" id="filtre-dat" class="input-field" style="margin-bottom:0; width:auto;" onchange="filtreIstorik()">
+                </div>
+            </div>
+            
+            <div class="grid-3" style="margin-bottom:0;">
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🛒 VANT AN DETAY (TI GLASE)</h4>
+                    <div class="log-box" id="log-ti-glase">Pa gen aksyon...</div>
+                </div>
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">📦 VANT EN GWO (BW)</h4>
+                    <div class="log-box" id="log-en-gro">Pa gen aksyon...</div>
+                </div>
+                <div>
+                    <h4 style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">🟢 TRANZAKSYON NATCASH</h4>
+                    <div class="log-box" id="log-natcash">Pa gen aksyon...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. BOUTON POU FÈMEN JOUNEN AN -->
+        <div class="card" style="border: 2px dashed var(--danger); text-align: center;">
+            <h3 style="color: var(--danger); margin-bottom: 8px;">🏁 Fèmti Ofisyèl Jounen Biznis la</h3>
+            <p style="font-size:13px; color: var(--text-muted); margin-bottom:15px;">
+                Bouton sa a ap pran tout benefis, komisyon, ak lavant jounen an, l ap achive yo nan baz done a pou nèt, epi l ap mete kontè yo pròp pou demen. Fè sa sèlman lè w fin verifye kès la aswè a!
+            </p>
+            <button class="btn btn-danger" style="max-width: 350px; margin: 0 auto; font-size:16px;" onclick="femenJounenOfisyel()">🔒 FÈMEN JOUNEN AN & ARCHIVE</button>
+        </div>
+
+    </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -422,3 +754,5 @@
         }
     };
 </script>
+</body>
+</html>
