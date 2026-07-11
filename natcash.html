@@ -310,7 +310,7 @@
     let totalKomisyonRetre = 0.00;
     let lisTranzaksyon = [];
 
-    // Inisyalizasyon Theme nan kòmansman an
+    // Inisyalizasyon Theme nan kòmansman an san kach nan localStorage
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         const themeBtn = document.getElementById('theme-btn');
@@ -337,7 +337,7 @@
             natcashCardBalance = data.natcashCardBalance ?? 0.00;
             kobfiziknatcash = data.kobfiziknatcash ?? 0.00;
             stokBwasonFrijidè = data.stokBwasonFrijidè ?? 0.00;
-            stokVenteEnGro = data.stokVenteEnGro ?? 150000.00;
+            stokVenteEnGro = data.stokVenteEnGro ?? 0.00;
             accumulatedCommission = data.accumulatedCommission ?? 0.00;
             totalKomisyonDepo = data.totalKomisyonDepo ?? 0.00;
             totalKomisyonRetre = data.totalKomisyonRetre ?? 0.00;
@@ -371,7 +371,6 @@
         update(natcashRef, {
             natcashCardBalance: natcashCardBalance,
             kobfiziknatcash: kobfiziknatcash,
-            stokBwasonFrijidè: stokBwasonFrijidè,
             stokVenteEnGro: stokVenteEnGro,
             accumulatedCommission: accumulatedCommission,
             totalKomisyonDepo: totalKomisyonDepo,
@@ -453,18 +452,16 @@
         let jou = String(kounye.getDate()).padStart(2, '0');
         let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
 
-        if (tip !== 'sistèm') {
-            lisTranzaksyon.unshift({ 
-                id: id, 
-                mesaj: mesaj, 
-                montan: montan, 
-                tip: tip, 
-                komisyon: komisyon, 
-                tan: kounye.toLocaleTimeString(),
-                dat: datFòma,
-                timestamp: Date.now()
-            });
-        }
+        lisTranzaksyon.unshift({ 
+            id: id, 
+            mesaj: mesaj, 
+            montan: montan, 
+            tip: tip, 
+            komisyon: komisyon, 
+            tan: kounye.toLocaleTimeString(),
+            dat: datFòma,
+            timestamp: Date.now()
+        });
         soveDoneSouFirebase();
     }
 
@@ -479,9 +476,10 @@
         
         let htmlKontni = "";
         lisTranzaksyon.forEach(t => {
-            let ikòn = t.tip === 'depo' ? '📥' : '📤';
+            let ikòn = t.tip === 'depo' ? '📥' : t.tip === 'retre' ? '📤' : '⚙️';
+            let titTip = t.tip === 'sistèm' ? 'SISTÈM' : t.tip.toUpperCase();
             htmlKontni += `<div onclick="manijeTranzaksyon('${t.id}')" style="cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
-                ⏰ ${t.tan} - ${ikòn} <strong>${t.tip.toUpperCase()}:</strong> ${t.mesaj} (Klike pou w modifye/suprime)
+                ⏰ ${t.tan} - ${ikòn} <strong>${titTip}:</strong> ${t.mesaj} (Klike pou w modifye/suprime)
             </div>`;
         });
         
@@ -493,6 +491,11 @@
         if (tIndex === -1) return;
         
         let tranzaksyon = lisTranzaksyon[tIndex];
+        if (tranzaksyon.tip === 'sistèm') {
+            alert("❌ Ou pa ka modifye oswa suprime yon mesaj sistèm.");
+            return;
+        }
+        
         let aksyon = prompt(`Opsyon pou tranzaksyon ${tranzaksyon.tip.toUpperCase()} ki te fèt a ${tranzaksyon.tan}:\n\nEkri "SUPRIME" pou w efase l.\nEkri "MODIFYE" pou w chanje montan an.`);
         
         if (!aksyon) return;
@@ -521,6 +524,38 @@
                 return;
             }
             
+            // Kalkile ranvèsman tanporè san sove pou simulation balans vityèl
+            let tempCardBalance = natcashCardBalance;
+            let tempKobFizik = kobfiziknatcash;
+            
+            if (tranzaksyon.tip === 'depo') {
+                tempCardBalance += tranzaksyon.montan;
+                tempKobFizik -= tranzaksyon.montan;
+            } else if (tranzaksyon.tip === 'retre') {
+                tempCardBalance -= tranzaksyon.montan;
+                tempKobFizik += tranzaksyon.montan;
+            }
+            
+            // Aplike nouvo simulation sou balans vityèl la
+            if (tranzaksyon.tip === 'depo') {
+                tempCardBalance -= nouvoMontan;
+                tempKobFizik += nouvoMontan;
+            } else if (tranzaksyon.tip === 'retre') {
+                tempCardBalance += nouvoMontan;
+                tempKobFizik -= nouvoMontan;
+            }
+            
+            // Verifikasyon balans negatif
+            if (tempCardBalance < 0) {
+                alert("❌ Aksyon anile! Modifikasyon sa a ap fè balans kat la win negatif (" + tempCardBalance.toFixed(2) + " HTG).");
+                return;
+            }
+            if (tempKobFizik < 0) {
+                alert("❌ Aksyon anile! Modifikasyon sa a ap fè kòb fizik nan kès la win negatif (" + tempKobFizik.toFixed(2) + " HTG).");
+                return;
+            }
+            
+            // Si tout bagay bon, nou ka aplike reyèl chanjman yo kounye a
             if (tranzaksyon.tip === 'depo') {
                 natcashCardBalance += tranzaksyon.montan;
                 kobfiziknatcash -= tranzaksyon.montan;
@@ -559,7 +594,7 @@
         if (!chwa) return;
         
         if (chwa.toUpperCase() === "AJOUTE") {
-            let konfimasyon = confirm("Èske ou vle pran kach nan STOK VANN EN GRO A (BW) pou mete nan kòb kach NatCash la?");
+            let konfimasyon = confirm("Èske ou vle pran kach nan STOK VANN EN GRO A (BW) pou mete dans kòb kach NatCash la?");
             if (!konfimasyon) return;
 
             let montanKòd = prompt(`Stok BW aktyèl: ${stokVenteEnGro} HTG.\nAntre montan w ap pran ladan l lan:`);
@@ -600,6 +635,7 @@
             }
             
             kobfiziknatcash -= montan;
+            ajouteNanNatLog(`SISTÈM: Yo retire ${montan} HTG nan Kòb Fizik NatCash la. Direksyon: ${destinasyon.toUpperCase()}.`, 0, 'sistèm', 0);
             alert(`Ou retire ${montan.toFixed(2)} HTG nan Kòb Fizik la. Direksyon: ${destinasyon.toUpperCase()}. Sove pou kès admin an pita!`);
         }
         
@@ -640,17 +676,6 @@
     setInterval(function tchekePemanKomisyon() {
         let kounye = new Date();
         if (kounye >= datPemanKomisyon) {
-            // Lojik transfè otomatik la mete AN POZ pou kounye a.
-            // Sistèm nan p ap ajoute kòb la sou balans kat la e li p ap efase varyab yo a 7H.
-            /*
-            if (accumulatedCommission > 0) {
-                natcashCardBalance += accumulatedCommission;
-                accumulatedCommission = 0.00;
-                totalKomisyonDepo = 0.00;
-                totalKomisyonRetre = 0.00;
-                ajouteNanNatLog(`SISTÈM (7:00 AM): Komisyon jounen an depoze sou kat la!`, 0, 'sistèm', 0);
-            }
-            */
             datPemanKomisyon = jwennPwochenSètèA();
         }
     }, 1000);
