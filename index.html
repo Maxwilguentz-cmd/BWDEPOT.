@@ -798,9 +798,26 @@ window.addToCart = function(prodId, type) {
         console.error("Pwodwi sa a pa egziste nan envantè lokal la:", prodId);
         return;
     }
-    
-    let labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
-    let qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+
+    let labelType;
+    let qtyNeeded;
+    let effectiveType = type;
+
+    if (type === 'kes') {
+        let venn6Cho = confirm("Èske ou vle vann 6 grenn CHO pwodwi sa a pito?");
+        if (venn6Cho) {
+            effectiveType = '6_grenn_cho';
+            labelType = '6 Grenn Cho';
+            qtyNeeded = 6;
+        } else {
+            effectiveType = 'kes';
+            labelType = 'Kès';
+            qtyNeeded = 24;
+        }
+    } else {
+        labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
+        qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+    }
 
     if (type === 'detail') {
         if ((p.stockFrizerGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a! (Stòk aktyèl: ${p.stockFrizerGrenn || 0}g)`);
@@ -808,8 +825,18 @@ window.addToCart = function(prodId, type) {
         if ((p.stockGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la pou ${labelType}! (Stòk aktyèl: ${p.stockGrenn || 0}g, ou bezwen: ${qtyNeeded}g)`);
     }
 
-    let prodPrice = (p.prices && p.prices[type] !== undefined) ? p.prices[type] : 0;
-    let prodBuyPrice = (p.buyingPrice && p.buyingPrice[type] !== undefined) ? p.buyingPrice[type] : 0;
+    let prodPrice;
+    let prodBuyPrice;
+
+    if (effectiveType === '6_grenn_cho') {
+        let demiPrice = (p.prices && p.prices.demi !== undefined) ? p.prices.demi : 0;
+        let demiBuyPrice = (p.buyingPrice && p.buyingPrice.demi !== undefined) ? p.buyingPrice.demi : 0;
+        prodPrice = Math.round((demiPrice / 2) / 10) * 10;
+        prodBuyPrice = Math.round((demiBuyPrice / 2) / 10) * 10;
+    } else {
+        prodPrice = (p.prices && p.prices[type] !== undefined) ? p.prices[type] : 0;
+        prodBuyPrice = (p.buyingPrice && p.buyingPrice[type] !== undefined) ? p.buyingPrice[type] : 0;
+    }
 
     let cartItemId = "cart_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
@@ -817,7 +844,7 @@ window.addToCart = function(prodId, type) {
         uniqueId: cartItemId, 
         prodId: p.id, 
         name: p.name, 
-        type: type, 
+        type: effectiveType, 
         labelType: labelType, 
         price: prodPrice, 
         buyPrice: prodBuyPrice, 
