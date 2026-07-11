@@ -498,9 +498,9 @@
             alertBox.style.borderColor = 'var(--warning)';
             alertBox.style.color = 'var(--warning)';
             alertBox.innerHTML = `🏁 <strong>RAPÒ FÈMTI KÈS AVÈG VANDÈ:</strong><br>
-                - Kòb Ti Glase li wè: ${lokalState.clotureAveg.frijideVedi} HTG (Sistèm: ${lokalState.stokBwasonFrijidè} HTG)<br>
-                - Kòb En Gwo li wè: ${lokalState.clotureAveg.groVedi} HTG (Sistèm: ${lokalState.stokVenteEnGro} HTG)<br>
-                - Kòb NatCash Kach li wè: ${lokalState.clotureAveg.natVedi} HTG (Sistèm: ${lokalState.kobfiziknatcash} HTG)`;
+                - Kòb Ti Glase li wè: ${lokalState.clotureAveg.frijideVedi ?? 0} HTG (Sistèm: ${lokalState.stokBwasonFrijidè ?? 0} HTG)<br>
+                - Kòb En Gwo li wè: ${lokalState.clotureAveg.groVedi ?? 0} HTG (Sistèm: ${lokalState.stokVenteEnGro ?? 0} HTG)<br>
+                - Kòb NatCash Kach li wè: ${lokalState.clotureAveg.natVedi ?? 0} HTG (Sistèm: ${lokalState.kobfiziknatcash ?? 0} HTG)`;
         } else {
             alertBox.style.display = 'none';
         }
@@ -522,11 +522,14 @@
         let g = parseFloat(document.getElementById('fon-gro').value) || 0;
         let n = parseFloat(document.getElementById('fon-nat').value) || 0;
 
+        // KOREKSYON: Nou mete lòd la nan adminFonDeKes ak mandeVerifikasyon san kraze lajan kès aktyèl yo
         update(appRef, {
             mandeVerifikasyon: true,
-            stokBwasonFrijidè: f,
-            stokVenteEnGro: g,
-            kobfiziknatcash: n,
+            adminFonDeKes: {
+                detay: f,
+                gwo: g,
+                nat: n
+            },
             kontestasyonKès: null,
             clotureAveg: null
         });
@@ -553,6 +556,12 @@
 
         let updateObj = {};
         updateObj[kès] = nouvoVal;
+
+        // KOREKSYON: Si POS la gen yon balans kach fizik, nou desann li tou pou rete senkronize
+        if (lokalState.physicalCashBalance !== undefined) {
+            updateObj["physicalCashBalance"] = Math.max(0, lokalState.physicalCashBalance - montan);
+        }
+
         update(appRef, updateObj);
 
         alert(`Siksè! Ou tire ${montan} HTG nan kès la.`);
@@ -675,10 +684,15 @@
             tGlaseBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
         } else { tGlaseBox.innerHTML = "Pa gen lavant..."; }
 
-        if (lokalState.lisTranzaksyonGro) {
-            let items = Object.values(lokalState.lisTranzaksyonGro);
-            if (datFiltre) items = items.filter(i => i.dat === datFiltre);
-            enGroBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
+        // KOREKSYON:logsAnGwo se yon String HTML ki soti nan index.html, nou enjekte l dirèkteman san Object.values()
+        if (lokalState.logsAnGwo) {
+            if (typeof lokalState.logsAnGwo === "string") {
+                enGroBox.innerHTML = lokalState.logsAnGwo || "Pa gen lavant...";
+            } else {
+                let items = Object.values(lokalState.logsAnGwo);
+                if (datFiltre) items = items.filter(i => i.dat === datFiltre);
+                enGroBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
+            }
         } else { enGroBox.innerHTML = "Pa gen lavant..."; }
 
         if (lokalState.lisTranzaksyon) {
