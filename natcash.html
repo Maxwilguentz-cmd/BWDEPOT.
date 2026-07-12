@@ -16,10 +16,11 @@
             --natcash: #00A550;
             --purple: #8B5CF6;
             --danger: #EF4444;
+            --warning: #F59E0B;
             --border: #E2E8F0;
             --nav-bg: #FFFFFF;
         }
-
+ 
         [data-theme="dark"] {
             --bg-body: #0F172A;
             --bg-card: #1E293B;
@@ -31,10 +32,11 @@
             --natcash: #22C55E;
             --purple: #A78BFA;
             --danger: #F87171;
+            --warning: #FBBF24;
             --border: #334155;
             --nav-bg: #1E293B;
         }
-
+ 
         * {
             margin: 0;
             padding: 0;
@@ -43,7 +45,7 @@
             transition: background-color 0.2s, color 0.2s, border-color 0.2s;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
@@ -51,7 +53,7 @@
             padding-top: 130px;
             padding-bottom: 30px;
         }
-
+ 
         header {
             position: fixed;
             top: 0; left: 0;
@@ -62,7 +64,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 12px;
         }
-
+ 
         .header-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -70,11 +72,11 @@
             flex-direction: column;
             gap: 10px;
         }
-
+ 
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
         .logo span { color: #38BDF8; }
-
+ 
         .theme-toggle {
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -88,7 +90,7 @@
             align-items: center;
             gap: 4px;
         }
-
+ 
         nav {
             display: flex;
             gap: 6px;
@@ -97,7 +99,7 @@
             border-radius: 8px;
             width: 100%;
         }
-
+ 
         nav a {
             flex: 1;
             background: transparent;
@@ -112,16 +114,16 @@
             text-decoration: none;
             display: block;
         }
-
+ 
         nav a.active {
             background-color: var(--bg-card);
             color: var(--primary);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         [data-theme="dark"] nav a.active { color: var(--primary-light); }
-
+ 
         .page { padding: 0 16px; max-width: 1200px; margin: 0 auto; }
-
+ 
         .section-title {
             font-size: 16px;
             font-weight: 800;
@@ -133,7 +135,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
+ 
         .card {
             background-color: var(--bg-card);
             border-radius: 14px;
@@ -142,7 +144,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             margin-bottom: 16px;
         }
-
+ 
         .input-text {
             width: 100%;
             padding: 12px;
@@ -158,7 +160,7 @@
             border-color: var(--primary-light);
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
-
+ 
         .btn-main {
             width: 100%;
             padding: 14px;
@@ -170,7 +172,7 @@
             cursor: pointer;
         }
         .btn-main:active, .theme-toggle:active, .btn-modal-yes:active, .btn-modal-no:active { transform: scale(0.97); opacity: 0.85; }
-
+ 
         .verification-modal {
             display: none;
             position: fixed;
@@ -183,7 +185,7 @@
             padding: 16px;
         }
         .verification-modal.active { display: flex !important; }
-
+ 
         .modal-content {
             background-color: var(--bg-card);
             color: var(--text-main);
@@ -201,7 +203,7 @@
         .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
-
+ 
         @media (min-width: 768px) {
             body { padding-top: 95px; }
             .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
@@ -210,19 +212,19 @@
     </style>
 </head>
 <body>
-
+ 
     <!-- MODAL VERIFIKASYON FON DE KÈS (NATCASH) -->
     <div id="verification-popup" class="verification-modal" style="display: none;">
         <div class="modal-content">
             <span style="font-size: 40px;">💰</span>
             <h3 id="modal-title">Verifikasyon Kès</h3>
             <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
-
+ 
             <div class="modal-buttons" id="modal-initial-btns">
                 <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
                 <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
             </div>
-
+ 
             <div id="dispute-section" class="dispute-box" style="display: none;">
                 <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
                 <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
@@ -230,7 +232,7 @@
             </div>
         </div>
     </div>
-
+ 
     <header>
         <div class="header-container">
             <div class="header-top">
@@ -244,12 +246,12 @@
             </nav>
         </div>
     </header>
-
+ 
     <div id="page-natcash-tab" class="page">
         <h2 class="section-title" style="color: var(--natcash);">🟢 Guichet NatCash</h2>
-
+ 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
-            <div class="card" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0;">
+            <div class="card" onclick="manijeBalansKat()" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0; cursor: pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
                 <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
                 <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
             </div>
@@ -258,21 +260,21 @@
                 <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
             </div>
         </div>
-
+ 
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: right; padding-right: 5px;">
             Estok Lajan Disponib nan Vann En Gro (BW): <span id="kes-gro-display" style="font-weight: bold; color: var(--primary);">0.00 HTG</span>
         </div>
-
+ 
         <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
             <label style="font-weight: 700; font-size: 13px; color: var(--text-muted); display:block; margin-bottom:6px;">Montan Tranzaksyon (HTG):</label>
             <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
-
+ 
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
                 <button onclick="processNatCash('depo')" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
                 <button onclick="processNatCash('retre')" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
             </div>
         </div>
-
+ 
         <div class="card">
             <h3 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; text-transform:uppercase;">📋 Istorik Kout NatCash</h3>
             <div id="pos-nat-logs" style="font-size: 13px; font-family: monospace; line-height: 1.5; max-height: 140px; overflow-y: auto;">
@@ -280,11 +282,11 @@
             </div>
         </div>
     </div>
-
+ 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
+ 
     const firebaseConfig = {
         apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
         authDomain: "bwdepot-61214.firebaseapp.com",
@@ -295,34 +297,32 @@
         appId: "1:624010872324:web:0b0565c3872b3caccd5751",
         measurementId: "G-8VEN9QQF7B"
     };
-
+ 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const natcashRef = ref(db, "appState");
-
+ 
     let natcashCardBalance = 0.00;
     let kobfiziknatcash = 0.00;
     let stokBwasonFrijidè = 0.00;
     let stokVenteEnGro = 0.00;
-
-    // NOUVO: Baz kalkil kach fizik an tan reyèl
-    // kachFizikBaz = dènye chif "konfime" (pa admin oswa pa vandè)
-    // kachFizikBazTan = timestamp (ms) lè baz sa a te etabli
+ 
+    // Baz kalkil kach fizik an tan reyèl
     let kachFizikBaz = 0.00;
     let kachFizikBazTan = 0;
-
+ 
     let accumulatedCommission = 0.00; 
     let totalKomisyonDepo = 0.00;
     let totalKomisyonRetre = 0.00;
     let lisTranzaksyon = [];
-
+ 
     // Inisyalizasyon Theme nan kòmansman an san kach nan localStorage
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         const themeBtn = document.getElementById('theme-btn');
         if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
     }
-
+ 
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const themeBtn = document.getElementById('theme-btn');
@@ -336,9 +336,8 @@
             if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
         }
     }
-
-    // NOUVO: Kalkile kach fizik an tan reyèl apati yon lis tranzaksyon done
-    // (pèmèt nou "simile" yon chanjman anvan nou aplike l vre, san nou pa touche done reyèl la)
+ 
+    // Kalkile kach fizik an tan reyèl apati yon lis tranzaksyon done
     function kalkileKachFizikTanReyèlSouLis(lis) {
         let totalDepo = 0;
         let totalRetre = 0;
@@ -346,22 +345,24 @@
             if ((t.timestamp || 0) > kachFizikBazTan) {
                 if (t.tip === 'depo') totalDepo += (t.montan || 0);
                 else if (t.tip === 'retre') totalRetre += (t.montan || 0);
+                // NOTE: 'depo_berli' ak 'komisyon_manyèl' PA konte isit la —
+                // yo afekte sèlman balans kat la, pa kach fizik la.
             }
         });
         return kachFizikBaz + totalDepo - totalRetre;
     }
-
+ 
     function kalkileKachFizikTanReyèl() {
         return kalkileKachFizikTanReyèlSouLis(lisTranzaksyon);
     }
-
-    // NOUVO: Etabli yon nouvo baz pou kalkil kach fizik la (reset "pwen depa" a)
+ 
+    // Etabli yon nouvo baz pou kalkil kach fizik la (reset "pwen depa" a)
     function metNouvoBazKach(nouvoBaz) {
         kachFizikBaz = nouvoBaz;
         kachFizikBazTan = Date.now();
         kobfiziknatcash = nouvoBaz;
     }
-
+ 
     onValue(natcashRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -377,11 +378,9 @@
             } else {
                 lisTranzaksyon = [];
             }
-
-            // NOUVO: Chaje baz kach fizik la (oswa inisyalize l si li pa egziste ankò)
+ 
+            // Chaje baz kach fizik la (oswa inisyalize l si li pa egziste ankò)
             if (data.kachFizikBaz === undefined) {
-                // Premye fwa sistèm nan wè chan sa a: itilize ansyen kobfiziknatcash
-                // kòm pwen depa, epi kòmanse konte an tan reyèl apati de KOUNYE A.
                 kachFizikBaz = data.kobfiziknatcash ?? 0.00;
                 kachFizikBazTan = Date.now();
                 update(natcashRef, { kachFizikBaz: kachFizikBaz, kachFizikBazTan: kachFizikBazTan });
@@ -389,11 +388,8 @@
                 kachFizikBaz = data.kachFizikBaz;
                 kachFizikBazTan = data.kachFizikBazTan ?? 0;
             }
-
+ 
             if (data.mandeVerifikasyon === true) {
-                // Admin fenk deklare yon nouvo chif — afiche l dirèkteman pandan
-                // n ap tann vandè a aksepte/konteste l (kalkil an tan reyèl la
-                // ap rekòmanse sèlman apre vandè a reponn).
                 kobfiziknatcash = data.kobfiziknatcash ?? 0.00;
                 if (document.getElementById('verification-popup')) {
                     document.getElementById('verification-popup').style.display = 'flex';
@@ -411,13 +407,13 @@
         updateNatCashDisplays();
         aficheIstorikEkran();
     });
-
+ 
     function soveDoneSouFirebase() {
         let tranzaksyonObj = {};
         lisTranzaksyon.forEach(t => {
             tranzaksyonObj[t.id] = t;
         });
-
+ 
         update(natcashRef, {
             natcashCardBalance: natcashCardBalance,
             kobfiziknatcash: kobfiziknatcash,
@@ -429,11 +425,11 @@
             kachFizikBaz: kachFizikBaz,
             kachFizikBazTan: kachFizikBazTan
         });
-
+ 
         updateNatCashDisplays();
         aficheIstorikEkran();
     }
-
+ 
     function jwennPwochenSètèA() {
         let kounye = new Date();
         let demen = new Date(kounye);
@@ -441,9 +437,9 @@
         demen.setHours(7, 0, 0, 0);
         return demen;
     }
-
+ 
     let datPemanKomisyon = jwennPwochenSètèA();
-
+ 
     function jwennKomisyonDepo(montan) {
         if (montan < 20) return 0;
         if (montan >= 20 && montan <= 99) return 1.65;
@@ -461,7 +457,7 @@
         if (montan >= 75000 && montan <= 99999) return 100.00;
         return montan * 0.001;
     }
-
+ 
     function jwennKomisyonRetrè(montan) {
         if (montan < 20) return 0;
         if (montan >= 20 && montan <= 99) return 1.50;
@@ -479,12 +475,12 @@
         if (montan >= 75000 && montan <= 99999) return 135.00;
         return montan * 0.0015;
     }
-
+ 
     function updateNatCashDisplays() {
         let cardDisp = document.getElementById('vandes-natcash-display');
         let cashDisp = document.getElementById('vandes-cash-display');
         let stokBwDisp = document.getElementById('kes-gro-display');
-
+ 
         if (cardDisp) {
             cardDisp.innerText = natcashCardBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
@@ -495,7 +491,7 @@
             stokBwDisp.innerText = stokVenteEnGro.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
         }
     }
-
+ 
     function ajouteNanNatLog(mesaj, montan = 0, tip = 'sistèm', komisyon = 0) {
         let id = "t_" + Date.now() + Math.random().toString(36).substr(2, 5);
         let kounye = new Date();
@@ -503,7 +499,7 @@
         let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
         let jou = String(kounye.getDate()).padStart(2, '0');
         let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
-
+ 
         lisTranzaksyon.unshift({ 
             id: id, 
             mesaj: mesaj, 
@@ -514,13 +510,12 @@
             dat: datFòma,
             timestamp: Date.now()
         });
-
-        // NOUVO: Rekalkile kach fizik la an tan reyèl apre nou fenk ajoute tranzaksyon an
+ 
         kobfiziknatcash = kalkileKachFizikTanReyèl();
-
+ 
         soveDoneSouFirebase();
     }
-
+ 
     function aficheIstorikEkran() {
         const logDiv = document.getElementById('pos-nat-logs');
         if (!logDiv) return;
@@ -532,8 +527,8 @@
         
         let htmlKontni = "";
         lisTranzaksyon.forEach(t => {
-            let ikòn = t.tip === 'depo' ? '📥' : t.tip === 'retre' ? '📤' : '⚙️';
-            let titTip = t.tip === 'sistèm' ? 'SISTÈM' : t.tip.toUpperCase();
+            let ikòn = t.tip === 'depo' ? '📥' : t.tip === 'retre' ? '📤' : t.tip === 'depo_berli' ? '👤' : t.tip === 'komisyon_manyèl' ? '🪙' : '⚙️';
+            let titTip = t.tip === 'sistèm' ? 'SISTÈM' : t.tip === 'depo_berli' ? 'BERLI' : t.tip === 'komisyon_manyèl' ? 'KOMISYON' : t.tip.toUpperCase();
             htmlKontni += `<div onclick="manijeTranzaksyon('${t.id}')" style="cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
                 ⏰ ${t.tan} - ${ikòn} <strong>${titTip}:</strong> ${t.mesaj} (Klike pou w modifye/suprime)
             </div>`;
@@ -541,14 +536,14 @@
         
         logDiv.innerHTML = htmlKontni;
     }
-
+ 
     function manijeTranzaksyon(id) {
         let tIndex = lisTranzaksyon.findIndex(item => item.id === id);
         if (tIndex === -1) return;
         
         let tranzaksyon = lisTranzaksyon[tIndex];
-        if (tranzaksyon.tip === 'sistèm') {
-            alert("❌ Ou pa ka modifye oswa suprime yon mesaj sistèm.");
+        if (tranzaksyon.tip === 'sistèm' || tranzaksyon.tip === 'depo_berli' || tranzaksyon.tip === 'komisyon_manyèl') {
+            alert("❌ Ou pa ka modifye oswa suprime mesaj sa a.");
             return;
         }
         
@@ -557,7 +552,6 @@
         if (!aksyon) return;
         
         if (aksyon.toUpperCase() === "SUPRIME") {
-            // Simile balans kat la san sove
             let tempCardBalance = natcashCardBalance;
             if (tranzaksyon.tip === 'depo') {
                 tempCardBalance += tranzaksyon.montan;
@@ -568,16 +562,14 @@
                 alert("❌ Aksyon anile! Modifikasyon sa a ap fè balans kat la vin negatif (" + tempCardBalance.toFixed(2) + " HTG).");
                 return;
             }
-
-            // Simile kach fizik la an tan reyèl san sove (san nou pa touche done reyèl la)
+ 
             let lisSimile = lisTranzaksyon.filter((_, i) => i !== tIndex);
             let kachSimile = kalkileKachFizikTanReyèlSouLis(lisSimile);
             if (kachSimile < 0) {
                 alert("❌ Aksyon anile! Sipresyon sa a ap fè kach fizik la vin negatif (" + kachSimile.toFixed(2) + " HTG).");
                 return;
             }
-
-            // Tout bon — aplike vre chanjman yo
+ 
             natcashCardBalance = tempCardBalance;
             if (tranzaksyon.tip === 'depo') {
                 totalKomisyonDepo -= tranzaksyon.komisyon;
@@ -585,10 +577,10 @@
                 totalKomisyonRetre -= tranzaksyon.komisyon;
             }
             accumulatedCommission -= tranzaksyon.komisyon;
-
+ 
             lisTranzaksyon = lisSimile;
             kobfiziknatcash = kachSimile;
-
+ 
             alert("Tranzaksyon an suprime ak siksè, balans yo retounen nan plas yo!");
             
         } else if (aksyon.toUpperCase() === "MODIFYE") {
@@ -599,10 +591,9 @@
                 alert("⚠️ Nouvo montan an pa valab!");
                 return;
             }
-
+ 
             let nouvoKomisyon = tranzaksyon.tip === 'depo' ? jwennKomisyonDepo(nouvoMontan) : jwennKomisyonRetrè(nouvoMontan);
-
-            // Simile balans kat la san sove: retire efè ansyen an, aplike nouvo a
+ 
             let tempCardBalance = natcashCardBalance;
             if (tranzaksyon.tip === 'depo') {
                 tempCardBalance += tranzaksyon.montan;
@@ -615,16 +606,14 @@
                 alert("❌ Aksyon anile! Modifikasyon sa a ap fè balans kat la vin negatif (" + tempCardBalance.toFixed(2) + " HTG).");
                 return;
             }
-
-            // Simile kach fizik la an tan reyèl ak nouvo montan an
+ 
             let lisSimile = lisTranzaksyon.map((t, i) => i === tIndex ? { ...t, montan: nouvoMontan } : t);
             let kachSimile = kalkileKachFizikTanReyèlSouLis(lisSimile);
             if (kachSimile < 0) {
                 alert("❌ Aksyon anile! Modifikasyon sa a ap fè kach fizik la vin negatif (" + kachSimile.toFixed(2) + " HTG).");
                 return;
             }
-
-            // Tout bon — aplike vre chanjman yo
+ 
             natcashCardBalance = tempCardBalance;
             if (tranzaksyon.tip === 'depo') {
                 totalKomisyonDepo -= tranzaksyon.komisyon;
@@ -637,18 +626,18 @@
             }
             accumulatedCommission -= tranzaksyon.komisyon;
             accumulatedCommission += nouvoKomisyon;
-
+ 
             tranzaksyon.montan = nouvoMontan;
             tranzaksyon.komisyon = nouvoKomisyon;
-
+ 
             kobfiziknatcash = kachSimile;
-
+ 
             alert("Tranzaksyon an modifye ak siksè!");
         }
         
         soveDoneSouFirebase();
     }
-
+ 
     function manijeKòbFizikKach() {
         let chwa = prompt(`Manadjman Kòb Fizik (NatCash Kach):\n\nEkri "AJOUTE" pou pran kòb nan Stok Vann en Gro (BW) la mete la.\nEkri "RETIRE" pou w pran lajan nan kès la.`);
         
@@ -657,7 +646,7 @@
         if (chwa.toUpperCase() === "AJOUTE") {
             let konfimasyon = confirm("Èske ou vle pran kach nan STOK VANN EN GRO A (BW) pou mete dans kòb kach NatCash la?");
             if (!konfimasyon) return;
-
+ 
             let montanKòd = prompt(`Stok BW aktyèl: ${stokVenteEnGro} HTG.\nAntre montan w ap pran ladan l lan:`);
             let montan = parseFloat(montanKòd);
             if (isNaN(montan) || montan <= 0) {
@@ -669,9 +658,8 @@
                 alert(`❌ Pa gen ase kòb nan Stok Vann en Gro (BW)! Ou sèlman gen ${stokVenteEnGro} HTG.`);
                 return;
             }
-
+ 
             stokVenteEnGro -= montan;
-            // NOUVO: sa a se yon mouvman manyèl reyèl — li etabli yon nouvo baz imedyatman
             metNouvoBazKach(kalkileKachFizikTanReyèl() + montan);
             
             ajouteNanNatLog(`SISTÈM: Yo pran ${montan} HTG nan Stok En Gro (BW) pou ranfòse Kach NatCash la.`, 0, 'sistèm', 0);
@@ -684,7 +672,7 @@
                 alert("⚠️ Montan sa a pa valab!");
                 return;
             }
-
+ 
             let kachAktyèl = kalkileKachFizikTanReyèl();
             if (kachAktyèl < montan) {
                 alert("❌ Pa gen ase kòb fizik pou w retire montan sa a!");
@@ -698,23 +686,59 @@
                 stokVenteEnGro += montan;
             }
             
-            // NOUVO: sa a se yon mouvman manyèl reyèl — li etabli yon nouvo baz imedyatman
             metNouvoBazKach(kachAktyèl - montan);
-
+ 
             ajouteNanNatLog(`SISTÈM: Yo retire ${montan} HTG nan Kòb Fizik NatCash la. Direksyon: ${destinasyon.toUpperCase()}.`, 0, 'sistèm', 0);
             alert(`Ou retire ${montan.toFixed(2)} HTG nan Kòb Fizik la. Direksyon: ${destinasyon.toUpperCase()}. Sove pou kès admin an pita!`);
         }
         
         soveDoneSouFirebase();
     }
-
+ 
+    // NOUVO: Klike sou "Balans sou Kat la" pou anrejistre yon Depo Berli oswa yon Komisyon
+    function manijeBalansKat() {
+        let chwa = prompt(`Aksyon sou Balans Kat la:\n\nEkri "BERLI" pou anrejistre yon Depo Mèt Biznis la (li pa la fizikman, sa pa afekte kach ou).\nEkri "KOMISYON" pou ajoute yon Komisyon sou balans kat la.`);
+        
+        if (!chwa) return;
+ 
+        if (chwa.toUpperCase() === "BERLI") {
+            let montanKòd = prompt("Antre montan Depo Berli a (HTG):");
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) {
+                alert("⚠️ Montan sa a pa valab!");
+                return;
+            }
+            if (natcashCardBalance < montan) {
+                alert(`❌ Balans kat la (${natcashCardBalance.toFixed(2)} HTG) pa ase pou depo sa a!`);
+                return;
+            }
+ 
+            natcashCardBalance -= montan;
+            ajouteNanNatLog(`BERLI: Depo Mèt Biznis la pou ${montan} HTG (pa afekte kach fizik ou).`, montan, 'depo_berli', 0);
+            alert(`✅ Depo Berli anrejistre: ${montan.toFixed(2)} HTG retire nan balans kat la.`);
+ 
+        } else if (chwa.toUpperCase() === "KOMISYON") {
+            let montanKòd = prompt("Antre montan Komisyon an (HTG):");
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) {
+                alert("⚠️ Montan sa a pa valab!");
+                return;
+            }
+ 
+            accumulatedCommission += montan;
+            ajouteNanNatLog(`KOMISYON: Komisyon manyèl anrejistre pou ${montan} HTG.`, montan, 'komisyon_manyèl', 0);
+            alert(`✅ Komisyon anrejistre: ${montan.toFixed(2)} HTG ajoute.`);
+        }
+ 
+        soveDoneSouFirebase();
+    }
+ 
     function acceptFonDeKes() {
         alert("Mèsi! Ou valide kès la ak siksè.");
         document.getElementById('verification-popup').style.display = 'none';
-
-        // NOUVO: Chif admin te deklare a (deja chaje nan kobfiziknatcash) vin nouvo baz
+ 
         metNouvoBazKach(kobfiziknatcash);
-
+ 
         update(natcashRef, { 
             mandeVerifikasyon: false,
             kachFizikBaz: kachFizikBaz,
@@ -722,27 +746,25 @@
             kobfiziknatcash: kobfiziknatcash
         });
     }
-
+ 
     function showDisputeInput() {
         document.getElementById('modal-initial-btns').style.display = 'none';
         document.getElementById('dispute-section').style.display = 'block';
     }
-
+ 
     function submitDispute() {
         let disputedAmt = document.getElementById('disputed-amount-input').value;
         if (!disputedAmt || parseFloat(disputedAmt) < 0) {
             alert("Tanpri antre yon kantite kòb ki valab.");
             return;
         }
-
+ 
         let montanDeklare = parseFloat(disputedAmt);
         let kobSistemAvan = kobfiziknatcash;
         
         alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${montanDeklare} HTG olye de ${kobSistemAvan} HTG.`);
         document.getElementById('verification-popup').style.display = 'none';
-
-        // NOUVO: Chif vandè a reyèlman konte a (pa sa sistèm nan te tann) vin nouvo baz,
-        // paske se sa ki reyèlman nan men l.
+ 
         metNouvoBazKach(montanDeklare);
         
         update(natcashRef, { 
@@ -757,25 +779,25 @@
             kobfiziknatcash: kobfiziknatcash
         });
     }
-
+ 
     setInterval(function tchekePemanKomisyon() {
         let kounye = new Date();
         if (kounye >= datPemanKomisyon) {
             datPemanKomisyon = jwennPwochenSètèA();
         }
     }, 1000);
-
+ 
     function processNatCash(type) {
         const amountInput = document.getElementById('nat-amount');
         if (!amountInput) return;
-
+ 
         let montan = parseFloat(amountInput.value);
-
+ 
         if (isNaN(montan) || montan <= 0) {
             alert("⚠️ Tanpri antre yon montan ki valab!");
             return;
         }
-
+ 
         if (type === 'depo') {
             if (natcashCardBalance < montan) {
                 alert("❌ Ou pa gen ase balans sou kat la pou fè depo sa a!");
@@ -785,8 +807,6 @@
             natcashCardBalance -= montan;
             accumulatedCommission += komisyon;
             totalKomisyonDepo += komisyon;
-            // NOTE: kobfiziknatcash pa touche dirèkteman isit la ankò —
-            // li rekalkile an tan reyèl anndan ajouteNanNatLog()
             ajouteNanNatLog(`Kliyan voye ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'depo', komisyon);
             
         } else if (type === 'retre') {
@@ -801,19 +821,20 @@
             totalKomisyonRetre += komisyon;
             ajouteNanNatLog(`Kliyan retire ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'retre', komisyon);
         }
-
+ 
         amountInput.value = '';
         soveDoneSouFirebase();
     }
-
+ 
     window.processNatCash = processNatCash;
     window.manijeTranzaksyon = manijeTranzaksyon;
     window.manijeKòbFizikKach = manijeKòbFizikKach;
+    window.manijeBalansKat = manijeBalansKat;
     window.acceptFonDeKes = acceptFonDeKes;
     window.showDisputeInput = showDisputeInput;
     window.submitDispute = submitDispute;
     window.toggleTheme = toggleTheme;
-
+ 
     updateNatCashDisplays();
     aficheIstorikEkran();
 </script>
