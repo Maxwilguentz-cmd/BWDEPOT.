@@ -654,9 +654,6 @@ window.openVerificationModal = function(title, msg) {
 window.acceptFonDeKes = function() {
     if (currentVerifyingType === "bwason") {
         verifiedSections.bwason = true;
-        stokBwasonFrijidè += adminFonDeKes.detay;
-        stokVenteEnGro += adminFonDeKes.gwo;
-        physicalCashBalance += (adminFonDeKes.gwo + adminFonDeKes.detay);
     }
     document.getElementById('verification-popup').style.display = 'none';
     updatePosCashDisplay();
