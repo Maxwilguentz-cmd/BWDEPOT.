@@ -332,7 +332,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, update, push, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
@@ -541,50 +541,109 @@
         alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
     };
 
-window.retireKòbAdmin = function() {
-    let kès = document.getElementById('select-retre-kes').value;
-    let montan = parseFloat(document.getElementById('input-retre-montan').value);
-    let rezon = document.getElementById('input-retre-motive').value || "Retrè Admin";
- 
-    if (isNaN(montan) || montan <= 0) { alert("Antre yon montan valab!"); return; }
-    if ((lokalState[kès] ?? 0) < montan) { alert("Pa gen ase kòb nan kès sa a!"); return; }
- 
-    let nouvoVal = lokalState[kès] - montan;
-    let pouseRef = ref(db, `appState/istorikAdminRetre`);
-    push(pouseRef, {
-        dat: new Date().toLocaleDateString(),
-        tan: new Date().toLocaleTimeString(),
-        kès: kès,
-        montan: montan,
-        rezon: rezon
-    });
- 
-    let updateObj = {};
-    updateObj[kès] = nouvoVal;
- 
-    if (kès === 'kobfiziknatcash') {
-        // KOREKSYON: Kès NatCash — etabli yon nouvo baz pou fòmil
-        // kalkil an tan reyèl la nan natcash.html, sinon retrè sa a
-        // ap disparèt lè fòmil la rekalkile. Pa touche physicalCashBalance
-        // (li pa gen rapò ak kach NatCash).
-        updateObj['kachFizikBaz'] = nouvoVal;
-        updateObj['kachFizikBazTan'] = Date.now();
-    } else {
-        // Kès bwason (Ti Glase/BW) — kontinye ajiste physicalCashBalance
-        // jan sistèm nan te fè l deja. Pa touche kachFizikBaz/kachFizikBazTan
-        // (pa gen rapò ak NatCash).
-        if (lokalState.physicalCashBalance !== undefined) {
-            updateObj["physicalCashBalance"] = Math.max(0, lokalState.physicalCashBalance - montan);
+    // ===================================================================
+    // FIKS: FONKSYON "retireKòbAdmin" TE MANKE NÈT.
+    // Bouton an te la, men fonksyon an pa t ekri, kidonk klike sou li
+    // te toujou pral bay yon erè "retireKòbAdmin is not defined".
+    //
+    // ATANSYON SOU "NatCash Kach": valè `kobfiziknatcash` la se yon valè
+    // KALKILE pa natcash.html (kachFizikBaz + tranzaksyon depi yon tan).
+    // Si nou ta jis chanje `kobfiziknatcash` dirèkteman isit la san n pa
+    // touche `kachFizikBaz`, pwochen tranzaksyon NatCash (depo/retrè POS)
+    // ta rekalkile e ekrase chif la — retrè admin an ta "disparèt".
+    // Se poutèt sa pou ka sa a espesyalman, nou fè yon transaksyon
+    // Firebase (menm apwòch ak natcash.html) ki ajiste `kachFizikBaz` la.
+    // ===================================================================
+    window.retireKòbAdmin = async function() {
+        let kèsChwazi = document.getElementById('select-retre-kes').value;
+        let montan = parseFloat(document.getElementById('input-retre-montan').value);
+        let motif = document.getElementById('input-retre-motive').value.trim();
+
+        if (isNaN(montan) || montan <= 0) { alert("⚠️ Antre yon montan valab!"); return; }
+        if (!motif) { alert("⚠️ Tanpri ekri yon rezon pou retrè a!"); return; }
+
+        let echèk = null;
+
+        try {
+            const { committed } = await runTransaction(appRef, (currentData) => {
+                echèk = null;
+                if (currentData === null) {
+                    echèk = "⚠️ Pa gen done nan sistèm nan pou kounye a.";
+                    return; // anile
+                }
+
+                if (kèsChwazi === 'kobfiziknatcash') {
+                    let lis = currentData.lisTranzaksyon ? Object.values(currentData.lisTranzaksyon) : [];
+                    lis.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    let baz = currentData.kachFizikBaz ?? 0;
+                    let bazTan = currentData.kachFizikBazTan ?? 0;
+
+                    let kachAktyèl = baz;
+                    lis.forEach(t => {
+                        if ((t.timestamp || 0) > bazTan) {
+                            if (t.tip === 'depo') kachAktyèl += (t.montan || 0);
+                            else if (t.tip === 'retre') kachAktyèl -= (t.montan || 0);
+                        }
+                    });
+
+                    if (kachAktyèl < montan) {
+                        echèk = `❌ Pa gen ase kòb nan NatCash Kach! Sèlman ${kachAktyèl.toFixed(2)} HTG disponib.`;
+                        return;
+                    }
+
+                    let nouvoBaz = kachAktyèl - montan;
+                    let nouvelTan = Date.now();
+
+                    let kounye = new Date();
+                    let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
+                    let jou = String(kounye.getDate()).padStart(2, '0');
+                    let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
+                    lis.unshift({
+                        id: "t_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+                        mesaj: `ADMIN: Retrè ${montan} HTG nan NatCash Kach — Rezon: ${motif}`,
+                        montan: 0,
+                        tip: 'sistèm',
+                        komisyon: 0,
+                        tan: kounye.toLocaleTimeString(),
+                        dat: datFòma,
+                        timestamp: Date.now()
+                    });
+
+                    let tranzaksyonObj = {};
+                    lis.forEach(t => { tranzaksyonObj[t.id] = t; });
+
+                    currentData.kachFizikBaz = nouvoBaz;
+                    currentData.kachFizikBazTan = nouvelTan;
+                    currentData.kobfiziknatcash = nouvoBaz;
+                    currentData.lisTranzaksyon = tranzaksyonObj;
+                    return currentData;
+
+                } else {
+                    // Kès Ti Glase oswa Kès En Gwo — balans dirèk, pa gen kalkil derive.
+                    let balansAktyèl = currentData[kèsChwazi] ?? 0;
+                    if (balansAktyèl < montan) {
+                        echèk = `❌ Pa gen ase kòb nan kès sa a! Sèlman ${balansAktyèl.toFixed(2)} HTG disponib.`;
+                        return;
+                    }
+                    currentData[kèsChwazi] = balansAktyèl - montan;
+                    return currentData;
+                }
+            });
+
+            if (echèk) {
+                alert(echèk);
+                return;
+            }
+            if (committed) {
+                alert(`✅ Retrè ${montan.toFixed(2)} HTG valide. Rezon: ${motif}`);
+                document.getElementById('input-retre-montan').value = '';
+                document.getElementById('input-retre-motive').value = '';
+            }
+        } catch (err) {
+            console.error("Erè tranzaksyon retrè admin:", err);
+            alert("⚠️ Pwoblèm koneksyon — retrè a pa t sove. Tanpri eseye ankò.");
         }
-    }
- 
-    update(appRef, updateObj);
- 
-    alert(`Siksè! Ou tire ${montan} HTG nan kès la.`);
-    document.getElementById('input-retre-montan').value = '';
-    document.getElementById('input-retre-motive').value = '';
-};
- 
+    };
 
     // JESTYON METE NOUVO ESTOK NAN DEPO
     window.ajouteEstokAdmin = function() {
@@ -630,32 +689,52 @@ window.retireKòbAdmin = function() {
     };
 
     // LOJIK TRANSFÈ DEPO ➔ FRIZÈ (AN DEMI-KÈS)
-    window.transfereNanFrizerAdmin = function() {
+    // FIKS: te gen yon varyab ki pa t janm defini (grennPreTransfere, yon
+    // fòt tape pou grennPouTransfere) — sa te fè fonksyon an plante ak yon
+    // erè "grennPreTransfere is not defined" chak fwa yon moun eseye
+    // fè yon transfè. Kounye a li itilize runTransaction tou pou evite
+    // menm pwoblèm konkirans ak natcash.html la.
+    window.transfereNanFrizerAdmin = async function() {
         let pId = document.getElementById('select-pwodwi-transfere').value;
         let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere').value);
 
         if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
 
         let grennPouTransfere = kantiteDemiKes * 12;
+        let echèk = null;
 
-        if (!lokalState.inventory || !lokalState.inventory[pId]) { alert("Pwodwi sa a pa jwenn nan baz done a!"); return; }
+        try {
+            const { committed } = await runTransaction(appRef, (currentData) => {
+                echèk = null;
+                if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                    echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                    return;
+                }
 
-        let p = lokalState.inventory[pId];
+                let p = currentData.inventory[pId];
+                if ((p.stockGrenn ?? 0) < grennPouTransfere) {
+                    echèk = `Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`;
+                    return;
+                }
 
-        if ((p.stockGrenn ?? 0) < grennPouTransfere) {
-            alert(`Mank stòk nan Depo! Depo a gen swlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`);
-            return;
+                p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
+                p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPouTransfere;
+                currentData.inventory[pId] = p;
+                return currentData;
+            });
+
+            if (echèk) {
+                alert(echèk);
+                return;
+            }
+            if (committed) {
+                alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) nan Frizè a.`);
+                document.getElementById('input-kantite-transfere').value = '';
+            }
+        } catch (err) {
+            console.error("Erè tranzaksyon transfè frizè:", err);
+            alert("⚠️ Pwoblèm koneksyon — transfè a pa t sove. Tanpri eseye ankò.");
         }
-
-        p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
-        p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPreTransfere;
-
-        let updateObj = {};
-        updateObj[`inventory/${pId}`] = p;
-        update(appRef, updateObj);
-
-        alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) ${p.name} nan Frizè a.`);
-        document.getElementById('input-kantite-transfere').value = '';
     };
 
     function aficheEstatistik() {
@@ -714,11 +793,24 @@ window.retireKòbAdmin = function() {
         } else { natBox.innerHTML = "Pa gen tranzaksyon..."; }
     }
 
+    // FIKS: `<input type="date">` la deja bay valè a nan fòma ISO
+    // "YYYY-MM-DD" — se menm fòma egzat `t.dat` itilize nan tout
+    // tranzaksyon NatCash yo (gade kreyeTranzaksyon() nan natcash.html).
+    // Ansyen kòd la te pase valè a nan `new Date(...)` epi
+    // `.toLocaleDateString()`, ki bay yon fòma diferan (tankou
+    // "7/12/2026" olye "2026-07-12") — kidonk filtè a pa t janm
+    // matche ak okenn tranzaksyon NatCash, e filtraj la te "kase" san
+    // afiche okenn erè. Kounye a nou pase dat la dirèkteman san
+    // konvèsyon, pou l matche.
+    //
+    // NOTE: Sa a sipoze lisTranzaksyonDetay (Ti Glase) ak logsAnGwo
+    // (En Gwo) itilize menm fòma "YYYY-MM-DD" pou chan `dat` yo tou.
+    // Si index.html kreye chan "dat" li yon lòt jan, filtè a p ap
+    // matche pou de bwat sa yo — verifye/aliyen fòma a la si sa rive.
     window.filtreIstorik = function() {
-        let datChwazi = document.getElementById('filtre-dat').value;
+        let datChwazi = document.getElementById('filtre-dat').value; // deja "YYYY-MM-DD"
         if (!datChwazi) { ranpliIstorikEkran(); return; }
-        let datObj = new Date(datChwazi + "T00:00:00");
-        ranpliIstorikEkran(datObj.toLocaleDateString());
+        ranpliIstorikEkran(datChwazi);
     };
 
     window.femenJounenOfisyel = function() {
