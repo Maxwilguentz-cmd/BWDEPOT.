@@ -518,28 +518,25 @@
         document.getElementById('input-nat-balans').value = '';
     };
 
-    window.mandeVerifikasyonMaten = function() {
-        let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
-        let g = parseFloat(document.getElementById('fon-gro').value) || 0;
-        let n = parseFloat(document.getElementById('fon-nat').value) || 0;
+window.mandeVerifikasyonMaten = function() {
+    let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
+    let g = parseFloat(document.getElementById('fon-gro').value) || 0;
+    let n = parseFloat(document.getElementById('fon-nat').value) || 0;
 
-        // KOREKSYON EKZAKT: Nou mete nouvo valè yo nan balans kès yo dirèkteman pou yo chanje sou ekran an tou
-        update(appRef, {
-            mandeVerifikasyon: true,
-            adminFonDeKes: {
-                detay: f,
-                gwo: g,
-                nat: n
-            },
-            stokBwasonFrijidè: f,
-            stokVenteEnGro: g,
-            kobfiziknatcash: n,
-            physicalCashBalance: f + g + n, // Senkronize balans POS fizik la tou
-            kontestasyonKès: null,
-            clotureAveg: null
-        });
-        alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
-    };
+    update(appRef, {
+        mandeVerifikasyon: true,
+        adminFonDeKes: { detay: f, gwo: g, nat: n },
+        stokBwasonFrijidè: f,
+        stokVenteEnGro: g,
+        kobfiziknatcash: n,
+        kachFizikBaz: n,           // ← AJOUTE sa
+        kachFizikBazTan: Date.now(), // ← AJOUTE sa
+        physicalCashBalance: f + g + n,
+        kontestasyonKès: null,
+        clotureAveg: null
+    });
+    alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
+};
 
     // ===================================================================
     // FIKS: FONKSYON "retireKòbAdmin" TE MANKE NÈT.
