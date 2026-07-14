@@ -172,6 +172,7 @@
             cursor: pointer;
         }
         .btn-main:active, .theme-toggle:active, .btn-modal-yes:active, .btn-modal-no:active { transform: scale(0.97); opacity: 0.85; }
+        .btn-main:disabled { opacity: 0.55; cursor: not-allowed; }
 
         .verification-modal {
             display: none;
@@ -270,8 +271,8 @@
             <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
 
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
-                <button onclick="processNatCash('depo')" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
-                <button onclick="processNatCash('retre')" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
+                <button onclick="processNatCash('depo')" id="btn-depo" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
+                <button onclick="processNatCash('retre')" id="btn-retre" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
             </div>
         </div>
 
@@ -357,13 +358,13 @@
         return kalkileKachFizikTanReyèlSouLis(lisTranzaksyon);
     }
 
-    function kreyeTranzaksyon(mesaj, montan, tip, komisyon) {
+    function kreyeTranzaksyon(mesaj, montan, tip, komisyon, estati = null) {
         let id = "t_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
         let kounye = new Date();
         let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
         let jou = String(kounye.getDate()).padStart(2, '0');
         let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
-        return {
+        let t = {
             id: id,
             mesaj: mesaj,
             montan: montan,
@@ -373,6 +374,8 @@
             dat: datFòma,
             timestamp: Date.now()
         };
+        if (estati) t.estati = estati;
+        return t;
     }
 
     // ===================================================================
@@ -508,43 +511,11 @@
         return demen;
     }
 
-    let datPemanKomisyon = jwennPwochenSètèA();
 
-    function jwennKomisyonDepo(montan) {
-        if (montan < 20) return 0;
-        if (montan >= 20 && montan <= 99) return 1.65;
-        if (montan >= 100 && montan <= 249) return 3.31;
-        if (montan >= 250 && montan <= 499) return 4.14;
-        if (montan >= 500 && montan <= 999) return 6.20;
-        if (montan >= 1000 && montan <= 1999) return 12.40;
-        if (montan >= 2000 && montan <= 3999) return 20.60;
-        if (montan >= 4000 && montan <= 7999) return 28.93;
-        if (montan >= 8000 && montan <= 11999) return 35.00;
-        if (montan >= 12000 && montan <= 19999) return 45.00;
-        if (montan >= 20000 && montan <= 39999) return 60.00;
-        if (montan >= 40000 && montan <= 59999) return 75.00;
-        if (montan >= 60000 && montan <= 74999) return 90.00;
-        if (montan >= 75000 && montan <= 99999) return 100.00;
-        return montan * 0.001;
-    }
 
-    function jwennKomisyonRetrè(montan) {
-        if (montan < 20) return 0;
-        if (montan >= 20 && montan <= 99) return 1.50;
-        if (montan >= 100 && montan <= 249) return 3.00;
-        if (montan >= 250 && montan <= 499) return 4.50;
-        if (montan >= 500 && montan <= 999) return 7.93;
-        if (montan >= 1000 && montan <= 1999) return 15.48;
-        if (montan >= 2000 && montan <= 3999) return 25.93;
-        if (montan >= 4000 && montan <= 7999) return 36.73;
-        if (montan >= 8000 && montan <= 11999) return 47.53;
-        if (montan >= 12000 && montan <= 19999) return 59.00;
-        if (montan >= 20000 && montan <= 39999) return 75.00;
-        if (montan >= 40000 && montan <= 59999) return 95.00;
-        if (montan >= 60000 && montan <= 74999) return 115.00;
-        if (montan >= 75000 && montan <= 99999) return 135.00;
-        return montan * 0.0015;
-    }
+
+
+
 
     function updateNatCashDisplays() {
         let cardDisp = document.getElementById('vandes-natcash-display');
@@ -589,8 +560,27 @@
         istorikJodia.forEach(t => {
             let ikòn = t.tip === 'depo' ? '📥' : t.tip === 'retre' ? '📤' : t.tip === 'depo_berli' ? '👤' : t.tip === 'komisyon_manyèl' ? '🪙' : '⚙️';
             let titTip = t.tip === 'sistèm' ? 'SISTÈM' : t.tip === 'depo_berli' ? 'BERLI' : t.tip === 'komisyon_manyèl' ? 'KOMISYON' : t.tip.toUpperCase();
-            htmlKontni += `<div onclick="manijeTranzaksyon('${t.id}')" style="cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
-                ⏰ ${t.tan} - ${ikòn} <strong>${titTip}:</strong> ${t.mesaj} (Klike pou w modifye/suprime)
+
+            // Estati pou BERLI/KOMISYON: an_atant (⏳ jòn), kontete (🔴 wouj, klikab pou korije), valide (nòmal)
+            let estatiTag = "";
+            let stil = "cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;";
+            let onclickAksyon = `manijeTranzaksyon('${t.id}')`;
+
+            if (t.tip === 'depo_berli' || t.tip === 'komisyon_manyèl') {
+                if (t.estati === 'an_atant') {
+                    estatiTag = ' <span style="color: var(--warning); font-weight:800;">⏳ AN ATANT VALIDASYON ADMIN</span>';
+                    stil = "padding: 4px; border-bottom: 1px dashed #ddd; color: var(--warning); font-weight:600;";
+                    onclickAksyon = ""; // pa klikab pandan l an atant
+                } else if (t.estati === 'kontete') {
+                    estatiTag = ' <span style="color: var(--danger); font-weight:800;">🔴 REJTE — KLIKE POU KORIJE</span>';
+                    stil = "cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; color: var(--danger); font-weight:600;";
+                    onclickAksyon = `korijeKomisyonRejte('${t.id}')`;
+                }
+            }
+
+            let onclickAttr = onclickAksyon ? `onclick="${onclickAksyon}"` : "";
+            htmlKontni += `<div ${onclickAttr} style="${stil}" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
+                ⏰ ${t.tan} - ${ikòn} <strong>${titTip}:</strong> ${t.mesaj}${estatiTag}
             </div>`;
         });
 
@@ -753,6 +743,67 @@
     }
 
     // ===================================================================
+    // KORIJE YON KOMISYON/BERLI KI TE REJTE PA ADMIN (🔴)
+    // Vandè a klike sou mesaj wouj la, antre yon nouvo montan, epi nouvo
+    // montan an aplike TOUSUIT ankò sou balans kat la — tranzaksyon an
+    // retounen nan estati "an_atant" pou Admin ka valide/rejte l ankò.
+    // ===================================================================
+    async function korijeKomisyonRejte(id) {
+        let tranzaksyonAktyèl = lisTranzaksyon.find(item => item.id === id);
+        if (!tranzaksyonAktyèl) return;
+        if (tranzaksyonAktyèl.estati !== 'kontete') {
+            alert("❌ Tranzaksyon sa a pa nan estati rejte — ou pa ka korije l kounye a.");
+            return;
+        }
+
+        let nouvoMontanKòd = prompt(`Montan ki te rejte a se ${tranzaksyonAktyèl.montan} HTG.\nRezon rejè Admin: ${tranzaksyonAktyèl.rezonRejè ?? '(pa gen)'}\n\nAntre nouvo montan korije a:`);
+        if (!nouvoMontanKòd) return;
+        let nouvoMontan = parseFloat(nouvoMontanKòd);
+        if (isNaN(nouvoMontan) || nouvoMontan <= 0) {
+            alert("⚠️ Nouvo montan an pa valab!");
+            return;
+        }
+
+        let echèk = null;
+        const siksè = await ekriTranzaksyonAtomik((eta) => {
+            echèk = null;
+            let tIndex = eta.lisTranzaksyon.findIndex(item => item.id === id);
+            if (tIndex === -1) { echèk = "⚠️ Tranzaksyon an pa jwenn ankò."; return false; }
+            let t = eta.lisTranzaksyon[tIndex];
+            if (t.estati !== 'kontete') { echèk = "⚠️ Tranzaksyon sa a deja chanje estati pa yon lòt aksyon."; return false; }
+
+            let nouvoBalansKat = eta.natcashCardBalance;
+            let mesajBaz = "";
+
+            if (t.tip === 'depo_berli') {
+                // BERLI korije: menm jan ak soumisyon orijinal la, li fè balans lan DESANN.
+                if (nouvoBalansKat < nouvoMontan) {
+                    echèk = `❌ Balans kat la (${nouvoBalansKat.toFixed(2)} HTG) pa ase pou korije BERLI sa a pou ${nouvoMontan} HTG!`;
+                    return false;
+                }
+                nouvoBalansKat -= nouvoMontan;
+                mesajBaz = `BERLI: Depo Mèt Biznis la pou ${nouvoMontan} HTG (pa afekte kach fizik ou). [Korije]`;
+            } else if (t.tip === 'komisyon_manyèl') {
+                // KOMISYON korije: menm jan ak soumisyon orijinal la, li fè balans lan MONTE.
+                nouvoBalansKat += nouvoMontan;
+                eta.accumulatedCommission += nouvoMontan;
+                mesajBaz = `KOMISYON: Komisyon manyèl anrejistre pou ${nouvoMontan} HTG (ajoute nan balans kat la). [Korije]`;
+            }
+
+            t.montan = nouvoMontan;
+            t.mesaj = mesajBaz;
+            t.estati = 'an_atant';
+            t.rezonRejè = null;
+            eta.natcashCardBalance = nouvoBalansKat;
+            eta.lisTranzaksyon[tIndex] = t;
+            return true;
+        });
+
+        if (echèk) alert(echèk);
+        else if (siksè) alert(`✅ Korije! ${nouvoMontan.toFixed(2)} HTG aplike ankò sou balans kat la. Tranzaksyon an voye bay Admin pou validasyon ankò.`);
+    }
+
+    // ===================================================================
     // JESYON KÒB FIZIK (AJOUTE nan Stok BW / RETIRE nan kès la)
     // ===================================================================
     async function manijeKòbFizikKach() {
@@ -779,7 +830,7 @@
                 let kachAvan = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
                 eta.kachFizikBaz = kachAvan + montan;
                 eta.kachFizikBazTan = Date.now();
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`SISTÈM: Yo pran ${montan} HTG nan Stok En Gro (BW) pou ranfòse Kach NatCash la.`, 0, 'sistèm', 0));
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Vandè a pran ${montan} HTG nan Kès BW pou mete l nan Kès NatCash.`, 0, 'sistèm', 0));
                 return true;
             });
 
@@ -801,12 +852,16 @@
                     echèk = "❌ Pa gen ase kòb fizik pou w retire montan sa a!";
                     return false;
                 }
+                let mesajLog;
                 if (destinasyon.toUpperCase() === "BW") {
                     eta.stokVenteEnGro += montan;
+                    mesajLog = `Vandè a pran ${montan} HTG nan Kès NatCash pou mete l nan Kès BW.`;
+                } else {
+                    mesajLog = `Vandè a retire ${montan} HTG nan Kès NatCash — Destinasyon: ${destinasyon.toUpperCase()}.`;
                 }
                 eta.kachFizikBaz = kachAktyèl - montan;
                 eta.kachFizikBazTan = Date.now();
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`SISTÈM: Yo retire ${montan} HTG nan Kòb Fizik NatCash la. Direksyon: ${destinasyon.toUpperCase()}.`, 0, 'sistèm', 0));
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(mesajLog, 0, 'sistèm', 0));
                 return true;
             });
 
@@ -817,8 +872,10 @@
 
     // ===================================================================
     // BALANS KAT LA — BERLI (depo mèt biznis) / KOMISYON manyèl
-    // FIKS #2: Komisyon KOMISYON kounye a ajoute nan balans kat la tou,
-    // pa sèlman nan konpteur "accumulatedCommission" a.
+    // Balans lan chanje TOUSUIT lè vandè a soumèt (menm jan l te fè deja).
+    // Tranzaksyon an antre nan estati "an_atant" — Admin ap valide oswa
+    // rejte l apre nan Dashboard Admin an. Si Admin rejte, balans lan
+    // ajiste otomatikman, epi vandè a ka korije l isit la (mesaj wouj).
     // ===================================================================
     async function manijeBalansKat() {
         let chwa = prompt(`Aksyon sou Balans Kat la:\n\nEkri "BERLI" pou anrejistre yon Depo Mèt Biznis la (li pa la fizikman, sa pa afekte kach ou).\nEkri "KOMISYON" pou ajoute yon Komisyon sou balans kat la.`);
@@ -838,12 +895,12 @@
                     return false;
                 }
                 eta.natcashCardBalance -= montan;
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`BERLI: Depo Mèt Biznis la pou ${montan} HTG (pa afekte kach fizik ou).`, montan, 'depo_berli', 0));
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`BERLI: Depo Mèt Biznis la pou ${montan} HTG (pa afekte kach fizik ou).`, montan, 'depo_berli', 0, 'an_atant'));
                 return true;
             });
 
             if (echèk) alert(echèk);
-            else if (siksè) alert(`✅ Depo Berli anrejistre: ${montan.toFixed(2)} HTG retire nan balans kat la.`);
+            else if (siksè) alert(`✅ Depo Berli anrejistre: ${montan.toFixed(2)} HTG retire nan balans kat la. Li an atant validasyon Admin.`);
 
         } else if (chwa.toUpperCase() === "KOMISYON") {
             let montanKòd = prompt("Antre montan Komisyon an (HTG):");
@@ -852,12 +909,12 @@
 
             const siksè = await ekriTranzaksyonAtomik((eta) => {
                 eta.accumulatedCommission += montan;
-                eta.natcashCardBalance += montan; // <-- FIKS: komisyon a ajoute nan balans kat la
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`KOMISYON: Komisyon manyèl anrejistre pou ${montan} HTG (ajoute nan balans kat la).`, montan, 'komisyon_manyèl', 0));
+                eta.natcashCardBalance += montan; // komisyon a ajoute nan balans kat la
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`KOMISYON: Komisyon manyèl anrejistre pou ${montan} HTG (ajoute nan balans kat la).`, montan, 'komisyon_manyèl', 0, 'an_atant'));
                 return true;
             });
 
-            if (siksè) alert(`✅ Komisyon anrejistre: ${montan.toFixed(2)} HTG ajoute nan balans kat la.`);
+            if (siksè) alert(`✅ Komisyon anrejistre: ${montan.toFixed(2)} HTG ajoute nan balans kat la. Li an atant validasyon Admin.`);
         }
     }
 
@@ -922,6 +979,7 @@
 
     window.processNatCash = processNatCash;
     window.manijeTranzaksyon = manijeTranzaksyon;
+    window.korijeKomisyonRejte = korijeKomisyonRejte;
     window.manijeKòbFizikKach = manijeKòbFizikKach;
     window.manijeBalansKat = manijeBalansKat;
     window.acceptFonDeKes = acceptFonDeKes;
