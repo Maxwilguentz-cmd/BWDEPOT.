@@ -511,43 +511,11 @@
         return demen;
     }
 
-    let datPemanKomisyon = jwennPwochenSètèA();
 
-    function jwennKomisyonDepo(montan) {
-        if (montan < 20) return 0;
-        if (montan >= 20 && montan <= 99) return 1.65;
-        if (montan >= 100 && montan <= 249) return 3.31;
-        if (montan >= 250 && montan <= 499) return 4.14;
-        if (montan >= 500 && montan <= 999) return 6.20;
-        if (montan >= 1000 && montan <= 1999) return 12.40;
-        if (montan >= 2000 && montan <= 3999) return 20.60;
-        if (montan >= 4000 && montan <= 7999) return 28.93;
-        if (montan >= 8000 && montan <= 11999) return 35.00;
-        if (montan >= 12000 && montan <= 19999) return 45.00;
-        if (montan >= 20000 && montan <= 39999) return 60.00;
-        if (montan >= 40000 && montan <= 59999) return 75.00;
-        if (montan >= 60000 && montan <= 74999) return 90.00;
-        if (montan >= 75000 && montan <= 99999) return 100.00;
-        return montan * 0.001;
-    }
 
-    function jwennKomisyonRetrè(montan) {
-        if (montan < 20) return 0;
-        if (montan >= 20 && montan <= 99) return 1.50;
-        if (montan >= 100 && montan <= 249) return 3.00;
-        if (montan >= 250 && montan <= 499) return 4.50;
-        if (montan >= 500 && montan <= 999) return 7.93;
-        if (montan >= 1000 && montan <= 1999) return 15.48;
-        if (montan >= 2000 && montan <= 3999) return 25.93;
-        if (montan >= 4000 && montan <= 7999) return 36.73;
-        if (montan >= 8000 && montan <= 11999) return 47.53;
-        if (montan >= 12000 && montan <= 19999) return 59.00;
-        if (montan >= 20000 && montan <= 39999) return 75.00;
-        if (montan >= 40000 && montan <= 59999) return 95.00;
-        if (montan >= 60000 && montan <= 74999) return 115.00;
-        if (montan >= 75000 && montan <= 99999) return 135.00;
-        return montan * 0.0015;
-    }
+
+
+
 
     function updateNatCashDisplays() {
         let cardDisp = document.getElementById('vandes-natcash-display');
