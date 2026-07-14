@@ -1,0 +1,209 @@
+<!DOCTYPE html> <html lang="ht"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>BWdepot - Bwason</title> <style> :root { --bg-body: #F1F5F9; --bg-card: #FFFFFF; --text-m
+
+pasted
+
+
+<!DOCTYPE html> <html lang="ht"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>BWdepot - NatCash</title> <style> :root { --bg-body: #F1F5F9; --bg-card: #FFFFFF; --text-
+
+pasted
+
+
+<!DOCTYPE html> <html lang="fr"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>BW DEPOT - Dashboard Admin Extrême</title> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&disp
+
+pasted
+
+lem mete yon mete nouvo kes nan antre nouvo estok yo ap plede efase gade kisa ki koz sa
+
+
+Diagnostiked race condition bug nan stock entry function yo
+Diagnostiked race condition bug nan stock entry function yo
+Pwoblèm nan se yon race condition klasik nan fonksyon ajouteEstokAdmin() (nan admin.html), nan seksyon "ANTRE NOUVO ESTOK".
+
+Kisa k ap pase:
+
+js
+let stòkKounye = lokalState.inventory[pId].stockGrenn ?? 0;   // ⚠️ li nan CACHE lokal
+let nouvoStokGrenn = stòkKounye + grennPouAjoute;
+updateObj[`inventory/${pId}/stockGrenn`] = nouvoStokGrenn;
+update(appRef, updateObj);                                     // ekri san verifye
+lokalState se yon kopi lokal ki ranpli pa onValue() — li pa gen garanti li 100% ajou nan moman w klike. Si w:
+
+klike "+ AJOUTE" de fwa youn apre lòt vit (menm pwodwi a), oswa
+gen yon lòt aparèy (POS, telefòn) k ap modifye menm pwodwi a an menm tan,
+...toude ekriti yo kalkile depi menm ansyen chif la (paske Firebase poko reponn ak nouvo done a antre de klik yo). Rezilta: dezyèm ekriti a ekrase premye a, olye pou l ADISYONE sou li. Se sa k bay enpresyon "li efase" kès ou te fenk mete a.
+
+Remake: transfereNanFrizerAdmin() ak retireKòbAdmin() deja sèvi ak runTransaction() pou evite egzakteman pwoblèm sa a — men ajouteEstokAdmin() te rete ak yon senp update(). Se inkonsistans sa a ki koz bug la.
+
+Fix (menm modèl ak transfereNanFrizerAdmin):
+
+
+Placeholder
+Placeholder
+Men fix la — ranplase window.ajouteEstokAdmin ak vèsyon sa a ki sèvi ak runTransaction() (atomik, pa gen risk ekrazman):
+
+js
+window.ajouteEstokAdmin = async function() {
+    let pId = document.getElementById('select-pwodwi-estok').value;
+    let inite = document.getElementById('select-inite-estok').value;
+    let inputKantite = document.getElementById('input-kantite-bwat');
+    let kantite = parseFloat(inputKantite.value);
+
+    if (!pId || isNaN(kantite) || kantite <= 0) {
+        alert("Antre yon kantite valab!");
+        return;
+    }
+
+    let grennPouAjoute = 0;
+    if (inite === "kes") {
+        grennPouAjoute = kantite * 24;
+    } else if (inite === "demi") {
+        grennPouAjoute = kantite * 12;
+    } else if (inite === "grenn") {
+        grennPouAjoute = kantite;
+    }
+
+    let echèk = null;
+    let nonPwodwi = "";
+
+    try {
+        const { committed } = await runTransaction(appRef, (currentData) => {
+            echèk = null;
+            if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                return;
+            }
+
+            let p = currentData.inventory[pId];
+            nonPwodwi = p.name;
+            p.stockGrenn = (p.stockGrenn ?? 0) + grennPouAjoute;
+            currentData.inventory[pId] = p;
+            return currentData;
+        });
+
+        if (echèk) {
+            alert(echèk);
+            return;
+        }
+        if (committed) {
+            alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
+            inputKantite.value = '';
+        }
+    } catch (err) {
+        console.error("Erè tranzaksyon ajoute estòk:", err);
+        alert("⚠️ Pwoblèm koneksyon — ajout la pa t sove. Tanpri eseye ankò.");
+    }
+};
+Sa a itilize runTransaction() ki li vrè valè k sou sèvè a nan moman ekriti a epi li reyeseye otomatikman si de ekriti rive an menm tan — menm jan transfereNanFrizerAdmin() deja fè l. stockGrenn p ap janm ekrase ankò, li ap toujou adisyone kòrèkteman.
+
+Ou vle m mete l dirèkteman nan fichye a epi ba w yon vèsyon final admin.html pou download?
+
+li toujou gn problem m sot mete tout stok yo epi lem fini m vann yon demi kes vale m metel nan idex m pa konn si se sa ki fe sa tou bagyay efase epi tou vande a te nan app an menm tan
+
+
+Diagnosed concurrent write race condition causing inventory erasure
+Diagnosed concurrent write race condition causing inventory erasure
+Wi, se egzakteman menm rasin pwoblèm nan, men kounye a li nan index.html (POS), pa nan admin.html.
+
+Kisa k ap pase:
+
+Fonksyon checkoutSale() rele saveAppStateToFirebase(), epi fonksyon sa a ekri TOUT inventory a ankò nan Firebase, ki soti nan kopi lokal la (inventory varyab JS nan navigatè a):
+
+js
+function saveAppStateToFirebase() {
+    const inventoryObj = {};
+    Object.values(inventory).forEach(p => { ... });   // kopi LOKAL, pa sèvè a
+    const updates = { inventory: inventoryObj, ... };
+    update(dbRef, updates);                             // ekrase TOUT 32 pwodwi yo
+}
+Sekans egzat ki fè "efase" a rive:
+
+Ou louvri POS la (index.html) → li chaje yon kopi envantè a nan moman sa a (avan w mete estok).
+Ou ale nan admin.html, ou mete nouvo estok pou yon pwodwi (Firebase ajou ✅).
+Ou retounen sou POS la epi w vann yon demi-kès. Men POS la poko refrechi kopi lokal li (oswa li refrechi apre w te deja klike vann) → lè checkoutSale() ekri, li voye ankò TOUT 32 pwodwi yo ak ANSYEN chif estok yo (san nouvo estok admin te mete a), sof pou pwodwi ou fenk vann nan.
+Rezilta: nouvo estok admin te mete a disparèt, paske POS la ekrase l ak vye chif li te genyen an.
+Menm bagay la ka rive nan lòt bouton POS yo tou (Depans, Verifikasyon Kès) paske yo tout rele saveAppStateToFirebase().
+
+Fix pou checkoutSale — sèvi ak runTransaction() pou l li chif ki REYÈLMAN sou sèvè a nan moman an, epi ranje SÈLMAN pwodwi ki nan panyen an (pa tout 32 yo):
+
+Premyèman, nan <script type="module"> nan index.html, ajoute runTransaction nan import la:
+
+js
+import { getDatabase, ref, update, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+Answit ranplase window.checkoutSale ak:
+
+js
+window.checkoutSale = async function() {
+    if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+    let cartSnapshot = [...currentCart];
+    let echèk = null;
+    let billTotal = 0;
+
+    try {
+        const { committed } = await runTransaction(dbRef, (currentData) => {
+            echèk = null;
+            if (!currentData || !currentData.inventory) {
+                echèk = "⚠️ Done yo poko chaje nan Firebase. Eseye ankò.";
+                return;
+            }
+
+            // 1. Verifye stòk pou CHAK atik AVAN nou touche anyen
+            for (const item of cartSnapshot) {
+                let p = currentData.inventory[item.prodId.toString()];
+                if (!p) { echèk = `Pwodwi "${item.name}" pa jwenn nan sistèm nan ankò.`; return; }
+                let stokDisponib = item.type === 'detail' ? (p.stockFrizerGrenn || 0) : (p.stockGrenn || 0);
+                if (stokDisponib < item.qtyNeeded) {
+                    echèk = `⚠️ Pa gen ase ${p.name} ankò (${stokDisponib}g disponib) — done yo chanje.`;
+                    return;
+                }
+            }
+
+            // 2. Aplike chanjman yo SÈLMAN sou pwodwi ki nan panyen an
+            let timeStr = new Date().toLocaleTimeString();
+            let localTotal = 0, localProfit = 0;
+
+            cartSnapshot.forEach(item => {
+                let p = currentData.inventory[item.prodId.toString()];
+                if (item.type === 'detail') {
+                    p.stockFrizerGrenn -= item.qtyNeeded;
+                    currentData.stokBwasonFrijidè = (currentData.stokBwasonFrijidè ?? 0) + item.price;
+                    currentData.logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnDetay ?? "");
+                } else {
+                    p.stockGrenn -= item.qtyNeeded;
+                    currentData.stokVenteEnGro = (currentData.stokVenteEnGro ?? 0) + item.price;
+                    currentData.logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnGwo ?? "");
+                }
+                currentData.inventory[item.prodId.toString()] = p;
+                localTotal += item.price;
+                localProfit += (item.price - item.buyPrice);
+            });
+
+            currentData.totalRevenue = (currentData.totalRevenue ?? 0) + localTotal;
+            currentData.totalProfit = (currentData.totalProfit ?? 0) + localProfit;
+            currentData.physicalCashBalance = (currentData.physicalCashBalance ?? 0) + localTotal;
+
+            billTotal = localTotal;
+            return currentData;
+        });
+
+        if (echèk) { alert(echèk); return; }
+        if (committed) {
+            alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
+            currentCart = [];
+            renderCart();
+        }
+    } catch (err) {
+        console.error("Erè tranzaksyon lavant:", err);
+        alert("⚠️ Pwoblèm koneksyon — lavant lan pa t sove. Tanpri eseye ankò.");
+    }
+};
+(Pa bezwen rele renderProducts()/updatePosCashDisplay() alamen ankò — onValue() ap deklanche yo otomatikman lè Firebase konfime.)
+
+⚠️ Enpòtan: submitExpense(), submitDispute(), ak acceptFonDeKes() rele menm saveAppStateToFirebase() a tou (ki toujou ekrase tout inventory a). Yo gen menm risk la si yo rive an menm tan ak yon chanjman nan admin.html oswa natcash.html. Ou vle m korije twa fonksyon sa yo tou menm jan an?
+
+
+Souhaitez-vous être averti lorsque Claude répond ?
+
+ 
+
+
+
