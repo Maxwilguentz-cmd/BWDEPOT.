@@ -303,7 +303,54 @@
                         <button class="btn btn-success" style="width:auto; padding: 8px 15px;" onclick="ajouteEstokAdmin()">+ AJOUTE</button>
                     </div>
                 </div>
+<!-- 🆕 KREYE NOUVO BWASON -->
+<div class="card">
+    <h2 class="card-title">🆕 Kreye Nouvo Bwason</h2>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div>
+            <label style="display:block; font-weight:bold; margin-bottom:4px;">Non Bwason an *</label>
+            <input type="text" id="newProdName" class="input-field" placeholder="Egz: Cascada Grapefruit">
+        </div>
+        <div>
+            <label style="display:block; font-weight:bold; margin-bottom:4px;">Non Fichye Foto a *</label>
+            <input type="text" id="newProdImg" class="input-field" placeholder="Egz: Cascada img.JPG">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label style="display:block; font-weight:bold; margin-bottom:4px;">Pri an Detay (Grenn) *</label>
+                <input type="number" id="newProdPriceDetail" class="input-field" placeholder="HTG">
+            </div>
+            <div>
+                <label style="display:block; font-weight:bold; margin-bottom:4px;">Pri an Gwo (Kès 24) *</label>
+                <input type="number" id="newProdPriceKes" class="input-field" placeholder="HTG">
+            </div>
+        </div>
+        <div>
+            <label style="display:block; font-weight:bold; margin-bottom:4px;">Pri Demi-Kès (12 Grenn) <span style="font-size:11px; color:#888;">(Opsyonèl)</span></label>
+            <input type="number" id="newProdPriceDemi" class="input-field" placeholder="L ap kalkile si l vid">
+        </div>
+        
+        <fieldset style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+            <legend style="font-weight: bold; padding: 0 5px;">Pri Acha / Kòb Kès (Opsyonèl, default 0)</legend>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div>
+                    <label style="font-size:12px;">Acha Detay</label>
+                    <input type="number" id="newProdBuyDetail" class="input-field" placeholder="HTG" value="0">
+                </div>
+                <div>
+                    <label style="font-size:12px;">Acha Demi</label>
+                    <input type="number" id="newProdBuyDemi" class="input-field" placeholder="HTG" value="0">
+                </div>
+                <div>
+                    <label style="font-size:12px;">Acha Kès</label>
+                    <input type="number" id="newProdBuyKes" class="input-field" placeholder="HTG" value="0">
+                </div>
+            </div>
+        </fieldset>
 
+        <button onclick="kreyeNouvoBwason()" class="btn btn-accent" style="margin-top: 8px;">💾 Kreye epi Sove Pwodwi a</button>
+    </div>
+</div>
                 <!-- Seksyon 2: Transfere nan frizè -->
                 <div>
                     <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600;">❄️ TRANSFÈ NAN FRIZÈ POU TI GLASE:</div>
@@ -561,7 +608,103 @@
             alert("Balans kat la ajou nan sistèm nan!");
             document.getElementById('input-nat-balans').value = '';
         };
+window.kreyeNouvoBwason = async function() {
+    // 1. Li chan yo nan fòm lan
+    const name = document.getElementById('newProdName').value.trim();
+    const img = document.getElementById('newProdImg').value.trim();
+    const priceDetail = parseFloat(document.getElementById('newProdPriceDetail').value);
+    const priceKes = parseFloat(document.getElementById('newProdPriceKes').value);
+    
+    let priceDemi = document.getElementById('newProdPriceDemi').value.trim();
+    let buyDetail = document.getElementById('newProdBuyDetail').value.trim();
+    let buyDemi = document.getElementById('newProdBuyDemi').value.trim();
+    let buyKes = document.getElementById('newProdBuyKes').value.trim();
 
+    // 2. Validasyon chan obligatwa yo
+    if (!name) {
+        alert("Tanpri antre non bwason an!");
+        return;
+    }
+    if (!img) {
+        alert("Tanpri antre non fichye imaj la!");
+        return;
+    }
+    if (isNaN(priceDetail) || priceDetail <= 0) {
+        alert("Tanpri antre yon pri detay ki valab epi ki pi gwo pase 0!");
+        return;
+    }
+    if (isNaN(priceKes) || priceKes <= 0) {
+        alert("Tanpri antre yon pri kès ki valab epi ki pi gwo pase 0!");
+        return;
+    }
+
+    // 3. Traite chan opsyonèl yo (Fallback ak lojik otomatik)
+    let finalPriceDemi;
+    if (priceDemi === "") {
+        // Kalkil otomatik: (priKès / 2), divize pa 10, awondi, miltipliye pa 10
+        finalPriceDemi = Math.round((priceKes / 2) / 10) * 10;
+    } else {
+        finalPriceDemi = parseFloat(priceDemi);
+        if (isNaN(finalPriceDemi) || finalPriceDemi <= 0) {
+            alert("Pri demi-kès la dwe yon nimewo ki pi gwo pase 0 si w ranpli l!");
+            return;
+        }
+    }
+
+    const finalBuyDetail = buyDetail === "" ? 0 : (parseFloat(buyDetail) || 0);
+    const finalBuyDemi = buyDemi === "" ? 0 : (parseFloat(buyDemi) || 0);
+    const finalBuyKes = buyKes === "" ? 0 : (parseFloat(buyKes) || 0);
+
+    // 4. Kalkile nouvo ID sekans lan
+    if (!lokalState || !lokalState.inventory) {
+        alert("Erè: Done envantè a poko chaje depi nan Firebase. Reantre sa pita.");
+        return;
+    }
+    let maxId = Math.max(...Object.keys(lokalState.inventory).map(Number), 0);
+    let nouvoId = maxId + 1;
+
+    // 5. Bati objè a egzakteman selon schema a (SAN prices.pa6)
+    const nouvoPwodwiObj = {
+        id: nouvoId,
+        name: name,
+        img: img,
+        stockGrenn: 0,
+        stockFrizerGrenn: 0,
+        prices: {
+            detail: priceDetail,
+            demi: finalPriceDemi,
+            kes: priceKes
+        },
+        buyingPrice: {
+            detail: finalBuyDetail,
+            demi: finalBuyDemi,
+            kes: finalBuyKes
+        }
+    };
+
+    // 6. Push done yo nan Firebase Realtime Database
+    try {
+        // Sèvi ak metòd update ki soti nan appRef ak chemen dinamik la
+        await firebase.database().ref(`appState/inventory/${nouvoId}`).set(nouvoPwodwiObj);
+        
+        // 7. Reset fòm lan apre siksè
+        document.getElementById('newProdName').value = "";
+        document.getElementById('newProdImg').value = "";
+        document.getElementById('newProdPriceDetail').value = "";
+        document.getElementById('newProdPriceKes').value = "";
+        document.getElementById('newProdPriceDemi').value = "";
+        document.getElementById('newProdBuyDetail').value = "0";
+        document.getElementById('newProdBuyDemi').value = "0";
+        document.getElementById('newProdBuyKes').value = "0";
+
+        // Alèt siksè ak rapèl pou Github
+        alert(`🎉 Pwodwi "${name}" la kreye avèk siksè ak ID: ${nouvoId}!\n\n⚠️ PA BLIYE: Ou dwe telechaje imaj fizik la ki rele "${img}" sou GitHub pou l ka parèt nan index.html.`);
+        
+    } catch (error) {
+        console.error("Erè lè n t ap sove pwodwi a nan Firebase:", error);
+        alert("Gen yon erè ki pase lè n t ap sove done yo nan Firebase. Tcheke konsòl la.");
+    }
+};
         window.mandeVerifikasyonMaten = function() {
             let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
             let g = parseFloat(document.getElementById('fon-gro').value) || 0;
