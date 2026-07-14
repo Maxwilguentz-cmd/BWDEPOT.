@@ -511,12 +511,6 @@
         return demen;
     }
 
-
-
-
-
-
-
     function updateNatCashDisplays() {
         let cardDisp = document.getElementById('vandes-natcash-display');
         let cashDisp = document.getElementById('vandes-cash-display');
@@ -608,22 +602,16 @@
                     echèk = "❌ Ou pa gen ase balans sou kat la pou fè depo sa a!";
                     return false;
                 }
-                let komisyon = jwennKomisyonDepo(montan);
                 eta.natcashCardBalance -= montan;
-                eta.accumulatedCommission += komisyon;
-                eta.totalKomisyonDepo += komisyon;
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan voye ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'depo', komisyon));
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan voye ${montan} HTG`, montan, 'depo', 0));
             } else if (type === 'retre') {
                 let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
                 if (kachAktyèl < montan) {
                     echèk = "❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!";
                     return false;
                 }
-                let komisyon = jwennKomisyonRetrè(montan);
                 eta.natcashCardBalance += montan;
-                eta.accumulatedCommission += komisyon;
-                eta.totalKomisyonRetre += komisyon;
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan retire ${montan} HTG (Komisyon an rezèv: +${komisyon.toFixed(2)} HTG)`, montan, 'retre', komisyon));
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan retire ${montan} HTG`, montan, 'retre', 0));
             }
             return true;
         });
@@ -676,9 +664,6 @@
                 }
 
                 eta.natcashCardBalance = tempCardBalance;
-                if (t.tip === 'depo') eta.totalKomisyonDepo -= t.komisyon;
-                else if (t.tip === 'retre') eta.totalKomisyonRetre -= t.komisyon;
-                eta.accumulatedCommission -= t.komisyon;
                 eta.lisTranzaksyon = lisSimile;
                 return true;
             });
@@ -699,7 +684,6 @@
                 let tIndex = eta.lisTranzaksyon.findIndex(item => item.id === id);
                 if (tIndex === -1) { echèk = "⚠️ Tranzaksyon an deja modifye oswa efase pa yon lòt moun."; return false; }
                 let t = eta.lisTranzaksyon[tIndex];
-                let nouvoKomisyon = t.tip === 'depo' ? jwennKomisyonDepo(nouvoMontan) : jwennKomisyonRetrè(nouvoMontan);
 
                 let tempCardBalance = eta.natcashCardBalance;
                 if (t.tip === 'depo') { tempCardBalance += t.montan; tempCardBalance -= nouvoMontan; }
@@ -721,18 +705,11 @@
 
                 eta.natcashCardBalance = tempCardBalance;
                 if (t.tip === 'depo') {
-                    eta.totalKomisyonDepo -= t.komisyon;
-                    eta.totalKomisyonDepo += nouvoKomisyon;
-                    lisSimile[tIndex].mesaj = `Kliyan voye ${nouvoMontan} HTG (Komisyon an rezèv: +${nouvoKomisyon.toFixed(2)} HTG) [Modifye]`;
+                    lisSimile[tIndex].mesaj = `Kliyan voye ${nouvoMontan} HTG [Modifye]`;
                 } else if (t.tip === 'retre') {
-                    eta.totalKomisyonRetre -= t.komisyon;
-                    eta.totalKomisyonRetre += nouvoKomisyon;
-                    lisSimile[tIndex].mesaj = `Kliyan retire ${nouvoMontan} HTG (Komisyon an rezèv: +${nouvoKomisyon.toFixed(2)} HTG) [Modifye]`;
+                    lisSimile[tIndex].mesaj = `Kliyan retire ${nouvoMontan} HTG [Modifye]`;
                 }
                 lisSimile[tIndex].montan = nouvoMontan;
-                lisSimile[tIndex].komisyon = nouvoKomisyon;
-                eta.accumulatedCommission -= t.komisyon;
-                eta.accumulatedCommission += nouvoKomisyon;
                 eta.lisTranzaksyon = lisSimile;
                 return true;
             });
@@ -969,13 +946,6 @@
 
         alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${montanDeklare} HTG olye de ${kobSistemAvan} HTG.`);
     }
-
-    setInterval(function tchekePemanKomisyon() {
-        let kounye = new Date();
-        if (kounye >= datPemanKomisyon) {
-            datPemanKomisyon = jwennPwochenSètèA();
-        }
-    }, 1000);
 
     window.processNatCash = processNatCash;
     window.manijeTranzaksyon = manijeTranzaksyon;
