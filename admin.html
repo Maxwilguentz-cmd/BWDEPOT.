@@ -1091,47 +1091,57 @@ window.kreyeNouvoBwason = async function() {
             }
         };
 
-        window.ajouteEstokAdmin = function() {
-            let pId = document.getElementById('select-pwodwi-estok').value;
-            let inite = document.getElementById('select-inite-estok').value;
-            let inputKantite = document.getElementById('input-kantite-bwat');
-            let kantite = parseFloat(inputKantite.value);
+window.ajouteEstokAdmin = async function() {
+    let pId = document.getElementById('select-pwodwi-estok').value;
+    let inite = document.getElementById('select-inite-estok').value;
+    let inputKantite = document.getElementById('input-kantite-bwat');
+    let kantite = parseFloat(inputKantite.value);
 
-            if (!pId || isNaN(kantite) || kantite <= 0) { 
-                alert("Antre yon kantite valab!"); 
-                return; 
+    if (!pId || isNaN(kantite) || kantite <= 0) {
+        alert("Antre yon kantite valab!");
+        return;
+    }
+
+    let grennPouAjoute = 0;
+    if (inite === "kes") {
+        grennPouAjoute = kantite * 24;
+    } else if (inite === "demi") {
+        grennPouAjoute = kantite * 12;
+    } else if (inite === "grenn") {
+        grennPouAjoute = kantite;
+    }
+
+    let echèk = null;
+    let nonPwodwi = "";
+
+    try {
+        const { committed } = await runTransaction(appRef, (currentData) => {
+            echèk = null;
+            if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                return;
             }
 
-            let grennPouAjoute = 0;
-            if (inite === "kes") {
-                grennPouAjoute = kantite * 24;
-            } else if (inite === "demi") {
-                grennPouAjoute = kantite * 12;
-            } else if (inite === "grenn") {
-                grennPouAjoute = kantite;
-            }
+            let p = currentData.inventory[pId];
+            nonPwodwi = p.name;
+            p.stockGrenn = (p.stockGrenn ?? 0) + grennPouAjoute;
+            currentData.inventory[pId] = p;
+            return currentData;
+        });
 
-            if (!lokalState.inventory || !lokalState.inventory[pId]) { 
-                alert("Pwodwi sa a pa jwenn nan baz done a!"); 
-                return; 
-            }
-
-            let stòkKounye = lokalState.inventory[pId].stockGrenn ?? 0;
-            let nouvoStokGrenn = stòkKounye + grennPouAjoute;
-            let nonPwodwi = lokalState.inventory[pId].name;
-
-            let updateObj = {};
-            updateObj[`inventory/${pId}/stockGrenn`] = nouvoStokGrenn;
-
-            update(appRef, updateObj)
-                .then(() => {
-                    alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
-                    inputKantite.value = '';
-                })
-                .catch((error) => {
-                    alert("Gen yon erè ki rive: " + error.message);
-                });
-        };
+        if (echèk) {
+            alert(echèk);
+            return;
+        }
+        if (committed) {
+            alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
+            inputKantite.value = '';
+        }
+    } catch (err) {
+        console.error("Erè tranzaksyon ajoute estòk:", err);
+        alert("⚠️ Pwoblèm koneksyon — ajout la pa t sove. Tanpri eseye ankò.");
+    }
+};
 
         window.transfereNanFrizerAdmin = async function() {
             let pId = document.getElementById('select-pwodwi-transfere').value;
