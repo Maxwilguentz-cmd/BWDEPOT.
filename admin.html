@@ -190,6 +190,22 @@
         margin-bottom: 14px;
         -webkit-overflow-scrolling: touch;
     }
+     .footer-zone {
+    margin: 30px 0 6px;
+    padding: 24px;
+    border-radius: 18px;
+    background: rgba(255,59,48,0.06);
+    border: 1px solid rgba(255,59,48,0.3);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+}
+.footer-zone h3 { font-size: 18px; margin-bottom: 4px; }
+.footer-zone p { font-size: 13px; color: var(--text-muted); max-width: 460px; }
+.footer-zone button {
+    padding: 14px 24px; border: none; border-radius: 12px;
+    background: var(--danger); color: white; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+}
     .logs-tabbar::-webkit-scrollbar { height: 0; }
     .logs-tab {
         flex: 0 0 auto;
@@ -248,10 +264,6 @@
     <!-- SCREEN 2: MAIN DASHBOARD -->
     <div class="dashboard" id="main-content">
         
-        <div class="header">
-            <h1>BW DEPOT — Panel Kontwòl Jeneral</h1>
-            <button class="btn btn-danger" style="width: auto; padding: 8px 16px;" onclick="femenJounenOfisyel()">FÈMEN JOUNEN AN</button>
-        </div>
 
         <!-- Alèt Vandè Kontestasyon / Fèmti Avèg -->
         <div class="alert-box" id="admin-alert"></div>
