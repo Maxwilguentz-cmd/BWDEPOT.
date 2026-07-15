@@ -393,69 +393,69 @@
     // dirèkteman nan sèvè a) epi li ka modifye yo dirèkteman.
     // Si `mutator` retounen `false`, tranzaksyon an anile san anyen pa
     // chanje (itil pou validasyon, tankou "pa gen ase balans").
-    async function ekriTranzaksyonAtomik(mutator) {
-        try {
-            const { committed, snapshot } = await runTransaction(natcashRef, (currentData) => {
-                if (currentData === null) {
-                    currentData = {
-                        natcashCardBalance: 0,
-                        kobfiziknatcash: 0,
-                        stokVenteEnGro: 0,
-                        accumulatedCommission: 0,
-                        totalKomisyonDepo: 0,
-                        totalKomisyonRetre: 0,
-                        lisTranzaksyon: {},
-                        kachFizikBaz: 0,
-                        kachFizikBazTan: Date.now(),
-                        mandeVerifikasyon: false,
-                        kontestasyonKès: null
-                    };
-                }
-
-                let lis = currentData.lisTranzaksyon ? Object.values(currentData.lisTranzaksyon) : [];
-                lis.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-                let eta = {
-                    natcashCardBalance: currentData.natcashCardBalance ?? 0,
-                    stokVenteEnGro: currentData.stokVenteEnGro ?? 0,
-                    accumulatedCommission: currentData.accumulatedCommission ?? 0,
-                    totalKomisyonDepo: currentData.totalKomisyonDepo ?? 0,
-                    totalKomisyonRetre: currentData.totalKomisyonRetre ?? 0,
-                    kachFizikBaz: currentData.kachFizikBaz ?? 0,
-                    kachFizikBazTan: currentData.kachFizikBazTan ?? 0,
-                    lisTranzaksyon: lis
+ async function ekriTranzaksyonAtomik(mutator) {
+    try {
+        const { committed } = await runTransaction(natcashRef, (currentData) => {
+            if (currentData === null) {
+                currentData = {
+                    natcashCardBalance: 0,
+                    kobfiziknatcash: 0,
+                    stokVenteEnGro: 0,
+                    accumulatedCommission: 0,
+                    totalKomisyonDepo: 0,
+                    totalKomisyonRetre: 0,
+                    lisTranzaksyon: {},
+                    kachFizikBaz: 0,
+                    kachFizikBazTan: Date.now(),
+                    mandeVerifikasyon: false,
+                    kontestasyonKès: null
                 };
+            }
 
-                let ok = mutator(eta);
-                if (ok === false) {
-                    return undefined; // anile tranzaksyon an — pa ekri anyen
-                }
+            let lis = currentData.lisTranzaksyon ? Object.values(currentData.lisTranzaksyon) : [];
+            lis.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-                let tranzaksyonObj = {};
-                eta.lisTranzaksyon.forEach(t => { tranzaksyonObj[t.id] = t; });
+            let eta = {
+                natcashCardBalance: currentData.natcashCardBalance ?? 0,
+                stokVenteEnGro: currentData.stokVenteEnGro ?? 0,
+                accumulatedCommission: currentData.accumulatedCommission ?? 0,
+                totalKomisyonDepo: currentData.totalKomisyonDepo ?? 0,
+                totalKomisyonRetre: currentData.totalKomisyonRetre ?? 0,
+                kachFizikBaz: currentData.kachFizikBaz ?? 0,
+                kachFizikBazTan: currentData.kachFizikBazTan ?? 0,
+                lisTranzaksyon: lis
+            };
 
-                return {
-                    natcashCardBalance: eta.natcashCardBalance,
-                    kobfiziknatcash: kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan),
-                    stokVenteEnGro: eta.stokVenteEnGro,
-                    accumulatedCommission: eta.accumulatedCommission,
-                    totalKomisyonDepo: eta.totalKomisyonDepo,
-                    totalKomisyonRetre: eta.totalKomisyonRetre,
-                    lisTranzaksyon: tranzaksyonObj,
-                    kachFizikBaz: eta.kachFizikBaz,
-                    kachFizikBazTan: eta.kachFizikBazTan,
-                    mandeVerifikasyon: currentData.mandeVerifikasyon ?? false,
-                    kontestasyonKès: currentData.kontestasyonKès ?? null
-                };
-            });
+            let ok = mutator(eta);
+            if (ok === false) return undefined;
 
-            return committed;
-        } catch (err) {
-            console.error("Erè tranzaksyon Firebase:", err);
-            alert("⚠️ Pwoblèm koneksyon — tranzaksyon an pa t sove. Tanpri verifye entènèt ou epi eseye ankò.");
-            return false;
-        }
+            let tranzaksyonObj = {};
+            eta.lisTranzaksyon.forEach(t => { tranzaksyonObj[t.id] = t; });
+
+            // 🔒 FIKS: modifye currentData DIRÈKTEMAN olye de bati yon nouvo
+            // objè — konsa TOUT lòt chan (inventory, benefisDetay, benefisGro,
+            // stokBwasonFrijidè, lisTranzaksyonDetay, logsAnGwo, adminFonDeKes,
+            // elt.) rete entak.
+            currentData.natcashCardBalance = eta.natcashCardBalance;
+            currentData.kobfiziknatcash = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+            currentData.stokVenteEnGro = eta.stokVenteEnGro;
+            currentData.accumulatedCommission = eta.accumulatedCommission;
+            currentData.totalKomisyonDepo = eta.totalKomisyonDepo;
+            currentData.totalKomisyonRetre = eta.totalKomisyonRetre;
+            currentData.lisTranzaksyon = tranzaksyonObj;
+            currentData.kachFizikBaz = eta.kachFizikBaz;
+            currentData.kachFizikBazTan = eta.kachFizikBazTan;
+
+            return currentData;
+        });
+
+        return committed;
+    } catch (err) {
+        console.error("Erè tranzaksyon Firebase:", err);
+        alert("⚠️ Pwoblèm koneksyon — tranzaksyon an pa t sove. Tanpri verifye entènèt ou epi eseye ankò.");
+        return false;
     }
+}
 
     onValue(natcashRef, (snapshot) => {
         const data = snapshot.val();
