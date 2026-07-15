@@ -1,1871 +1,989 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ht">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BW DEPOT - Dashboard Admin Extrême</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>BWdepot - NatCash</title>
+    <style>
+        :root {
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #1E3A8A;
+            --primary-light: #3B82F6;
+            --accent: #10B981;
+            --natcash: #00A550;
+            --purple: #8B5CF6;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --border: #E2E8F0;
+            --nav-bg: #FFFFFF;
+        }
 
- <style>
-    :root {
-        --bg-body: #F5F5F7;
-        --bg-card: #FFFFFF;
-        --bg-input: #F5F5F7;
-        --bg-dark: #F5F5F7;
-        --text-main: #1D1D1F;
-        --text-muted: #6E6E73;
-        --primary: #0071E3;
-        --primary-hover: #0077ED;
-        --primary-light: #0071E3;
-        --success: #34C759;
-        --natcash: #00A550;
-        --danger: #FF3B30;
-        --warning: #FF9500;
-        --purple: #5E5CE6;
-        --border: #D2D2D7;
-        --border-color: #D2D2D7;
-        --border-soft: #E5E5EA;
-    }
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --primary: #3B82F6;
+            --primary-light: #60A5FA;
+            --accent: #34D399;
+            --natcash: #22C55E;
+            --purple: #A78BFA;
+            --danger: #F87171;
+            --warning: #FBBF24;
+            --border: #334155;
+            --nav-bg: #1E293B;
+        }
 
-    * {
-        margin: 0; padding: 0; box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, 'Poppins', 'Segoe UI', system-ui, sans-serif;
-        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-        background-color: var(--bg-body);
-        color: var(--text-main);
-        min-height: 100vh;
-        padding: 20px;
-        padding-top: 90px;
-        -webkit-font-smoothing: antialiased;
-    }
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 130px;
+            padding-bottom: 30px;
+        }
 
-    header {
-        position: fixed; top: 0; left: 0; width: 100%;
-        background-color: rgba(255,255,255,0.82);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border-soft);
-        color: var(--text-main); padding: 14px 20px; z-index: 1000;
-    }
-    .header-container {
-        max-width: 1300px; margin: 0 auto;
-        display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    }
-    .logo { font-size: 19px; font-weight: 800; color: var(--text-main); display:flex; align-items:center; gap:8px; letter-spacing: -0.2px; }
-    .logo span { color: var(--primary); }
-    nav { display: flex; gap: 6px; }
-    nav a {
-        color: var(--text-muted); padding: 9px 16px; border-radius: 20px;
-        font-size: 14px; font-weight: 600; text-decoration: none;
-    }
-    nav a:hover { background-color: rgba(0,0,0,0.04); color: var(--text-main); }
-    nav a.active { background-color: rgba(0,113,227,0.1); color: var(--primary); font-weight: 700; }
+        header {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+        }
 
-    /* LOCK SCREEN */
-    .lock-container {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-soft);
-        padding: 44px 40px;
-        border-radius: 22px;
-        text-align: center;
-        box-shadow: 0 20px 45px rgba(0,0,0,0.08);
-        max-width: 380px;
-        margin: 60px auto 0;
-    }
-    .lock-container .lock-emoji { font-size: 40px; display:block; margin-bottom: 10px; }
-    .lock-container h2 { margin-bottom: 6px; font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px; }
-    .lock-container .lock-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 26px; }
-    .lock-container input {
-        width: 100%; padding: 14px; border-radius: 14px;
-        border: 1px solid var(--border); background-color: var(--bg-input);
-        color: var(--text-main); font-size: 20px; text-align: center;
-        letter-spacing: 8px; margin-bottom: 20px; outline: none;
-    }
-    .lock-container input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,113,227,0.12); }
-    .lock-container button {
-        width: 100%; padding: 14px; background-color: var(--primary);
-        color: white; border: none; border-radius: 14px; font-size: 15px;
-        font-weight: 700; cursor: pointer;
-    }
-    .lock-container button:hover { background-color: var(--primary-hover); }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    /* DASHBOARD */
-    .dashboard { width: 100%; max-width: 1300px; margin: 0 auto; display: none; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .logo span { color: #38BDF8; }
 
-    .header {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 26px; border-bottom: 1px solid var(--border-soft); padding-bottom: 20px;
-    }
-    .header h1 {
-        font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px;
-    }
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-    .alert-box {
-        background-color: rgba(255, 59, 48, 0.07);
-        border: 1px solid var(--danger); color: #B32318;
-        padding: 15px 16px; border-radius: 14px; margin-bottom: 22px;
-        display: none; font-weight: 500; line-height: 1.55;
-    }
+        nav {
+            display: flex;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 4px;
+            border-radius: 8px;
+            width: 100%;
+        }
 
-    .grid-3 {
-        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-        gap: 16px; margin-bottom: 22px;
-    }
+        nav a {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 6px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
 
-    .panel {
-        background-color: var(--bg-card); border: 1px solid var(--border-soft);
-        border-radius: 18px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    }
-     .table-container { overflow-x: auto; }
-    .panel-title {
-        font-size: 13px; font-weight: 700; color: var(--text-muted);
-        margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.6px;
-        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .big-number { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.3px; }
-    .sub-info { font-size: 12.5px; color: var(--text-muted); }
-    .sub-info span { color: var(--text-main); font-weight: 600; }
+        nav a.active {
+            background-color: var(--bg-card);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        [data-theme="dark"] nav a.active { color: var(--primary-light); }
 
-    /* FORMULÈ */
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
-    .form-group select, .form-group input {
-        width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border);
-        background-color: var(--bg-input); color: var(--text-main); outline: none; font-size: 14px;
-    }
-    .form-group select:focus, .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+        .page { padding: 0 16px; max-width: 1200px; margin: 0 auto; }
 
-    .filter-container {
-        display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
-    }
-    .filter-container input, .filter-container select {
-        padding: 10px 12px; background-color: var(--bg-input); border: 1px solid var(--border);
-        border-radius: 10px; color: var(--text-main); outline: none; font-size: 14px;
-    }
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    /* BOUTON */
-    .btn {
-        width: 100%; padding: 12px; border: none; border-radius: 12px;
-        font-size: 14px; font-weight: 700; color: white; cursor: pointer; margin-top: 4px;
-    }
-    .btn:hover { filter: brightness(0.95); }
-    .btn:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
-    .btn-primary { background-color: var(--primary); }
-    .btn-primary:hover { background-color: var(--primary-hover); }
-    .btn-success { background-color: var(--success); }
-    .btn-danger { background-color: var(--danger); }
-    .btn-warning { background-color: var(--warning); color: #3A2500; }
-    .btn-purple { background-color: var(--purple); }
-    .btn-accent { background-color: var(--primary); }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
 
-    /* TABLO STÒK */
-    .table-container { max-height: 380px; overflow-y: auto; border: 1px solid var(--border-soft); border-radius: 14px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-    th, td { padding: 11px 12px; border-bottom: 1px solid var(--border-soft); }
-    th { background-color: #FAFAFC; color: var(--text-muted); position: sticky; top: 0; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background-color: rgba(0,113,227,0.03); }
+        .input-text {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 15px;
+            outline: none;
+        }
+        .input-text:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
 
-    .badge { padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; color: white; }
-    .badge-depot { background-color: var(--primary); }
-    .badge-frizer { background-color: var(--warning); color: #3A2500; }
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-main:active, .theme-toggle:active, .btn-modal-yes:active, .btn-modal-no:active { transform: scale(0.97); opacity: 0.85; }
+        .btn-main:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    /* ESTATISTIK */
-    .stats-container { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
-    .stat-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-    .stat-label { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-    .stat-progress-bg { flex-grow: 1; background-color: var(--border-soft); height: 9px; border-radius: 6px; overflow: hidden; }
-    .stat-progress-fill { background: linear-gradient(to right, var(--primary), var(--purple)); height: 100%; width: 0%; border-radius: 6px; transition: width 0.5s ease-out; }
-    .stat-count { font-weight: 700; color: var(--success); min-width: 30px; text-align: right; }
+        .verification-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .verification-modal.active { display: flex !important; }
 
-    /* LOGS — TAB ORIZONTAL */
-    .logs-tabbar {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 4px;
-        margin-bottom: 14px;
-        -webkit-overflow-scrolling: touch;
-    }
-     .footer-zone {
-    margin: 30px 0 6px;
-    padding: 24px;
-    border-radius: 18px;
-    background: rgba(255,59,48,0.06);
-    border: 1px solid rgba(255,59,48,0.3);
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap;
-}
-.footer-zone h3 { font-size: 18px; margin-bottom: 4px; }
-.footer-zone p { font-size: 13px; color: var(--text-muted); max-width: 460px; }
-.footer-zone button {
-    padding: 14px 24px; border: none; border-radius: 12px;
-    background: var(--danger); color: white; font-weight: 700;
-    cursor: pointer; white-space: nowrap;
-}
-.footer-zone button:disabled { opacity: 0.55; cursor: not-allowed; }
-    .logs-tabbar::-webkit-scrollbar { height: 0; }
-    .logs-tab {
-        flex: 0 0 auto;
-        padding: 9px 16px;
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        background-color: var(--bg-input);
-        color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-    .logs-tab.active {
-        background-color: var(--text-main);
-        color: white;
-        border-color: var(--text-main);
-    }
-    .logs-viewport { position: relative; }
-    .log-box {
-        background-color: var(--bg-input); border: 1px solid var(--border-soft); border-radius: 14px;
-        padding: 14px; height: 260px; overflow-y: auto; font-family: 'Poppins', monospace; font-size: 12.5px; color: var(--text-main);
-    }
-    .log-item { margin-bottom: 8px; border-bottom: 1px dashed var(--border-soft); padding-bottom: 6px; }
-    .log-item:last-child { border-bottom: none; }
+        .modal-content {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid var(--primary-light);
+        }
+        .modal-content h3 { margin-bottom: 12px; font-size: 19px; }
+        .modal-content p { font-size: 15px; color: var(--text-muted); margin-bottom: 18px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .btn-modal-yes { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
 
-    fieldset { border: 1px solid var(--border-soft); border-radius: 12px; }
-    legend { color: var(--text-muted); font-size: 12px; }
-
-    /* ===================== BWDEPOT DRAWER (mwatye ekran) ===================== */
-    .bwdepot-drawer-overlay {
-        display: none;
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 4000;
-    }
-    .bwdepot-drawer-overlay.active { display: block; }
-    .bwdepot-drawer {
-        position: fixed; top: 0; right: 0; height: 100%;
-        width: 50%;
-        max-width: 640px;
-        background: var(--bg-card);
-        box-shadow: -8px 0 30px rgba(0,0,0,0.2);
-        overflow-y: auto;
-        padding: 22px;
-        animation: slideInBWdepotDrawer 0.22s ease-out;
-    }
-    @keyframes slideInBWdepotDrawer { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    @media (max-width: 768px) {
-        .bwdepot-drawer { width: 94%; max-width: none; padding: 16px; }
-    }
-    .bwdepot-section { border: 1px solid var(--border-soft); border-radius: 14px; margin-bottom: 14px; overflow: hidden; }
-    .bwdepot-section-header {
-        padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between;
-        align-items: center; font-weight: 800; font-size: 14px; background: var(--bg-input);
-    }
-    .bwdepot-section-body { display: none; padding: 16px; border-top: 1px solid var(--border-soft); }
-    .bwdepot-section-body.open { display: block; }
-    .bwdepot-subtabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .bwdepot-subtab-btn {
-        flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
-        background: var(--bg-input); color: var(--text-main); font-weight: 700; font-size: 12.5px; cursor: pointer;
-    }
-    .bwdepot-subtab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
-    .bwdepot-list { max-height: 220px; overflow-y: auto; font-size: 12.5px; }
-
-    @media (min-width: 768px) {
-        .big-number { font-size: clamp(20px, 2.2vw, 26px); }
-        .logo { font-size: clamp(16px, 1.6vw, 19px); }
-    }
-
-    @media (max-width: 640px) {
-        body { padding: 12px; padding-top: 84px; }
-        .header h1 { font-size: 20px; }
-    }
-</style>
+        @media (min-width: 768px) {
+            body { padding-top: 95px; }
+            .header-container { flex-direction: row; justify-content: space-between; align-items: center; }
+            nav { width: auto; min-width: 380px; }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- MODAL VERIFIKASYON FON DE KÈS (NATCASH) -->
+    <div id="verification-popup" class="verification-modal" style="display: none;">
+        <div class="modal-content">
+            <span style="font-size: 40px;">💰</span>
+            <h3 id="modal-title">Verifikasyon Kès</h3>
+            <p id="modal-msg">Èske ou dakò ou jwenn kantite kòb sa a nan kès la?</p>
+
+            <div class="modal-buttons" id="modal-initial-btns">
+                <button class="btn-modal-yes" onclick="acceptFonDeKes()">Wi, Mwen Dakò! ✅</button>
+                <button class="btn-modal-no" onclick="showDisputeInput()">Non, Konteste! ❌</button>
+            </div>
+
+            <div id="dispute-section" class="dispute-box" style="display: none;">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 6px;">Ekri konbyen kòb fizik ou wè nan menw lan:</label>
+                <input type="number" id="disputed-amount-input" class="input-text" placeholder="Antre kòb ki gen la a...">
+                <button onclick="submitDispute()" class="btn-main" style="background-color: var(--primary);">Valide Kontestasyon an 📤</button>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="header-container">
-            <button type="button" class="logo" style="background:none; border:none; padding:0; cursor:pointer;" onclick="openBWdepotDrawer()" title="Louvri Jesyon Rapid BWdepot">📦 <span>BWdepot</span> Admin</button>
+            <div class="header-top">
+                <div class="logo">📦 <span>BWdepot</span></div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
+            </div>
             <nav>
                 <a href="index.html">🛒 Bwason</a>
-                <a href="natcash.html">🟢 NatCash</a>
-                <a href="admin.html" class="active">📊 Admin</a>
+                <a href="natcash.html" class="active">🟢 NatCash</a>
+                <a href="admin.html">📊 Admin</a>
             </nav>
         </div>
     </header>
 
-    <!-- SCREEN 1: LOCK SCREEN -->
-    <div class="lock-container" id="lock-screen">
-        <span class="lock-emoji">📦</span>
-        <h2>BW DEPOT ADMIN</h2>
-        <div class="lock-sub">Antre kòd sekirite a pou kontinye</div>
-        <input type="password" id="admin-pin" placeholder="••••" maxlength="4">
-        <button onclick="checkPin()">DEBLOKE</button>
+    <div id="page-natcash-tab" class="page">
+        <h2 class="section-title" style="color: var(--natcash);">🟢 Guichet NatCash</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div class="card" onclick="manijeBalansKat()" style="background-color: rgba(0, 165, 80, 0.08); border: 1px solid var(--natcash); text-align: center; padding: 14px; margin-bottom: 0; cursor: pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Balans sou Kat la:</span>
+                <strong id="vandes-natcash-display" style="font-size: 20px; color: var(--natcash);">5,000 HTG</strong>
+            </div>
+            <div class="card" onclick="manijeKòbFizikKach()" style="background-color: rgba(30, 58, 138, 0.08); border: 1px solid var(--primary); text-align: center; padding: 14px; margin-bottom: 0; cursor: pointer;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <span style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block;">Kòb Fizik nan Menw (Kach):</span>
+                <strong id="vandes-cash-display" style="font-size: 20px; color: var(--primary-light);">0 HTG</strong>
+            </div>
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: right; padding-right: 5px;">
+            Estok Lajan Disponib nan Vann En Gro (BW): <span id="kes-gro-display" style="font-weight: bold; color: var(--primary);">0.00 HTG</span>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--natcash); margin-top:16px;">
+            <label style="font-weight: 700; font-size: 13px; color: var(--text-muted); display:block; margin-bottom:6px;">Montan Tranzaksyon (HTG):</label>
+            <input type="number" id="nat-amount" placeholder="0.00" class="input-text">
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                <button onclick="processNatCash('depo')" id="btn-depo" class="btn-main" style="background-color: var(--natcash);">📥 DEPO (Kat la Ogmante ↑ / Ou Pran Kach)</button>
+                <button onclick="processNatCash('retre')" id="btn-retre" class="btn-main" style="background-color: #EA580C;">📤 RETRÈ (Kat la Diminye ↓ / Ou Remèt Kach)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; text-transform:uppercase;">📋 Istorik Kout NatCash (Jodi a)</h3>
+            <div id="pos-nat-logs" style="font-size: 13px; font-family: monospace; line-height: 1.5; max-height: 140px; overflow-y: auto;">
+                Pa gen tranzaksyon...
+            </div>
+        </div>
     </div>
 
-    <!-- SCREEN 2: MAIN DASHBOARD -->
-    <div class="dashboard" id="main-content">
-        
-
-        <!-- Alèt Vandè Kontestasyon / Fèmti Avèg -->
-        <div class="alert-box" id="admin-alert"></div>
-
-        <!-- GRID 1A: 3 KÈS SEPARE -->
-        <div class="grid-3">
-
-            <!-- Kès Ti Glase -->
-            <div class="panel">
-                <div class="panel-title">🧊 KÈS TI GLASE</div>
-                <div class="big-number" id="disp-kes-frijide" style="color: var(--success);">0 HTG</div>
-                <div class="sub-info">Kès Ti Glase (Frijidè)</div>
-            </div>
-
-            <!-- Kès En Gwo (BW) -->
-            <div class="panel">
-                <div class="panel-title">📦 KÈS EN GWO (BW)</div>
-                <div class="big-number" id="disp-kes-gro" style="color: var(--primary);">0 HTG</div>
-                <div class="sub-info">Kès En Gwo (Depo)</div>
-            </div>
-
-            <!-- Kès NatCash -->
-            <div class="panel">
-                <div class="panel-title">🟢 KÈS NATCASH</div>
-                <div class="big-number" id="disp-nat-cash" style="color: var(--warning);">0 HTG</div>
-                <div class="sub-info" style="margin-bottom: 10px;">Kach Fizik (Nan Men Vandè a)</div>
-                <div class="big-number" id="disp-nat-balans-kat" style="color: var(--natcash); font-size: 20px;">0 HTG</div>
-                <div class="sub-info" style="margin-bottom: 10px;">Balans sou Kat NatCash la (Aktyèl)</div>
-                <div class="panel-title" style="margin-top: 10px; margin-bottom: 5px; font-size: 12px;">MIZ AJOU BALANS KAT (RECHAJ)</div>
-                <div class="filter-container">
-                    <input type="number" id="input-nat-balans" placeholder="Nouvo Balans Kat la" style="width: 100%; padding: 10px;">
-                    <button class="btn btn-warning" id="btn-set-nat-balans" style="width: auto; padding: 10px 14px;" onclick="setNatCardBalance()">OK</button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- GRID 1B: BENEFIS / KOMISYON / VALIDASYON KOMISYON -->
-        <div class="grid-3">
-
-            <!-- Benefis -->
-            <div class="panel">
-                <div class="panel-title">💰 BENEFIS PWOFI</div>
-                <div class="big-number" id="disp-benefis" style="color: var(--purple);">0 HTG</div>
-                <div class="sub-info">Pwofi Pwodwi: <span id="sub-ben-detay">0</span> HTG (Detay) | <span id="sub-ben-gro">0</span> HTG (Gwo)</div>
-            </div>
-
-            <!-- Komisyon NatCash -->
-            <div class="panel">
-                <div class="panel-title">🪙 KOMISYON NATCASH ACTIF</div>
-                <div class="big-number" id="disp-komisyon" style="color: #FF2D95;">0 HTG</div>
-                <div class="sub-info">Komisyon NatCash: Depo (<span id="sub-kom-depo">0</span> HTG) | Retrè (<span id="sub-kom-retre">0</span> HTG)</div>
-            </div>
-
-            <!-- Panel Validasyon Komisyon -->
-            <div class="panel" style="cursor:pointer;" onclick="ouvriModalValidasyon()">
-                <div class="panel-title">
-                    <span>✅ VALIDASYON KOMISYON / BERLI</span>
-                    <span id="badge-validasyon" style="display:none; background: var(--danger); color:white; border-radius: 20px; padding: 2px 9px; font-size: 12px; font-weight: 800;">0</span>
-                </div>
-                <div class="sub-info" id="sub-validasyon-info">Pa gen anyen an atant kounye a.</div>
-                <button class="btn btn-primary" style="margin-top: 12px;" onclick="event.stopPropagation(); ouvriModalValidasyon();">Louvri Lis la</button>
-            </div>
-
-        </div>
-
-        <!-- MODAL VALIDASYON KOMISYON / BERLI -->
-        <div id="modal-validasyon-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:3000; align-items:center; justify-content:center; padding:16px;">
-            <div style="background: var(--bg-card); border-radius: 18px; max-width: 560px; width:100%; max-height: 82vh; display:flex; flex-direction:column; box-shadow: 0 20px 45px rgba(0,0,0,0.25);">
-                <div style="padding: 18px 22px; border-bottom: 1px solid var(--border-soft); display:flex; justify-content:space-between; align-items:center;">
-                    <strong style="font-size:16px;">✅ Validasyon Komisyon / Berli</strong>
-                    <span style="cursor:pointer; font-size:22px; color: var(--text-muted);" onclick="fèmenModalValidasyon()">&times;</span>
-                </div>
-                <div id="modal-validasyon-body" style="padding: 16px 22px; overflow-y:auto;">
-                    <div class="sub-info">Chajman...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- GRID 2: OPERASYON AK ALÈT GESTYON -->
-        <div class="grid-3">
-            
-            <!-- Konfigirasyon Maten (Fon de Kès) -->
-            <div class="panel">
-                <div class="panel-title">MANDATE VERIFIKASYON MATEN</div>
-                <div class="form-group">
-                    <label>Fon Kès Ti Glase (HTG)</label>
-                    <input type="number" id="fon-frijide" placeholder="Eg: 2000">
-                </div>
-                <div class="form-group">
-                    <label>Fon Kès En Gwo (HTG)</label>
-                    <input type="number" id="fon-gro" placeholder="Eg: 5000">
-                </div>
-                <div class="form-group">
-                    <label>Fon NatCash Kach Fizik (HTG)</label>
-                    <input type="number" id="fon-nat" placeholder="Eg: 10000">
-                </div>
-                <button class="btn btn-primary" id="btn-mande-verif" onclick="mandeVerifikasyonMaten()">VOYE LÒD VERIFIKASYON</button>
-            </div>
-
-            <!-- Retrè Fon Admin (Pansyon / Depans) -->
-            <div class="panel">
-                <div class="panel-title">RETRÈ KÒB NAN KÈS (ADMIN)</div>
-                <div class="form-group">
-                    <label>Chwazi Kès Kote Kòb la ap Soti</label>
-                    <select id="select-retre-kes">
-                        <option value="stokBwasonFrijidè">Kès Ti Glase</option>
-                        <option value="stokVenteEnGro">Kès En Gwo</option>
-                        <option value="kobfiziknatcash">NatCash Kach Fizik</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Montan pou Retire (HTG)</label>
-                    <input type="number" id="input-retre-montan" placeholder="Montan">
-                </div>
-                <div class="form-group">
-                    <label>Motif / Rezon Retrè a</label>
-                    <input type="text" id="input-retre-motive" placeholder="Eg: Depans gaz, Achte glas...">
-                </div>
-                <button class="btn btn-danger" id="btn-retire-admin" onclick="retireKòbAdmin()">VALIDÈ RETRÈ SA A</button>
-            </div>
-
-            <!-- Pwodiksyon / Antre ak Transfè Stock -->
-            <div class="panel">
-                <div class="panel-title">SISTÈM EKSTÈN POU ESTOK DEPO</div>
-                
-                <!-- Seksyon 1: Ajoute an gwo -->
-                <div style="border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; margin-bottom: 12px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 700;">📥 AVÈTISMAN / ANTRE NOUVO ESTOK:</div>
-                    <div class="filter-container" style="margin-bottom: 8px;">
-                        <select id="select-pwodwi-estok" style="flex:2; padding: 10px; background: var(--bg-input); color: var(--text-main); border-radius:10px; border:1px solid var(--border);"></select>
-                        <select id="select-inite-estok" style="flex:1; padding: 10px; background: var(--bg-input); color: var(--text-main); border-radius:10px; border:1px solid var(--border);">
-                            <option value="kes">Kès (24)</option>
-                            <option value="demi">Demi (12)</option>
-                            <option value="grenn">Grenn (1)</option>
-                        </select>
-                    </div>
-                    <div class="filter-container">
-                        <input type="number" id="input-kantite-bwat" placeholder="Kantite" style="flex:1; padding: 10px;">
-                        <button class="btn btn-success" id="btn-ajoute-estok" style="width:auto; padding: 10px 15px;" onclick="ajouteEstokAdmin()">+ AJOUTE</button>
-                    </div>
-                </div>
-
-                <!-- Seksyon 2: Transfere nan frizè -->
-                <div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 700;">❄️ TRANSFÈ NAN FRIZÈ POU TI GLASE:</div>
-                    <div class="form-group" style="margin-bottom: 8px;">
-                        <select id="select-pwodwi-transfere"></select>
-                    </div>
-                    <div class="filter-container">
-                        <input type="number" id="input-kantite-transfere" placeholder="Kantite Demi-Kès (12 gr)" style="flex:1; padding: 10px;">
-                        <button class="btn btn-purple" id="btn-transfere-frize" style="width:auto; padding: 10px 15px;" onclick="transfereNanFrizerAdmin()">⚡ TRANSFÈRE</button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- 🆕 KREYE NOUVO BWASON — pwòp panel apa, menm estil ak rès la -->
-        <div class="grid-3" style="grid-template-columns: 1fr;">
-            <div class="panel">
-                <div class="panel-title">🆕 KREYE NOUVO BWASON</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Non Bwason an *</label>
-                        <input type="text" id="newProdName" placeholder="Egz: Cascada Grapefruit">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Non Fichye Foto a *</label>
-                        <input type="text" id="newProdImg" placeholder="Egz: Cascada img.JPG">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Pri an Detay (Grenn) *</label>
-                        <input type="number" id="newProdPriceDetail" placeholder="HTG">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Pri an Gwo (Kès 24) *</label>
-                        <input type="number" id="newProdPriceKes" placeholder="HTG">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>Pri Demi-Kès (12 Grenn) <span style="font-weight:400;">(Opsyonèl)</span></label>
-                        <input type="number" id="newProdPriceDemi" placeholder="L ap kalkile si l vid">
-                    </div>
-                </div>
-
-                <fieldset style="padding: 14px; margin-top: 14px;">
-                    <legend style="padding: 0 6px; font-weight: 700;">Pri Acha / Kòb Kès (Opsyonèl, default 0)</legend>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label>Acha Detay</label>
-                            <input type="number" id="newProdBuyDetail" placeholder="HTG" value="0">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label>Acha Demi</label>
-                            <input type="number" id="newProdBuyDemi" placeholder="HTG" value="0">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label>Acha Kès</label>
-                            <input type="number" id="newProdBuyKes" placeholder="HTG" value="0">
-                        </div>
-                    </div>
-                </fieldset>
-
-                <button onclick="kreyeNouvoBwason()" id="btn-kreye-pwodwi" class="btn btn-accent" style="margin-top: 16px;">💾 Kreye epi Sove Pwodwi a</button>
-            </div>
-        </div>
-
-        <!-- GRID 3: TABLO STÒK AK ESTATISTIK LAVANT -->
-        <div class="grid-3" style="grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));">
-            
-            <!-- Tablo Stòk 32 Pwodwi nan Depo/Frizer -->
-            <div class="panel">
-                <div class="panel-title">
-                    <span>📋 KANTITE STÒK REYÈL (32 PWODWI)</span>
-                    <span id="disp-vale-estok" style="color: var(--success); font-weight: 700;">0.00 HTG</span>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Pwodwi</th>
-                                <th>Stòk Depo</th>
-                                <th>Stòk Frizè</th>
-                                <th>Ekwivalan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-stock-body">
-                            <!-- Ranpli dinamikman ak 32 pwodwi yo -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Estatistik Lavant ki pi cho yo -->
-            <div class="panel">
-                <div class="panel-title">🔥 GRAFIK TOP LAVANT JOUNEN AN</div>
-                <div class="stats-container" id="stats-container">
-                    <!-- Ranpli dinamikman pa script la -->
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ISTORIK RAPÒ LOGS DINAMIK — Tab Orizontal (Ti Glase / En Gwo / NatCash) -->
-        <div class="panel" style="margin-top: 22px;">
-            <div class="panel-title" style="margin-bottom: 10px;">
-                <span>📜 ISTORIK TRANZAKSYON AK LOGS DETAYE</span>
-                <div class="filter-container" style="margin-bottom: 0;">
-                    <input type="date" id="filtre-dat">
-                    <button class="btn btn-primary" style="width: auto; padding: 8px 14px;" onclick="filtreIstorik()">Filtre</button>
-                </div>
-            </div>
-
-            <div class="logs-tabbar">
-                <button type="button" class="logs-tab active" data-log="log-ti-glase" onclick="switchLogTab(this)">🧊 Ti Glase</button>
-                <button type="button" class="logs-tab" data-log="log-en-gro" onclick="switchLogTab(this)">📦 En Gwo</button>
-                <button type="button" class="logs-tab" data-log="log-natcash" onclick="switchLogTab(this)">🟢 NatCash</button>
-            </div>
-
-            <div class="logs-viewport">
-                <div class="log-box" id="log-ti-glase"></div>
-                <div class="log-box" id="log-en-gro" style="display:none;"></div>
-                <div class="log-box" id="log-natcash" style="display:none;"></div>
-            </div>
-        </div>
-        <div class="footer-zone">
-    <div>
-        <h3>⚠️ Fèmen Jounen Ofisyèlman</h3>
-        <p>Sa ap achive lavant jounen an epi reset kontè benefis yo. Pa ka anile.</p>
-    </div>
-    <button id="btn-femen-jounen" onclick="femenJounenOfisyel()">FÈMEN JOUNEN AN 🏁</button>
-</div>
-
-        <!-- ===================== BWDEPOT DRAWER (mwatye ekran) ===================== -->
-        <div id="bwdepot-overlay" class="bwdepot-drawer-overlay" onclick="closeBWdepotDrawer()">
-            <div class="bwdepot-drawer" onclick="event.stopPropagation()">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-                    <strong style="font-size:17px;">📦 BWdepot — Jesyon Rapid</strong>
-                    <span onclick="closeBWdepotDrawer()" style="cursor:pointer; font-size:24px; color:var(--text-muted);">&times;</span>
-                </div>
-
-                <!-- 1. BWASON PETE -->
-                <div class="bwdepot-section">
-                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-pete')">
-                        <span>🧨 Bwason Pete</span><span id="arrow-sec-pete">▾</span>
-                    </div>
-                    <div class="bwdepot-section-body" id="sec-pete">
-                        <div class="bwdepot-subtabs">
-                            <button type="button" class="bwdepot-subtab-btn active" data-sub="pete-istorik" onclick="switchBWdepotSubtab(this,'pete')">📜 Istorik</button>
-                            <button type="button" class="bwdepot-subtab-btn" data-sub="pete-ajoute" onclick="switchBWdepotSubtab(this,'pete')">➕ Ajoute</button>
-                        </div>
-                        <div id="pete-istorik" class="bwdepot-list"></div>
-                        <div id="pete-ajoute" style="display:none;">
-                            <div class="form-group">
-                                <label>Pwodwi</label>
-                                <select id="select-pete-pwodwi"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kantite (grenn)</label>
-                                <input type="number" id="input-pete-kantite" placeholder="Kantite">
-                            </div>
-                            <button class="btn btn-danger" id="btn-ajoute-pete" onclick="ajouteBwasonPete()">🧨 Konfime Bwason Pete</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. RETIRE ESTÒK -->
-                <div class="bwdepot-section">
-                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-retire')">
-                        <span>📤 Retire Estòk (Pa Vann / Kado)</span><span id="arrow-sec-retire">▾</span>
-                    </div>
-                    <div class="bwdepot-section-body" id="sec-retire">
-                        <div class="bwdepot-subtabs">
-                            <button type="button" class="bwdepot-subtab-btn active" data-sub="retire-istorik" onclick="switchBWdepotSubtab(this,'retire')">📜 Istorik</button>
-                            <button type="button" class="bwdepot-subtab-btn" data-sub="retire-ajoute" onclick="switchBWdepotSubtab(this,'retire')">➖ Retire</button>
-                        </div>
-                        <div id="retire-istorik" class="bwdepot-list"></div>
-                        <div id="retire-ajoute" style="display:none;">
-                            <div class="form-group">
-                                <label>Pwodwi</label>
-                                <select id="select-retire-estok-pwodwi"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kantite (grenn)</label>
-                                <input type="number" id="input-retire-estok-kantite" placeholder="Kantite">
-                            </div>
-                            <button class="btn btn-warning" id="btn-retire-estok" onclick="retireEstokBWdepot()">📤 Konfime Retrè</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. RETIRE NAN FRIZE -->
-                <div class="bwdepot-section">
-                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-frize')">
-                        <span>❄️ Retire nan Frize (Remèt nan Depo)</span><span id="arrow-sec-frize">▾</span>
-                    </div>
-                    <div class="bwdepot-section-body" id="sec-frize">
-                        <div class="bwdepot-subtabs">
-                            <button type="button" class="bwdepot-subtab-btn active" data-sub="frize-istorik" onclick="switchBWdepotSubtab(this,'frize')">📜 Istorik</button>
-                            <button type="button" class="bwdepot-subtab-btn" data-sub="frize-retire" onclick="switchBWdepotSubtab(this,'frize')">➖ Retire</button>
-                        </div>
-                        <div id="frize-istorik" class="bwdepot-list"></div>
-                        <div id="frize-retire" style="display:none;">
-                            <div class="form-group">
-                                <label>Pwodwi</label>
-                                <select id="select-frize-pwodwi"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kantite Demi-Kès (12 gr)</label>
-                                <input type="number" id="input-frize-kantite" placeholder="Kantite Demi-Kès">
-                            </div>
-                            <button class="btn btn-purple" id="btn-retire-frize" onclick="retireNanFrizeBWdepot()">❄️ Retire nan Frize → Depo</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. MODIFYE BWASON KI EGZISTE -->
-                <div class="bwdepot-section">
-                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-modifye')">
-                        <span>✏️ Modifye Bwason ki Egziste</span><span id="arrow-sec-modifye">▾</span>
-                    </div>
-                    <div class="bwdepot-section-body" id="sec-modifye">
-                        <div class="form-group">
-                            <label>Pwodwi</label>
-                            <select id="select-modifye-pwodwi" onchange="chajePriPwodwi()"></select>
-                        </div>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:10px;">
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Detay</label>
-                                <input type="number" id="input-modifye-detail">
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Demi</label>
-                                <input type="number" id="input-modifye-demi">
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Kès</label>
-                                <input type="number" id="input-modifye-kes">
-                            </div>
-                        </div>
-                        <button class="btn btn-accent" id="btn-modifye-pwodwi" onclick="sovePriPwodwi()" style="margin-top:12px;">💾 Sove Nouvo Pri</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Ti script pou tab orizontal istorik yo (afichaj sèlman, pa touche done Firebase) -->
-    <script>
-        function switchLogTab(btn) {
-            document.querySelectorAll('.logs-tab').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            const target = btn.getAttribute('data-log');
-            ['log-ti-glase', 'log-en-gro', 'log-natcash'].forEach(id => {
-                document.getElementById(id).style.display = (id === target) ? 'block' : 'none';
-            });
-        }
-    </script>
-
-    <!-- PATI MODULE JAVASCRIPT FIREBASE FUSIONNÉ -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update, push, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
-            authDomain: "bwdepot-61214.firebaseapp.com",
-            databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
-            projectId: "bwdepot-61214",
-            storageBucket: "bwdepot-61214.firebasestorage.app",
-            messagingSenderId: "624010872324",
-            appId: "1:624010872324:web:0b0565c3872b3caccd5751",
-            measurementId: "G-8VEN9QQF7B"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const appRef = ref(db, "appState");
-
-        let lokalState = {};
-
-        const defaultPwodwiLis = [
-            { id: 1, name: "Ti Fritop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 400, kes: 800 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 2, name: "Frutop", img: "Frutop img.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 550, kes: 1100 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 3, name: "Fanta", img: "Fanta img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 4, name: "Dasani", img: "dasani img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 425, kes: 850 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 5, name: "Prestige", img: "prestige img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 200, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 6, name: "Valle", img: "valle img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 7, name: "Tampico", img: "tampico img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 75, demi: 675, kes: 1350 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 8, name: "Robusto", img: "robusto img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 9, name: "Toro", img: "toro img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1000, kes: 2000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 10, name: "Malta H", img: "maltah img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 11, name: "Beller", img: "beller img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 12, name: "Real", img: "real img.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 13, name: "7up", img: "7up.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 14, name: "Red", img: "Red.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 875, kes: 1750 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 15, name: "Pro Rade", img: "Prorade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 500, kes: 1000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 16, name: "Redrock", img: "Rad Rock.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 17, name: "Generade", img: "Generade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 650, kes: 1300 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 18, name: "Ragaman", img: "ragaman.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1100, kes: 2200 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 19, name: "Limonade", img: "Limonade.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 20, name: "Coca Cola", img: "Cacacola.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 21, name: "Couronne", img: "Couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 22, name: "Atomik", img: "Atomik.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 100, demi: 750, kes: 1500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 23, name: "Aloe", img: "Aloe.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 250, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 24, name: "Pepsi", img: "Pepsi.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 25, name: "Petit", img: "Petit.WEBP", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 125, demi: 1250, kes: 2500 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 26, name: "Malta H bouteille", img: "Malta H bouteille.JPG", stockGrenn: 0, stockFrizerGrenn: 24, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 27, name: "Guinness", img: "Guinness.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 150, demi: 2000, kes: 4000 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 28, name: "Splash", img: "Splash.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 29, name: "Frooty", img: "Frooty.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 30, name: "Ti Fanta", img: "Ti fanta.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 31, name: "Ti Couronne", img: "Ti couronne.JPG", stockGrenn: 0, stockFrizerGrenn: 0, prices: { detail: 50, demi: 475, kes: 950 }, buyingPrice: { detail: 0, demi: 0, kes: 0 } },
-            { id: 32, name: "cascada", img: "cascada.PNG", stockGrenn: 0, stockFrizerGrenn: 0, prices: {detail: 50, demi: 250, kes: 500}, buyingPrice: {detail: 0, demi: 0, kes: 0 }}
-        ];
-
-        onValue(appRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                lokalState = data;
-                
-                if (!lokalState.inventory) {
-                    lokalState.inventory = {};
-                    defaultPwodwiLis.forEach(p => {
-                        lokalState.inventory[p.id] = {
-                            id: p.id,
-                            name: p.name,
-                            stockGrenn: 0,
-                            stockFrizerGrenn: 0,
-                            prices: p.prices,
-                            img: p.img
-                        };
-                    });
-                    update(appRef, { inventory: lokalState.inventory });
-                }
-                
-                ranpliSelectDropdowns();
-                majEkranAdmin();
-            }
-        });
-
-        function ranpliSelectDropdowns() {
-            const estokSelect = document.getElementById('select-pwodwi-estok');
-            const transSelect = document.getElementById('select-pwodwi-transfere');
-            
-            if (!estokSelect || !transSelect || !lokalState.inventory) return;
-            
-            const valEstok = estokSelect.value;
-            const valTrans = transSelect.value;
-
-            let html = "";
-            Object.values(lokalState.inventory).forEach(p => {
-                html += `<option value="${p.id}">${p.name}</option>`;
-            });
-
-            estokSelect.innerHTML = html;
-            transSelect.innerHTML = html;
-
-            if (valEstok) estokSelect.value = valEstok;
-            if (valTrans) transSelect.value = valTrans;
-
-            ranpliSelectBWdepot();
-        }
-
-        // ===================================================================
-        // BWDEPOT DRAWER — jesyon dropdown pwodwi pou 4 seksyon yo
-        // ===================================================================
-        function ranpliSelectBWdepot() {
-            if (!lokalState.inventory) return;
-            let html = "";
-            Object.values(lokalState.inventory).forEach(p => {
-                html += `<option value="${p.id}">${p.name}</option>`;
-            });
-            ['select-pete-pwodwi', 'select-retire-estok-pwodwi', 'select-frize-pwodwi', 'select-modifye-pwodwi'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const cur = el.value;
-                el.innerHTML = html;
-                if (cur) el.value = cur;
-            });
-        }
-
-        window.openBWdepotDrawer = function() {
-            document.getElementById('bwdepot-overlay').classList.add('active');
-            ranpliSelectBWdepot();
-            chajePriPwodwi();
-            renderBWdepotIstoriks();
-        };
-
-        window.closeBWdepotDrawer = function() {
-            document.getElementById('bwdepot-overlay').classList.remove('active');
-        };
-
-        window.toggleBWdepotSection = function(id) {
-            const body = document.getElementById(id);
-            const arrow = document.getElementById('arrow-' + id);
-            const isOpen = body.classList.contains('open');
-            body.classList.toggle('open', !isOpen);
-            if (arrow) arrow.innerText = !isOpen ? '▴' : '▾';
-        };
-
-        window.switchBWdepotSubtab = function(btn, group) {
-            const container = btn.closest('.bwdepot-section-body');
-            container.querySelectorAll('.bwdepot-subtab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const target = btn.getAttribute('data-sub');
-            const mapping = {
-                pete: ['pete-istorik', 'pete-ajoute'],
-                retire: ['retire-istorik', 'retire-ajoute'],
-                frize: ['frize-istorik', 'frize-retire']
-            };
-            (mapping[group] || []).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = (id === target) ? 'block' : 'none';
-            });
-        };
-
-        window.chajePriPwodwi = function() {
-            const sel = document.getElementById('select-modifye-pwodwi');
-            if (!sel) return;
-            const pId = sel.value;
-            if (!pId || !lokalState.inventory || !lokalState.inventory[pId]) return;
-            const p = lokalState.inventory[pId];
-            document.getElementById('input-modifye-detail').value = p.prices?.detail ?? '';
-            document.getElementById('input-modifye-demi').value = p.prices?.demi ?? '';
-            document.getElementById('input-modifye-kes').value = p.prices?.kes ?? '';
-        };
-
-        function renderBWdepotIstoriks() {
-            renderListeBWdepot('pete-istorik', lokalState.lisBwasonPete, '🧨');
-            renderListeBWdepot('retire-istorik', lokalState.lisRetireEstok, '📤');
-            renderListeBWdepot('frize-istorik', lokalState.lisRetireFrize, '❄️');
-        }
-
-        function renderListeBWdepot(containerId, obj, ikon) {
-            const el = document.getElementById(containerId);
-            if (!el) return;
-            if (!obj || Object.keys(obj).length === 0) {
-                el.innerHTML = '<div class="sub-info" style="padding:10px 0;">Pa gen istorik pou kounye a.</div>';
-                return;
-            }
-            let items = Object.values(obj).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            el.innerHTML = items.map(t => `
-                <div class="log-item">⏰ ${t.tan || ''} — ${ikon} <strong>${t.prodName || ''}</strong> — ${t.kantite || 0}g</div>
-            `).join('');
-        }
-
-        // 🔒 SEKIRITE: verrou pou anpeche double-klik voye menm reket la 2 fwa
-        let peteBtnLock = false;
-        let retireEstokBtnLock = false;
-        let retireFrizeBtnLock = false;
-        let modifyeBtnLock = false;
-
-        // ===================================================================
-        // 1. BWASON PETE — retire nan depo, anrejistre istorik
-        // ===================================================================
-        window.ajouteBwasonPete = async function() {
-            if (peteBtnLock) return;
-            const pId = document.getElementById('select-pete-pwodwi').value;
-            const kantite = parseFloat(document.getElementById('input-pete-kantite').value);
-            if (!pId || isNaN(kantite) || kantite <= 0) { alert("⚠️ Antre yon kantite valab!"); return; }
-
-            peteBtnLock = true;
-            const btn = document.getElementById('btn-ajoute-pete');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
-
-            let echèk = null, nonPwodwi = "";
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                        return;
-                    }
-                    let p = currentData.inventory[pId];
-                    if ((p.stockGrenn ?? 0) < kantite) {
-                        echèk = `❌ Pa gen ase stòk nan depo a pou ${p.name}! (${p.stockGrenn ?? 0}g disponib)`;
-                        return;
-                    }
-                    nonPwodwi = p.name;
-                    p.stockGrenn = (p.stockGrenn ?? 0) - kantite;
-                    currentData.inventory[pId] = p;
-
-                    if (!currentData.lisBwasonPete) currentData.lisBwasonPete = {};
-                    let now = new Date();
-                    let id = "pete_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-                    currentData.lisBwasonPete[id] = {
-                        id, prodId: pId, prodName: p.name, kantite,
-                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
-                    };
-                    return currentData;
-                });
-
-                if (echèk) { alert(echèk); return; }
-                if (committed) {
-                    alert(`🧨 ${kantite}g nan ${nonPwodwi} make pete epi retire nan depo a.`);
-                    document.getElementById('input-pete-kantite').value = '';
-                }
-            } catch (err) {
-                console.error("Erè bwason pete:", err);
-                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
-            } finally {
-                peteBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "🧨 Konfime Bwason Pete"; }
-            }
-        };
-
-        // ===================================================================
-        // 2. RETIRE ESTÒK (pa vann / kado) — retire nan depo, san rezon
-        // ===================================================================
-        window.retireEstokBWdepot = async function() {
-            if (retireEstokBtnLock) return;
-            const pId = document.getElementById('select-retire-estok-pwodwi').value;
-            const kantite = parseFloat(document.getElementById('input-retire-estok-kantite').value);
-            if (!pId || isNaN(kantite) || kantite <= 0) { alert("⚠️ Antre yon kantite valab!"); return; }
-
-            retireEstokBtnLock = true;
-            const btn = document.getElementById('btn-retire-estok');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
-
-            let echèk = null, nonPwodwi = "";
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                        return;
-                    }
-                    let p = currentData.inventory[pId];
-                    if ((p.stockGrenn ?? 0) < kantite) {
-                        echèk = `❌ Pa gen ase stòk nan depo a pou ${p.name}! (${p.stockGrenn ?? 0}g disponib)`;
-                        return;
-                    }
-                    nonPwodwi = p.name;
-                    p.stockGrenn = (p.stockGrenn ?? 0) - kantite;
-                    currentData.inventory[pId] = p;
-
-                    if (!currentData.lisRetireEstok) currentData.lisRetireEstok = {};
-                    let now = new Date();
-                    let id = "retest_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-                    currentData.lisRetireEstok[id] = {
-                        id, prodId: pId, prodName: p.name, kantite,
-                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
-                    };
-                    return currentData;
-                });
-
-                if (echèk) { alert(echèk); return; }
-                if (committed) {
-                    alert(`📤 ${kantite}g nan ${nonPwodwi} retire nan depo a.`);
-                    document.getElementById('input-retire-estok-kantite').value = '';
-                }
-            } catch (err) {
-                console.error("Erè retire estòk:", err);
-                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
-            } finally {
-                retireEstokBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "📤 Konfime Retrè"; }
-            }
-        };
-
-        // ===================================================================
-        // 3. RETIRE NAN FRIZE — opoze de "Transfè nan Frize", remèt nan depo
-        // ===================================================================
-        window.retireNanFrizeBWdepot = async function() {
-            if (retireFrizeBtnLock) return;
-            const pId = document.getElementById('select-frize-pwodwi').value;
-            const kantiteDemiKes = parseFloat(document.getElementById('input-frize-kantite').value);
-            if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("⚠️ Antre yon kantite Demi-Kès valab!"); return; }
-            const grenn = kantiteDemiKes * 12;
-
-            retireFrizeBtnLock = true;
-            const btn = document.getElementById('btn-retire-frize');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
-
-            let echèk = null, nonPwodwi = "";
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                        return;
-                    }
-                    let p = currentData.inventory[pId];
-                    if ((p.stockFrizerGrenn ?? 0) < grenn) {
-                        echèk = `❌ Pa gen ase stòk nan Frize a pou ${p.name}! (${p.stockFrizerGrenn ?? 0}g disponib)`;
-                        return;
-                    }
-                    nonPwodwi = p.name;
-                    p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) - grenn;
-                    p.stockGrenn = (p.stockGrenn ?? 0) + grenn;
-                    currentData.inventory[pId] = p;
-
-                    if (!currentData.lisRetireFrize) currentData.lisRetireFrize = {};
-                    let now = new Date();
-                    let id = "retfriz_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-                    currentData.lisRetireFrize[id] = {
-                        id, prodId: pId, prodName: p.name, kantite: grenn,
-                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
-                    };
-                    return currentData;
-                });
-
-                if (echèk) { alert(echèk); return; }
-                if (committed) {
-                    alert(`❄️ ${grenn}g (${kantiteDemiKes} demi-kès) nan ${nonPwodwi} retire nan Frize a, remèt nan Depo.`);
-                    document.getElementById('input-frize-kantite').value = '';
-                }
-            } catch (err) {
-                console.error("Erè retire nan frize:", err);
-                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
-            } finally {
-                retireFrizeBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "❄️ Retire nan Frize → Depo"; }
-            }
-        };
-
-        // ===================================================================
-        // 4. MODIFYE BWASON KI EGZISTE — chanje pri sèlman
-        // ===================================================================
-        window.sovePriPwodwi = async function() {
-            if (modifyeBtnLock) return;
-            const pId = document.getElementById('select-modifye-pwodwi').value;
-            const detail = parseFloat(document.getElementById('input-modifye-detail').value);
-            const demi = parseFloat(document.getElementById('input-modifye-demi').value);
-            const kes = parseFloat(document.getElementById('input-modifye-kes').value);
-
-            if (!pId) { alert("⚠️ Chwazi yon pwodwi!"); return; }
-            if (isNaN(detail) || detail <= 0 || isNaN(demi) || demi <= 0 || isNaN(kes) || kes <= 0) {
-                alert("⚠️ Tanpri antre tout pri yo kòrèkteman (pi gwo pase 0)!");
-                return;
-            }
-
-            modifyeBtnLock = true;
-            const btn = document.getElementById('btn-modifye-pwodwi');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap sove..."; }
-
-            let echèk = null, nonPwodwi = "";
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                        return;
-                    }
-                    let p = currentData.inventory[pId];
-                    nonPwodwi = p.name;
-                    p.prices = { detail, demi, kes };
-                    currentData.inventory[pId] = p;
-                    return currentData;
-                });
-
-                if (echèk) { alert(echèk); return; }
-                if (committed) { alert(`✏️ Pri ${nonPwodwi} mete ajou avèk siksè!`); }
-            } catch (err) {
-                console.error("Erè modifye pri:", err);
-                alert("⚠️ Pwoblèm koneksyon — modifikasyon an pa t sove. Tanpri eseye ankò.");
-            } finally {
-                modifyeBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "💾 Sove Nouvo Pri"; }
-            }
-        };
-
-        function checkPosSecurityOnLoad() {
-            // (rete pou konpatibilite — pa itilize nan admin)
-        }
-
-        function majEkranAdmin() {
-            document.getElementById('disp-kes-frijide').innerText = (lokalState.stokBwasonFrijidè ?? 0).toLocaleString('en-US') + " HTG";
-            document.getElementById('disp-kes-gro').innerText = (lokalState.stokVenteEnGro ?? 0).toLocaleString('en-US') + " HTG";
-            document.getElementById('disp-nat-cash').innerText = (lokalState.kobfiziknatcash ?? 0).toLocaleString('en-US') + " HTG";
-            document.getElementById('disp-nat-balans-kat').innerText = (lokalState.natcashCardBalance ?? 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + " HTG";
-
-            let komiAkimile = lokalState.accumulatedCommission ?? 0;
-            let totalKomi = komiAkimile;
-            let komiDepo = lokalState.totalKomisyonDepo ?? 0;
-            let komiRetre = lokalState.totalKomisyonRetre ?? 0;
-
-            document.getElementById('disp-komisyon').innerText = totalKomi.toLocaleString('en-US') + " HTG";
-            document.getElementById('sub-kom-depo').innerText = komiDepo.toFixed(2);
-            document.getElementById('sub-kom-retre').innerText = komiRetre.toFixed(2);
-
-            let benDetay = lokalState.benefisDetay ?? 0;
-            let benGro = lokalState.benefisGro ?? 0;
-            let totalBen = benDetay + benGro;
-            document.getElementById('disp-benefis').innerText = totalBen.toLocaleString('en-US') + " HTG";
-            document.getElementById('sub-ben-detay').innerText = benDetay.toLocaleString('en-US');
-            document.getElementById('sub-ben-gro').innerText = benGro.toLocaleString('en-US');
-
-            let valeEstokTotal = 0;
-            let tblBodyHtml = "";
-
-            if (lokalState.inventory) {
-                Object.values(lokalState.inventory).forEach(p => {
-                    let stkWandis = p.stockGrenn ?? 0;
-                    let stkFriz = p.stockFrizerGrenn ?? 0;
-                    let kèsPri = p.prices?.kes ?? 0;
-                    
-                    valeEstokTotal += (stkWandis / 24) * kèsPri;
-                    let kesDepoKalkile = (stkWandis / 24).toFixed(1);
-
-                    tblBodyHtml += `
-                        <tr>
-                            <td><strong>${p.name}</strong></td>
-                            <td><span class="badge badge-depot">${stkWandis} gr</span></td>
-                            <td><span class="badge badge-frizer">${stkFriz} gr</span></td>
-                            <td>${kesDepoKalkile} kès</td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('disp-vale-estok').innerText = valeEstokTotal.toLocaleString('en-US', {maximumFractionDigits: 2}) + " HTG";
-            document.getElementById('tbl-stock-body').innerHTML = tblBodyHtml || `<tr><td colspan="4" style="text-align:center;">Pa gen pwodwi ki disponib.</td></tr>`;
-
-            const alertBox = document.getElementById('admin-alert');
-            if (lokalState.kontestasyonKès) {
-                alertBox.style.display = 'block';
-                alertBox.innerHTML = `⚠️ <strong>ALÈT KONTESTASYON MATEN:</strong> Vandè a deklare li jwenn <strong>${lokalState.kontestasyonKès.kòbMounNanWè} HTG</strong> olye de <strong>${lokalState.kontestasyonKès.kòbSistèm} HTG</strong> nan kès NatCash la!`;
-            } else if (lokalState.clotureAveg) {
-                alertBox.style.display = 'block';
-                alertBox.style.backgroundColor = 'rgba(255, 149, 0, 0.08)';
-                alertBox.style.borderColor = 'var(--warning)';
-                alertBox.style.color = '#8A5300';
-                alertBox.innerHTML = `🏁 <strong>RAPÒ FÈMTI KÈS AVÈG VANDÈ:</strong><br>
-                    - Kòb Ti Glase li wè: ${lokalState.clotureAveg.frijideVedi ?? 0} HTG (Sistèm: ${lokalState.stokBwasonFrijidè ?? 0} HTG)<br>
-                    - Kòb En Gwo li wè: ${lokalState.clotureAveg.groVedi ?? 0} HTG (Sistèm: ${lokalState.stokVenteEnGro ?? 0} HTG)<br>
-                    - Kòb NatCash Kach li wè: ${lokalState.clotureAveg.natVedi ?? 0} HTG (Sistèm: ${lokalState.kobfiziknatcash ?? 0} HTG)`;
-            } else {
-                alertBox.style.display = 'none';
-            }
-
-            aficheEstatistik();
-            ranpliIstorikEkran();
-            majBadgeValidasyon();
-            renderBWdepotIstoriks();
-        }
-
-        // ===================================================================
-        // VALIDASYON KOMISYON / BERLI
-        // Chak tranzaksyon tip 'depo_berli' oswa 'komisyon_manyèl' gen yon chan
-        // `estati`: 'an_atant' | 'valide' | 'kontete'. Yon tranzaksyon san chan
-        // `estati` (ansyen done) konsidere kòm 'valide' pou l pa parèt tankou
-        // an atant san rezon.
-        // ===================================================================
-        function jwennTranzaksyonAnAtant() {
-            if (!lokalState.lisTranzaksyon) return [];
-            return Object.values(lokalState.lisTranzaksyon)
-                .filter(t => (t.tip === 'depo_berli' || t.tip === 'komisyon_manyèl') && t.estati === 'an_atant')
-                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        }
-
-        function majBadgeValidasyon() {
-            let anAtant = jwennTranzaksyonAnAtant();
-            let badge = document.getElementById('badge-validasyon');
-            let subInfo = document.getElementById('sub-validasyon-info');
-            if (!badge || !subInfo) return;
-
-            if (anAtant.length > 0) {
-                badge.style.display = 'inline-block';
-                badge.innerText = anAtant.length;
-                subInfo.innerText = `${anAtant.length} tranzaksyon KOMISYON/BERLI ap tann validasyon w.`;
-            } else {
-                badge.style.display = 'none';
-                subInfo.innerText = 'Pa gen anyen an atant kounye a.';
-            }
-
-            // Si modal la louvri deja, refrechi kontni l an tan reyèl
-            let overlay = document.getElementById('modal-validasyon-overlay');
-            if (overlay && overlay.style.display === 'flex') {
-                rannuModalValidasyon();
-            }
-        }
-
-        window.ouvriModalValidasyon = function() {
-            document.getElementById('modal-validasyon-overlay').style.display = 'flex';
-            rannuModalValidasyon();
-        };
-
-        window.fèmenModalValidasyon = function() {
-            document.getElementById('modal-validasyon-overlay').style.display = 'none';
-        };
-
-        // 🔒 SEKIRITE: yon sèl verrou pataje pou tout bouton Valide/Rejte nan
-        // modal validasyon an, pou anpeche 2 klik voye 2 tranzaksyon opoze.
-        let validasyonBtnLock = false;
-
-        function rannuModalValidasyon() {
-            let body = document.getElementById('modal-validasyon-body');
-            if (!body) return;
-            let anAtant = jwennTranzaksyonAnAtant();
-
-            if (anAtant.length === 0) {
-                body.innerHTML = `<div class="sub-info">Pa gen tranzaksyon KOMISYON/BERLI an atant kounye a. ✅</div>`;
-                return;
-            }
-
-            let html = "";
-            anAtant.forEach(t => {
-                let tipLabel = t.tip === 'depo_berli' ? 'BERLI' : 'KOMISYON';
-                let tipIkòn = t.tip === 'depo_berli' ? '👤' : '🪙';
-                html += `
-                    <div style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                            <span style="font-weight:800; font-size:13px;">${tipIkòn} ${tipLabel} — ${(t.montan ?? 0).toLocaleString('en-US')} HTG</span>
-                            <span style="font-size:11px; color: var(--text-muted);">${t.dat ?? ''} ${t.tan ?? ''}</span>
-                        </div>
-                        <div class="sub-info" style="margin-bottom:10px;">${t.mesaj ?? ''}</div>
-                        <div style="display:flex; gap:8px;">
-                            <button class="btn btn-success" style="width:auto; flex:1; padding:9px;" ${validasyonBtnLock ? 'disabled' : ''} onclick="valideKomisyon('${t.id}')">✅ Valide</button>
-                            <button class="btn btn-danger" style="width:auto; flex:1; padding:9px;" ${validasyonBtnLock ? 'disabled' : ''} onclick="rejteKomisyon('${t.id}')">❌ Rejte</button>
-                        </div>
-                    </div>
-                `;
-            });
-            body.innerHTML = html;
-        }
-
-        window.valideKomisyon = async function(id) {
-            if (validasyonBtnLock) return;
-            validasyonBtnLock = true;
-            rannuModalValidasyon();
-
-            let echèk = null;
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.lisTranzaksyon || !currentData.lisTranzaksyon[id]) {
-                        echèk = "⚠️ Tranzaksyon an pa jwenn ankò (petèt deja trete).";
-                        return;
-                    }
-                    let t = currentData.lisTranzaksyon[id];
-                    if (t.estati !== 'an_atant') {
-                        echèk = "⚠️ Tranzaksyon sa a deja trete pa yon lòt aksyon.";
-                        return;
-                    }
-                    t.estati = 'valide';
-                    currentData.lisTranzaksyon[id] = t;
-                    return currentData;
-                });
-                if (echèk) { alert(echèk); return; }
-                if (committed) { /* rafrechisman an fèt otomatikman pa onValue */ }
-            } catch (err) {
-                console.error("Erè validasyon komisyon:", err);
-                alert("⚠️ Pwoblèm koneksyon — validasyon an pa t sove. Tanpri eseye ankò.");
-            } finally {
-                validasyonBtnLock = false;
-                rannuModalValidasyon();
-            }
-        };
-
-        window.rejteKomisyon = async function(id) {
-            if (validasyonBtnLock) return;
-            let rezon = prompt("Ekri rezon rejè a (obligatwa) — sa ap parèt nan istorik la:");
-            if (!rezon || !rezon.trim()) { alert("⚠️ Ou dwe ekri yon rezon pou rejte tranzaksyon an."); return; }
-            rezon = rezon.trim();
-
-            validasyonBtnLock = true;
-            rannuModalValidasyon();
-
-            let echèk = null;
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.lisTranzaksyon || !currentData.lisTranzaksyon[id]) {
-                        echèk = "⚠️ Tranzaksyon an pa jwenn ankò (petèt deja trete).";
-                        return;
-                    }
-                    let t = currentData.lisTranzaksyon[id];
-                    if (t.estati !== 'an_atant') {
-                        echèk = "⚠️ Tranzaksyon sa a deja trete pa yon lòt aksyon.";
-                        return;
-                    }
-
-                    let montan = t.montan ?? 0;
-                    let nouvoBalansKat = currentData.natcashCardBalance ?? 0;
-
-                    if (t.tip === 'depo_berli') {
-                        // BERLI te fè balans lan DESANN lè l soumèt → rejè fè l REMONTE.
-                        nouvoBalansKat += montan;
-                    } else if (t.tip === 'komisyon_manyèl') {
-                        // KOMISYON te fè balans lan MONTE lè l soumèt → rejè fè l REDESANN.
-                        nouvoBalansKat -= montan;
-                        if (nouvoBalansKat < 0) {
-                            echèk = `❌ Aksyon anile! Rejè sa a ap fè balans kat la vin negatif (${nouvoBalansKat.toFixed(2)} HTG). Verifye balans lan anvan.`;
-                            return;
-                        }
-                        currentData.accumulatedCommission = (currentData.accumulatedCommission ?? 0) - montan;
-                    }
-
-                    t.estati = 'kontete';
-                    t.rezonRejè = rezon;
-                    t.mesaj = `${t.mesaj ?? ''} [REJTE PA ADMIN: ${rezon}]`;
-                    currentData.natcashCardBalance = nouvoBalansKat;
-                    currentData.lisTranzaksyon[id] = t;
-                    return currentData;
-                });
-                if (echèk) { alert(echèk); return; }
-                if (committed) { alert("Tranzaksyon an rejte epi balans kat la ajiste otomatikman."); }
-            } catch (err) {
-                console.error("Erè rejè komisyon:", err);
-                alert("⚠️ Pwoblèm koneksyon — rejè a pa t sove. Tanpri eseye ankò.");
-            } finally {
-                validasyonBtnLock = false;
-                rannuModalValidasyon();
-            }
-        };
-
-        // 🔒 SEKIRITE: verrou pou tout lòt bouton kritik yo (anpeche double-klik)
-        let setBalansBtnLock = false;
-        window.setNatCardBalance = async function() {
-            if (setBalansBtnLock) return;
-            let val = parseFloat(document.getElementById('input-nat-balans').value);
-            if (isNaN(val) || val < 0) { alert("Antre yon balans valab!"); return; }
-
-            setBalansBtnLock = true;
-            const btn = document.getElementById('btn-set-nat-balans');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳"; }
-            try {
-                await update(appRef, { natcashCardBalance: val });
-                alert("Balans kat la ajou nan sistèm nan!");
-                document.getElementById('input-nat-balans').value = '';
-            } catch (err) {
-                console.error("Erè mizajou balans kat:", err);
-                alert("⚠️ Pwoblèm koneksyon — balans lan pa t sove. Tanpri eseye ankò.");
-            } finally {
-                setBalansBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "OK"; }
-            }
-        };
-
-window.kreyeNouvoBwason = async function() {
-    if (window.__kreyeBtnLock) return;
-
-    // 1. Li chan yo nan fòm lan
-    const name = document.getElementById('newProdName').value.trim();
-    const img = document.getElementById('newProdImg').value.trim();
-    const priceDetail = parseFloat(document.getElementById('newProdPriceDetail').value);
-    const priceKes = parseFloat(document.getElementById('newProdPriceKes').value);
-    
-    let priceDemi = document.getElementById('newProdPriceDemi').value.trim();
-    let buyDetail = document.getElementById('newProdBuyDetail').value.trim();
-    let buyDemi = document.getElementById('newProdBuyDemi').value.trim();
-    let buyKes = document.getElementById('newProdBuyKes').value.trim();
-
-    // 2. Validasyon chan obligatwa yo
-    if (!name) {
-        alert("Tanpri antre non bwason an!");
-        return;
-    }
-    if (!img) {
-        alert("Tanpri antre non fichye imaj la!");
-        return;
-    }
-    if (isNaN(priceDetail) || priceDetail <= 0) {
-        alert("Tanpri antre yon pri detay ki valab epi ki pi gwo pase 0!");
-        return;
-    }
-    if (isNaN(priceKes) || priceKes <= 0) {
-        alert("Tanpri antre yon pri kès ki valab epi ki pi gwo pase 0!");
-        return;
-    }
-
-    // 3. Traite chan opsyonèl yo (Fallback ak lojik otomatik)
-    let finalPriceDemi;
-    if (priceDemi === "") {
-        // Kalkil otomatik: (priKès / 2), divize pa 10, awondi, miltipliye pa 10
-        finalPriceDemi = Math.round((priceKes / 2) / 10) * 10;
-    } else {
-        finalPriceDemi = parseFloat(priceDemi);
-        if (isNaN(finalPriceDemi) || finalPriceDemi <= 0) {
-            alert("Pri demi-kès la dwe yon nimewo ki pi gwo pase 0 si w ranpli l!");
-            return;
-        }
-    }
-
-    const finalBuyDetail = buyDetail === "" ? 0 : (parseFloat(buyDetail) || 0);
-    const finalBuyDemi = buyDemi === "" ? 0 : (parseFloat(buyDemi) || 0);
-    const finalBuyKes = buyKes === "" ? 0 : (parseFloat(buyKes) || 0);
-
-    // 4. Kalkile nouvo ID sekans lan
-    if (!lokalState || !lokalState.inventory) {
-        alert("Erè: Done envantè a poko chaje depi nan Firebase. Reantre sa pita.");
-        return;
-    }
-    let maxId = Math.max(...Object.keys(lokalState.inventory).map(Number), 0);
-    let nouvoId = maxId + 1;
-
-    // 5. Bati objè a egzakteman selon schema a (SAN prices.pa6)
-    const nouvoPwodwiObj = {
-        id: nouvoId,
-        name: name,
-        img: img,
-        stockGrenn: 0,
-        stockFrizerGrenn: 0,
-        prices: {
-            detail: priceDetail,
-            demi: finalPriceDemi,
-            kes: priceKes
-        },
-        buyingPrice: {
-            detail: finalBuyDetail,
-            demi: finalBuyDemi,
-            kes: finalBuyKes
-        }
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
+        authDomain: "bwdepot-61214.firebaseapp.com",
+        databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
+        projectId: "bwdepot-61214",
+        storageBucket: "bwdepot-61214.firebasestorage.app",
+        messagingSenderId: "624010872324",
+        appId: "1:624010872324:web:0b0565c3872b3caccd5751",
+        measurementId: "G-8VEN9QQF7B"
     };
 
-    window.__kreyeBtnLock = true;
-    const btnKreye = document.getElementById('btn-kreye-pwodwi');
-    if (btnKreye) { btnKreye.disabled = true; btnKreye.innerText = "⏳ N ap sove..."; }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const natcashRef = ref(db, "appState");
 
-    // 6. Sove nouvo pwodwi a nan Firebase Realtime Database
-    // 🔧 FIKS: kòd la te itilize firebase.database() (SDK compat) ki pa
-    // egziste nan paj sa a (nou itilize SDK modilè a). Nou ranplase l ak
-    // `update()` ki deja enpòte, sou yon chemen presi pou pa touche rès
-    // envantè a.
-    try {
-        await update(appRef, { [`inventory/${nouvoId}`]: nouvoPwodwiObj });
-        
-        // 7. Reset fòm lan apre siksè
-        document.getElementById('newProdName').value = "";
-        document.getElementById('newProdImg').value = "";
-        document.getElementById('newProdPriceDetail').value = "";
-        document.getElementById('newProdPriceKes').value = "";
-        document.getElementById('newProdPriceDemi').value = "";
-        document.getElementById('newProdBuyDetail').value = "0";
-        document.getElementById('newProdBuyDemi').value = "0";
-        document.getElementById('newProdBuyKes').value = "0";
+    // Varyab lokal — yo sèvi SÈLMAN pou afichaj ekran an.
+    // TOUT modifikasyon reyèl sou lajan/balans yo pase pa runTransaction()
+    // pou evite de moun ekri anwo youn lòt an menm tan (kondisyon konkirans).
+    let natcashCardBalance = 0.00;
+    let kobfiziknatcash = 0.00;
+    let stokBwasonFrijidè = 0.00;
+    let stokVenteEnGro = 0.00;
 
-        // Alèt siksè ak rapèl pou Github
-        alert(`🎉 Pwodwi "${name}" la kreye avèk siksè ak ID: ${nouvoId}!\n\n⚠️ PA BLIYE: Ou dwe telechaje imaj fizik la ki rele "${img}" sou GitHub pou l ka parèt nan index.html.`);
-        
-    } catch (error) {
-        console.error("Erè lè n t ap sove pwodwi a nan Firebase:", error);
-        alert("Gen yon erè ki rive lè n t ap sove done yo nan Firebase. Tcheke konsòl la.");
-    } finally {
-        window.__kreyeBtnLock = false;
-        if (btnKreye) { btnKreye.disabled = false; btnKreye.innerText = "💾 Kreye epi Sove Pwodwi a"; }
+    let kachFizikBaz = 0.00;
+    let kachFizikBazTan = 0;
+
+    let accumulatedCommission = 0.00;
+    let totalKomisyonDepo = 0.00;
+    let totalKomisyonRetre = 0.00;
+    let lisTranzaksyon = [];
+
+    // 🔒 FIKS SEKIRITE: veru anti-doub-klik/doub-soumisyon pou DEPO/RETRÈ.
+    // Lè yon reket ap trete, veru a bloke tout nouvo tantativ jiskaske
+    // premye a fini (siksè oswa echèk) — konsa yon menm depo/retrè pa ka
+    // pati 2 fwa pou yon sèl klik/reket.
+    let natCashEnTretman = false;
+
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        const themeBtn = document.getElementById('theme-btn');
+        if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
     }
-};
-        let verifBtnLock = false;
-        window.mandeVerifikasyonMaten = async function() {
-            if (verifBtnLock) return;
-            let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
-            let g = parseFloat(document.getElementById('fon-gro').value) || 0;
-            let n = parseFloat(document.getElementById('fon-nat').value) || 0;
 
-            verifBtnLock = true;
-            const btn = document.getElementById('btn-mande-verif');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap voye..."; }
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const themeBtn = document.getElementById('theme-btn');
+        if (currentTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            if (themeBtn) themeBtn.innerText = "☀️ Lajounen";
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            if (themeBtn) themeBtn.innerText = "🌙 Lannwit";
+        }
+    }
 
-            try {
-                await update(appRef, {
-                    mandeVerifikasyon: true,
-                    adminFonDeKes: { detay: f, gwo: g, nat: n },
-                    stokBwasonFrijidè: f,
-                    stokVenteEnGro: g,
-                    kobfiziknatcash: n,
-                    kachFizikBaz: n,
+    // Kalkile kach fizik an tan reyèl apati yon lis tranzaksyon + yon baz done espesifik.
+    // Aksepte baz/bazTan an paramèt pou l ka itilize AVAN yon transaksyon Firebase konplete
+    // (olye li konte sou varyab modil ki ka demode pandan yon konkirans).
+    function kalkileKachFizikTanReyèlSouLis(lis, baz = kachFizikBaz, bazTan = kachFizikBazTan) {
+        let totalDepo = 0;
+        let totalRetre = 0;
+        lis.forEach(t => {
+            if ((t.timestamp || 0) > bazTan) {
+                if (t.tip === 'depo') totalDepo += (t.montan || 0);
+                else if (t.tip === 'retre') totalRetre += (t.montan || 0);
+            }
+        });
+        return baz + totalDepo - totalRetre;
+    }
+
+    function kalkileKachFizikTanReyèl() {
+        return kalkileKachFizikTanReyèlSouLis(lisTranzaksyon);
+    }
+
+    function kreyeTranzaksyon(mesaj, montan, tip, komisyon, estati = null) {
+        let id = "t_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        let kounye = new Date();
+        let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
+        let jou = String(kounye.getDate()).padStart(2, '0');
+        let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
+        let t = {
+            id: id,
+            mesaj: mesaj,
+            montan: montan,
+            tip: tip,
+            komisyon: komisyon,
+            tan: kounye.toLocaleTimeString(),
+            dat: datFòma,
+            timestamp: Date.now()
+        };
+        if (estati) t.estati = estati;
+        return t;
+    }
+
+    // ===================================================================
+    // FONKSYON KLE — TRANZAKSYON ATOMIK (FIKS #1: KONKIRANS)
+    // ===================================================================
+    // Olye li li done a yon fwa (onValue), kalkile chanjman an lokalman,
+    // epi ekri tout bagay ankò (sa ki ka efase travay yon lòt moun ki
+    // te fè yon aksyon apeprè an menm tan), fonksyon sa a itilize
+    // runTransaction() Firebase. Firebase li done ki REYÈLMAN la sou
+    // sèvè a nan moman ekriti a, epi si de moun ap ekri an menm tan,
+    // li reyeseye otomatikman ak done ki pi fre a. Konsa okenn
+    // tranzaksyon pa ka "pèdi" akoz yon lòt tranzaksyon ki fèt anvan l.
+    //
+    // `mutator(eta)` resevwa yon objè `eta` ak done aktyèl yo (soti
+    // dirèkteman nan sèvè a) epi li ka modifye yo dirèkteman.
+    // Si `mutator` retounen `false`, tranzaksyon an anile san anyen pa
+    // chanje (itil pou validasyon, tankou "pa gen ase balans").
+ async function ekriTranzaksyonAtomik(mutator) {
+    try {
+        const { committed } = await runTransaction(natcashRef, (currentData) => {
+            if (currentData === null) {
+                currentData = {
+                    natcashCardBalance: 0,
+                    kobfiziknatcash: 0,
+                    stokVenteEnGro: 0,
+                    accumulatedCommission: 0,
+                    totalKomisyonDepo: 0,
+                    totalKomisyonRetre: 0,
+                    lisTranzaksyon: {},
+                    kachFizikBaz: 0,
                     kachFizikBazTan: Date.now(),
-                    physicalCashBalance: f + g + n,
-                    verifiedSections: { bwason: false, natcash: false },
-                    kontestasyonKès: null,
-                    clotureAveg: null
-                });
-                alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
-            } catch (err) {
-                console.error("Erè mande verifikasyon maten:", err);
-                alert("⚠️ Pwoblèm koneksyon — lòd la pa t voye. Tanpri eseye ankò.");
-            } finally {
-                verifBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "VOYE LÒD VERIFIKASYON"; }
-            }
-        };
-
-        let retireAdminBtnLock = false;
-        window.retireKòbAdmin = async function() {
-            if (retireAdminBtnLock) return;
-            let kèsChwazi = document.getElementById('select-retre-kes').value;
-            let montan = parseFloat(document.getElementById('input-retre-montan').value);
-            let motif = document.getElementById('input-retre-motive').value.trim();
-
-            if (isNaN(montan) || montan <= 0) { alert("⚠️ Antre yon montan valab!"); return; }
-            if (!motif) { alert("⚠️ Tanpri ekri yon rezon pou retrè a!"); return; }
-
-            retireAdminBtnLock = true;
-            const btn = document.getElementById('btn-retire-admin');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
-
-            let echèk = null;
-
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (currentData === null) {
-                        echèk = "⚠️ Pa gen done nan sistèm nan pou kounye a.";
-                        return;
-                    }
-
-                    if (kèsChwazi === 'kobfiziknatcash') {
-                        let lis = currentData.lisTranzaksyon ? Object.values(currentData.lisTranzaksyon) : [];
-                        lis.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                        let baz = currentData.kachFizikBaz ?? 0;
-                        let bazTan = currentData.kachFizikBazTan ?? 0;
-
-                        let kachAktyèl = baz;
-                        lis.forEach(t => {
-                            if ((t.timestamp || 0) > bazTan) {
-                                if (t.tip === 'depo') kachAktyèl += (t.montan || 0);
-                                else if (t.tip === 'retre') kachAktyèl -= (t.montan || 0);
-                            }
-                        });
-
-                        if (kachAktyèl < montan) {
-                            echèk = `❌ Pa gen ase kòb nan NatCash Kach! Sèlman ${kachAktyèl.toFixed(2)} HTG disponib.`;
-                            return;
-                        }
-
-                        let nouvoBaz = kachAktyèl - montan;
-                        let nouvelTan = Date.now();
-
-                        let kounye = new Date();
-                        let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
-                        let jou = String(kounye.getDate()).padStart(2, '0');
-                        let datFòma = `${kounye.getFullYear()}-${mwa}-${jou}`;
-                        lis.unshift({
-                            id: "t_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
-                            mesaj: `ADMIN: Retrè ${montan} HTG nan NatCash Kach — Rezon: ${motif}`,
-                            montan: 0,
-                            tip: 'sistèm',
-                            komisyon: 0,
-                            tan: kounye.toLocaleTimeString(),
-                            dat: datFòma,
-                            timestamp: Date.now()
-                        });
-
-                        let tranzaksyonObj = {};
-                        lis.forEach(t => { tranzaksyonObj[t.id] = t; });
-
-                        currentData.kachFizikBaz = nouvoBaz;
-                        currentData.kachFizikBazTan = nouvelTan;
-                        currentData.kobfiziknatcash = nouvoBaz;
-                        currentData.lisTranzaksyon = tranzaksyonObj;
-                        return currentData;
-
-                    } else {
-                        let balansAktyèl = currentData[kèsChwazi] ?? 0;
-                        if (balansAktyèl < montan) {
-                            echèk = `❌ Pa gen ase kòb nan kès sa a! Sèlman ${balansAktyèl.toFixed(2)} HTG disponib.`;
-                            return;
-                        }
-                        currentData[kèsChwazi] = balansAktyèl - montan;
-                        return currentData;
-                    }
-                });
-
-                if (echèk) {
-                    alert(echèk);
-                    return;
-                }
-                if (committed) {
-                    alert(`✅ Retrè ${montan.toFixed(2)} HTG valide. Rezon: ${motif}`);
-                    document.getElementById('input-retre-montan').value = '';
-                    document.getElementById('input-retre-motive').value = '';
-                }
-            } catch (err) {
-                console.error("Erè tranzaksyon retrè admin:", err);
-                alert("⚠️ Pwoblèm koneksyon — retrè a pa t sove. Tanpri eseye ankò.");
-            } finally {
-                retireAdminBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "VALIDÈ RETRÈ SA A"; }
-            }
-        };
-
-let ajouteEstokBtnLock = false;
-window.ajouteEstokAdmin = async function() {
-    if (ajouteEstokBtnLock) return;
-    let pId = document.getElementById('select-pwodwi-estok').value;
-    let inite = document.getElementById('select-inite-estok').value;
-    let inputKantite = document.getElementById('input-kantite-bwat');
-    let kantite = parseFloat(inputKantite.value);
-
-    if (!pId || isNaN(kantite) || kantite <= 0) {
-        alert("Antre yon kantite valab!");
-        return;
-    }
-
-    let grennPouAjoute = 0;
-    if (inite === "kes") {
-        grennPouAjoute = kantite * 24;
-    } else if (inite === "demi") {
-        grennPouAjoute = kantite * 12;
-    } else if (inite === "grenn") {
-        grennPouAjoute = kantite;
-    }
-
-    ajouteEstokBtnLock = true;
-    const btn = document.getElementById('btn-ajoute-estok');
-    if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
-
-    let echèk = null;
-    let nonPwodwi = "";
-
-    try {
-        const { committed } = await runTransaction(appRef, (currentData) => {
-            echèk = null;
-            if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                return;
+                    mandeVerifikasyon: false,
+                    kontestasyonKès: null
+                };
             }
 
-            let p = currentData.inventory[pId];
-            nonPwodwi = p.name;
-            p.stockGrenn = (p.stockGrenn ?? 0) + grennPouAjoute;
-            currentData.inventory[pId] = p;
+            let lis = currentData.lisTranzaksyon ? Object.values(currentData.lisTranzaksyon) : [];
+            lis.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            let eta = {
+                natcashCardBalance: currentData.natcashCardBalance ?? 0,
+                stokVenteEnGro: currentData.stokVenteEnGro ?? 0,
+                accumulatedCommission: currentData.accumulatedCommission ?? 0,
+                totalKomisyonDepo: currentData.totalKomisyonDepo ?? 0,
+                totalKomisyonRetre: currentData.totalKomisyonRetre ?? 0,
+                kachFizikBaz: currentData.kachFizikBaz ?? 0,
+                kachFizikBazTan: currentData.kachFizikBazTan ?? 0,
+                lisTranzaksyon: lis
+            };
+
+            let ok = mutator(eta);
+            if (ok === false) return undefined;
+
+            let tranzaksyonObj = {};
+            eta.lisTranzaksyon.forEach(t => { tranzaksyonObj[t.id] = t; });
+
+            // 🔒 FIKS: modifye currentData DIRÈKTEMAN olye de bati yon nouvo
+            // objè — konsa TOUT lòt chan (inventory, benefisDetay, benefisGro,
+            // stokBwasonFrijidè, lisTranzaksyonDetay, logsAnGwo, adminFonDeKes,
+            // elt.) rete entak.
+            currentData.natcashCardBalance = eta.natcashCardBalance;
+            currentData.kobfiziknatcash = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+            currentData.stokVenteEnGro = eta.stokVenteEnGro;
+            currentData.accumulatedCommission = eta.accumulatedCommission;
+            currentData.totalKomisyonDepo = eta.totalKomisyonDepo;
+            currentData.totalKomisyonRetre = eta.totalKomisyonRetre;
+            currentData.lisTranzaksyon = tranzaksyonObj;
+            currentData.kachFizikBaz = eta.kachFizikBaz;
+            currentData.kachFizikBazTan = eta.kachFizikBazTan;
+
             return currentData;
         });
 
-        if (echèk) {
-            alert(echèk);
+        return committed;
+    } catch (err) {
+        console.error("Erè tranzaksyon Firebase:", err);
+        alert("⚠️ Pwoblèm koneksyon — tranzaksyon an pa t sove. Tanpri verifye entènèt ou epi eseye ankò.");
+        return false;
+    }
+}
+
+    onValue(natcashRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            natcashCardBalance = data.natcashCardBalance ?? 0.00;
+            stokBwasonFrijidè = data.stokBwasonFrijidè ?? 0.00;
+            stokVenteEnGro = data.stokVenteEnGro ?? 0.00;
+            accumulatedCommission = data.accumulatedCommission ?? 0.00;
+            totalKomisyonDepo = data.totalKomisyonDepo ?? 0.00;
+            totalKomisyonRetre = data.totalKomisyonRetre ?? 0.00;
+
+            if (data.lisTranzaksyon) {
+                lisTranzaksyon = Object.values(data.lisTranzaksyon).sort((a, b) => b.timestamp - a.timestamp);
+            } else {
+                lisTranzaksyon = [];
+            }
+
+            if (data.kachFizikBaz === undefined) {
+                kachFizikBaz = data.kobfiziknatcash ?? 0.00;
+                kachFizikBazTan = Date.now();
+                update(natcashRef, { kachFizikBaz: kachFizikBaz, kachFizikBazTan: kachFizikBazTan });
+            } else {
+                kachFizikBaz = data.kachFizikBaz;
+                kachFizikBazTan = data.kachFizikBazTan ?? 0;
+            }
+
+            if (data.mandeVerifikasyon === true) {
+                kobfiziknatcash = data.kobfiziknatcash ?? 0.00;
+                if (document.getElementById('verification-popup')) {
+                    document.getElementById('verification-popup').style.display = 'flex';
+                    const msgPopup = document.getElementById('modal-msg');
+                    if (msgPopup) {
+                        msgPopup.innerText = `Èske ou dakò ou jwenn ${kobfiziknatcash.toLocaleString('en-US')} HTG nan kès NatCash la?`;
+                    }
+                }
+            } else {
+                kobfiziknatcash = kalkileKachFizikTanReyèl();
+            }
+        } else {
+            // Baz done a vid — inisyalize l ak yon transaksyon "vid" ki jis
+            // konfime estrikti default la, san pran risk ekrase lòt moun.
+            ekriTranzaksyonAtomik(() => true);
+        }
+        updateNatCashDisplays();
+        aficheIstorikEkran();
+    });
+
+    function jwennPwochenSètèA() {
+        let kounye = new Date();
+        let demen = new Date(kounye);
+        demen.setDate(kounye.getDate() + 1);
+        demen.setHours(7, 0, 0, 0);
+        return demen;
+    }
+
+    function updateNatCashDisplays() {
+        let cardDisp = document.getElementById('vandes-natcash-display');
+        let cashDisp = document.getElementById('vandes-cash-display');
+        let stokBwDisp = document.getElementById('kes-gro-display');
+
+        if (cardDisp) {
+            cardDisp.innerText = natcashCardBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+        }
+        if (cashDisp) {
+            cashDisp.innerText = kobfiziknatcash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+        }
+        if (stokBwDisp) {
+            stokBwDisp.innerText = stokVenteEnGro.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " HTG";
+        }
+    }
+
+    // Bay dat jodi a nan menm fòma ISO (YYYY-MM-DD) ki itilize nan chak
+    // tranzaksyon (`t.dat`), pou n ka konpare yo dirèkteman san erè fòma.
+    function jodiaDatISO() {
+        let kounye = new Date();
+        let mwa = String(kounye.getMonth() + 1).padStart(2, '0');
+        let jou = String(kounye.getDate()).padStart(2, '0');
+        return `${kounye.getFullYear()}-${mwa}-${jou}`;
+    }
+
+    function aficheIstorikEkran() {
+        const logDiv = document.getElementById('pos-nat-logs');
+        if (!logDiv) return;
+
+        // FIKS: sèlman montre tranzaksyon JODI A nan ti fenèt istorik POS la
+        // (tout lòt istorik la disponib nan Admin ak filtè dat la).
+        let jodiaDat = jodiaDatISO();
+        let istorikJodia = lisTranzaksyon.filter(t => t.dat === jodiaDat);
+
+        if (istorikJodia.length === 0) {
+            logDiv.innerHTML = "Pa gen tranzaksyon jodi a...";
             return;
         }
-        if (committed) {
-            alert(`Siksè! Nouvo estok pou ${nonPwodwi.toUpperCase()} la sove nan Depo a.`);
-            inputKantite.value = '';
-        }
-    } catch (err) {
-        console.error("Erè tranzaksyon ajoute estòk:", err);
-        alert("⚠️ Pwoblèm koneksyon — ajout la pa t sove. Tanpri eseye ankò.");
-    } finally {
-        ajouteEstokBtnLock = false;
-        if (btn) { btn.disabled = false; btn.innerText = "+ AJOUTE"; }
+
+        let htmlKontni = "";
+        istorikJodia.forEach(t => {
+            let ikòn = t.tip === 'depo' ? '📥' : t.tip === 'retre' ? '📤' : t.tip === 'depo_berli' ? '👤' : t.tip === 'komisyon_manyèl' ? '🪙' : '⚙️';
+            let titTip = t.tip === 'sistèm' ? 'SISTÈM' : t.tip === 'depo_berli' ? 'BERLI' : t.tip === 'komisyon_manyèl' ? 'KOMISYON' : t.tip.toUpperCase();
+
+            // Estati pou BERLI/KOMISYON: an_atant (⏳ jòn), kontete (🔴 wouj, klikab pou korije), valide (nòmal)
+            let estatiTag = "";
+            let stil = "cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; transition: background 0.2s;";
+            let onclickAksyon = `manijeTranzaksyon('${t.id}')`;
+
+            if (t.tip === 'depo_berli' || t.tip === 'komisyon_manyèl') {
+                if (t.estati === 'an_atant') {
+                    estatiTag = ' <span style="color: var(--warning); font-weight:800;">⏳ AN ATANT VALIDASYON ADMIN</span>';
+                    stil = "padding: 4px; border-bottom: 1px dashed #ddd; color: var(--warning); font-weight:600;";
+                    onclickAksyon = ""; // pa klikab pandan l an atant
+                } else if (t.estati === 'kontete') {
+                    estatiTag = ' <span style="color: var(--danger); font-weight:800;">🔴 REJTE — KLIKE POU KORIJE</span>';
+                    stil = "cursor: pointer; padding: 4px; border-bottom: 1px dashed #ddd; color: var(--danger); font-weight:600;";
+                    onclickAksyon = `korijeKomisyonRejte('${t.id}')`;
+                }
+            }
+
+            let onclickAttr = onclickAksyon ? `onclick="${onclickAksyon}"` : "";
+            htmlKontni += `<div ${onclickAttr} style="${stil}" onmouseover="this.style.backgroundColor='#eaeaea'" onmouseout="this.style.backgroundColor='transparent'">
+                ⏰ ${t.tan} - ${ikòn} <strong>${titTip}:</strong> ${t.mesaj}${estatiTag}
+            </div>`;
+        });
+
+        logDiv.innerHTML = htmlKontni;
     }
-};
 
-        let transfereFrizeBtnLock = false;
-        window.transfereNanFrizerAdmin = async function() {
-            if (transfereFrizeBtnLock) return;
-            let pId = document.getElementById('select-pwodwi-transfere').value;
-            let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere').value);
+    // ===================================================================
+    // DEPO / RETRÈ NATCASH
+    // ===================================================================
+    async function processNatCash(type) {
+        // 🔒 FIKS SEKIRITE: si yon reket DEPO/RETRÈ deja ap trete, bloke
+        // nouvo tantativ (doub-klik, doub-tap, klik rapid) pou evite 2
+        // tranzaksyon pati pou yon sèl aksyon vandè a.
+        if (natCashEnTretman) {
+            return;
+        }
 
-            if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
+        const amountInput = document.getElementById('nat-amount');
+        if (!amountInput) return;
 
-            let grennPouTransfere = kantiteDemiKes * 12;
-            transfereFrizeBtnLock = true;
-            const btn = document.getElementById('btn-transfere-frize');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
+        let montan = parseFloat(amountInput.value);
+        if (isNaN(montan) || montan <= 0) {
+            alert("⚠️ Tanpri antre yon montan ki valab!");
+            return;
+        }
 
+        natCashEnTretman = true;
+        const btnDepo = document.getElementById('btn-depo');
+        const btnRetre = document.getElementById('btn-retre');
+        if (btnDepo) btnDepo.disabled = true;
+        if (btnRetre) btnRetre.disabled = true;
+
+        try {
             let echèk = null;
-
-            try {
-                const { committed } = await runTransaction(appRef, (currentData) => {
-                    echèk = null;
-                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
-                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
-                        return;
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                if (type === 'depo') {
+                    if (eta.natcashCardBalance < montan) {
+                        echèk = "❌ Ou pa gen ase balans sou kat la pou fè depo sa a!";
+                        return false;
                     }
-
-                    let p = currentData.inventory[pId];
-                    if ((p.stockGrenn ?? 0) < grennPouTransfere) {
-                        echèk = `Mank stòk nan Depo! Depo a gen sèlman ${p.stockGrenn ?? 0} grenn pou ${p.name}.`;
-                        return;
+                    eta.natcashCardBalance -= montan;
+                    eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan voye ${montan} HTG`, montan, 'depo', 0));
+                } else if (type === 'retre') {
+                    let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+                    if (kachAktyèl < montan) {
+                        echèk = "❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!";
+                        return false;
                     }
-
-                    p.stockGrenn = (p.stockGrenn ?? 0) - grennPouTransfere;
-                    p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) + grennPouTransfere;
-                    currentData.inventory[pId] = p;
-                    return currentData;
-                });
-
-                if (echèk) {
-                    alert(echèk);
-                    return;
+                    eta.natcashCardBalance += montan;
+                    eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan retire ${montan} HTG`, montan, 'retre', 0));
                 }
-                if (committed) {
-                    alert(`Siksè! Ou transfere ${kantiteDemiKes} Demi-Kès (${grennPouTransfere} grenn) nan Frizè a.`);
-                    document.getElementById('input-kantite-transfere').value = '';
-                }
-            } catch (err) {
-                console.error("Erè tranzaksyon transfè frizè:", err);
-                alert("⚠️ Pwoblèm koneksyon — transfè a pa t sove. Tanpri eseye ankò.");
-            } finally {
-                transfereFrizeBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "⚡ TRANSFÈRE"; }
+                return true;
+            });
+
+            if (echèk) {
+                alert(echèk);
+                return;
             }
-        };
-
-        function aficheEstatistik() {
-            let stats = lokalState.lavantKonte ?? {};
-            let container = document.getElementById('stats-container');
-            
-            let maxVant = Math.max(...Object.values(stats), 1); 
-            let html = "";
-
-            if (lokalState.inventory) {
-                Object.values(lokalState.inventory).forEach(p => {
-                    let kantiteVann = stats[p.id] ?? stats[p.name.toLowerCase()] ?? 0;
-                    let pousantaj = (kantiteVann / maxVant) * 100;
-
-                    if (kantiteVann > 0) {
-                        html += `
-                            <div class="stat-row">
-                                <div class="stat-label">${p.name}</div>
-                                <div class="stat-progress-bg">
-                                    <div class="stat-progress-fill" style="width: ${pousantaj}%;"></div>
-                                </div>
-                                <div class="stat-count">${kantiteVann}</div>
-                            </div>
-                        `;
-                    }
-                });
+            if (siksè) {
+                amountInput.value = '';
             }
-            container.innerHTML = html || "Pa gen vant ki fèt pou jounen an ankò.";
+        } finally {
+            natCashEnTretman = false;
+            if (btnDepo) btnDepo.disabled = false;
+            if (btnRetre) btnRetre.disabled = false;
+        }
+    }
+
+    // ===================================================================
+    // MODIFYE / SUPRIME YON TRANZAKSYON NAN ISTORIK LA
+    // ===================================================================
+    async function manijeTranzaksyon(id) {
+        let tranzaksyonAktyèl = lisTranzaksyon.find(item => item.id === id);
+        if (!tranzaksyonAktyèl) return;
+        if (tranzaksyonAktyèl.tip === 'sistèm' || tranzaksyonAktyèl.tip === 'depo_berli' || tranzaksyonAktyèl.tip === 'komisyon_manyèl') {
+            alert("❌ Ou pa ka modifye oswa suprime mesaj sa a.");
+            return;
         }
 
-        function ranpliIstorikEkran(datFiltre = "") {
-            let tGlaseBox = document.getElementById('log-ti-glase');
-            let enGroBox = document.getElementById('log-en-gro');
-            let natBox = document.getElementById('log-natcash');
+        let aksyon = prompt(`Opsyon pou tranzaksyon ${tranzaksyonAktyèl.tip.toUpperCase()} ki te fèt a ${tranzaksyonAktyèl.tan}:\n\nEkri "SUPRIME" pou w efase l.\nEkri "MODIFYE" pou w chanje montan an.`);
+        if (!aksyon) return;
 
-            if (lokalState.lisTranzaksyonDetay) {
-                let items = Object.values(lokalState.lisTranzaksyonDetay);
-                if (datFiltre) items = items.filter(i => i.dat === datFiltre);
-                tGlaseBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
-            } else { tGlaseBox.innerHTML = "Pa gen lavant..."; }
+        let echèk = null;
 
-            if (lokalState.logsAnGwo) {
-                if (typeof lokalState.logsAnGwo === "string") {
-                    enGroBox.innerHTML = lokalState.logsAnGwo || "Pa gen lavant...";
+        if (aksyon.toUpperCase() === "SUPRIME") {
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                let tIndex = eta.lisTranzaksyon.findIndex(item => item.id === id);
+                if (tIndex === -1) { echèk = "⚠️ Tranzaksyon an deja modifye oswa efase pa yon lòt moun."; return false; }
+                let t = eta.lisTranzaksyon[tIndex];
+
+                let tempCardBalance = eta.natcashCardBalance;
+                if (t.tip === 'depo') tempCardBalance += t.montan;
+                else if (t.tip === 'retre') tempCardBalance -= t.montan;
+                if (tempCardBalance < 0) {
+                    echèk = "❌ Aksyon anile! Modifikasyon sa a ap fè balans kat la vin negatif (" + tempCardBalance.toFixed(2) + " HTG).";
+                    return false;
+                }
+
+                let lisSimile = eta.lisTranzaksyon.filter((_, i) => i !== tIndex);
+                let kachSimile = kalkileKachFizikTanReyèlSouLis(lisSimile, eta.kachFizikBaz, eta.kachFizikBazTan);
+                if (kachSimile < 0) {
+                    echèk = "❌ Aksyon anile! Sipresyon sa a ap fè kach fizik la vin negatif (" + kachSimile.toFixed(2) + " HTG).";
+                    return false;
+                }
+
+                eta.natcashCardBalance = tempCardBalance;
+                eta.lisTranzaksyon = lisSimile;
+                return true;
+            });
+
+            if (echèk) alert(echèk);
+            else if (siksè) alert("Tranzaksyon an suprime ak siksè, balans yo retounen nan plas yo!");
+
+        } else if (aksyon.toUpperCase() === "MODIFYE") {
+            let nouvoMontanKòd = prompt(`Montan aktyèl la se ${tranzaksyonAktyèl.montan} HTG. Antre nouvo montan an:`);
+            let nouvoMontan = parseFloat(nouvoMontanKòd);
+            if (isNaN(nouvoMontan) || nouvoMontan <= 0) {
+                alert("⚠️ Nouvo montan an pa valab!");
+                return;
+            }
+
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                let tIndex = eta.lisTranzaksyon.findIndex(item => item.id === id);
+                if (tIndex === -1) { echèk = "⚠️ Tranzaksyon an deja modifye oswa efase pa yon lòt moun."; return false; }
+                let t = eta.lisTranzaksyon[tIndex];
+
+                let tempCardBalance = eta.natcashCardBalance;
+                if (t.tip === 'depo') { tempCardBalance += t.montan; tempCardBalance -= nouvoMontan; }
+                else if (t.tip === 'retre') { tempCardBalance -= t.montan; tempCardBalance += nouvoMontan; }
+                if (tempCardBalance < 0) {
+                    echèk = "❌ Aksyon anile! Modifikasyon sa a ap fè balans kat la vin negatif (" + tempCardBalance.toFixed(2) + " HTG).";
+                    return false;
+                }
+
+                let lisSimile = eta.lisTranzaksyon.map((item, i) => i === tIndex ? { ...item } : item);
+                let kachSimile = kalkileKachFizikTanReyèlSouLis(
+                    lisSimile.map((item, i) => i === tIndex ? { ...item, montan: nouvoMontan } : item),
+                    eta.kachFizikBaz, eta.kachFizikBazTan
+                );
+                if (kachSimile < 0) {
+                    echèk = "❌ Aksyon anile! Modifikasyon sa a ap fè kach fizik la vin negatif (" + kachSimile.toFixed(2) + " HTG).";
+                    return false;
+                }
+
+                eta.natcashCardBalance = tempCardBalance;
+                if (t.tip === 'depo') {
+                    lisSimile[tIndex].mesaj = `Kliyan voye ${nouvoMontan} HTG [Modifye]`;
+                } else if (t.tip === 'retre') {
+                    lisSimile[tIndex].mesaj = `Kliyan retire ${nouvoMontan} HTG [Modifye]`;
+                }
+                lisSimile[tIndex].montan = nouvoMontan;
+                eta.lisTranzaksyon = lisSimile;
+                return true;
+            });
+
+            if (echèk) alert(echèk);
+            else if (siksè) alert("Tranzaksyon an modifye ak siksè!");
+        }
+    }
+
+    // ===================================================================
+    // KORIJE YON KOMISYON/BERLI KI TE REJTE PA ADMIN (🔴)
+    // Vandè a klike sou mesaj wouj la, antre yon nouvo montan, epi nouvo
+    // montan an aplike TOUSUIT ankò sou balans kat la — tranzaksyon an
+    // retounen nan estati "an_atant" pou Admin ka valide/rejte l ankò.
+    // ===================================================================
+    async function korijeKomisyonRejte(id) {
+        let tranzaksyonAktyèl = lisTranzaksyon.find(item => item.id === id);
+        if (!tranzaksyonAktyèl) return;
+        if (tranzaksyonAktyèl.estati !== 'kontete') {
+            alert("❌ Tranzaksyon sa a pa nan estati rejte — ou pa ka korije l kounye a.");
+            return;
+        }
+
+        let nouvoMontanKòd = prompt(`Montan ki te rejte a se ${tranzaksyonAktyèl.montan} HTG.\nRezon rejè Admin: ${tranzaksyonAktyèl.rezonRejè ?? '(pa gen)'}\n\nAntre nouvo montan korije a:`);
+        if (!nouvoMontanKòd) return;
+        let nouvoMontan = parseFloat(nouvoMontanKòd);
+        if (isNaN(nouvoMontan) || nouvoMontan <= 0) {
+            alert("⚠️ Nouvo montan an pa valab!");
+            return;
+        }
+
+        let echèk = null;
+        const siksè = await ekriTranzaksyonAtomik((eta) => {
+            echèk = null;
+            let tIndex = eta.lisTranzaksyon.findIndex(item => item.id === id);
+            if (tIndex === -1) { echèk = "⚠️ Tranzaksyon an pa jwenn ankò."; return false; }
+            let t = eta.lisTranzaksyon[tIndex];
+            if (t.estati !== 'kontete') { echèk = "⚠️ Tranzaksyon sa a deja chanje estati pa yon lòt aksyon."; return false; }
+
+            let nouvoBalansKat = eta.natcashCardBalance;
+            let mesajBaz = "";
+
+            if (t.tip === 'depo_berli') {
+                // BERLI korije: menm jan ak soumisyon orijinal la, li fè balans lan DESANN.
+                if (nouvoBalansKat < nouvoMontan) {
+                    echèk = `❌ Balans kat la (${nouvoBalansKat.toFixed(2)} HTG) pa ase pou korije BERLI sa a pou ${nouvoMontan} HTG!`;
+                    return false;
+                }
+                nouvoBalansKat -= nouvoMontan;
+                mesajBaz = `BERLI: Depo Mèt Biznis la pou ${nouvoMontan} HTG (pa afekte kach fizik ou). [Korije]`;
+            } else if (t.tip === 'komisyon_manyèl') {
+                // KOMISYON korije: menm jan ak soumisyon orijinal la, li fè balans lan MONTE.
+                nouvoBalansKat += nouvoMontan;
+                eta.accumulatedCommission += nouvoMontan;
+                mesajBaz = `KOMISYON: Komisyon manyèl anrejistre pou ${nouvoMontan} HTG (ajoute nan balans kat la). [Korije]`;
+            }
+
+            t.montan = nouvoMontan;
+            t.mesaj = mesajBaz;
+            t.estati = 'an_atant';
+            t.rezonRejè = null;
+            eta.natcashCardBalance = nouvoBalansKat;
+            eta.lisTranzaksyon[tIndex] = t;
+            return true;
+        });
+
+        if (echèk) alert(echèk);
+        else if (siksè) alert(`✅ Korije! ${nouvoMontan.toFixed(2)} HTG aplike ankò sou balans kat la. Tranzaksyon an voye bay Admin pou validasyon ankò.`);
+    }
+
+    // ===================================================================
+    // JESYON KÒB FIZIK (AJOUTE nan Stok BW / RETIRE nan kès la)
+    // ===================================================================
+    async function manijeKòbFizikKach() {
+        let chwa = prompt(`Manadjman Kòb Fizik (NatCash Kach):\n\nEkri "AJOUTE" pou pran kòb nan Stok Vann en Gro (BW) la mete la.\nEkri "RETIRE" pou w pran lajan nan kès la.`);
+        if (!chwa) return;
+
+        let echèk = null;
+
+        if (chwa.toUpperCase() === "AJOUTE") {
+            let konfimasyon = confirm("Èske ou vle pran kach nan STOK VANN EN GRO A (BW) pou mete dans kòb kach NatCash la?");
+            if (!konfimasyon) return;
+
+            let montanKòd = prompt(`Stok BW aktyèl: ${stokVenteEnGro} HTG.\nAntre montan w ap pran ladan l lan:`);
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) { alert("⚠️ Montan sa a pa valab!"); return; }
+
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                if (eta.stokVenteEnGro < montan) {
+                    echèk = `❌ Pa gen ase kòb nan Stok Vann en Gro (BW)! Ou sèlman gen ${eta.stokVenteEnGro} HTG.`;
+                    return false;
+                }
+                eta.stokVenteEnGro -= montan;
+                let kachAvan = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+                eta.kachFizikBaz = kachAvan + montan;
+                eta.kachFizikBazTan = Date.now();
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Vandè a pran ${montan} HTG nan Kès BW pou mete l nan Kès NatCash.`, 0, 'sistèm', 0));
+                return true;
+            });
+
+            if (echèk) alert(echèk);
+            else if (siksè) alert(`Siksè! ${montan.toFixed(2)} HTG pran nan Stok BW epi li ajoute nan Kòb Fizik NatCash la.`);
+
+        } else if (chwa.toUpperCase() === "RETIRE") {
+            let montanKòd = prompt("Antre montan w ap retire nan kès fizik la:");
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) { alert("⚠️ Montan sa a pa valab!"); return; }
+
+            let destinasyon = prompt("Ki kote lajan sa a ap ale? (Pa egzanp: BW, Depans, elatriye):");
+            if (!destinasyon) destinasyon = "BW";
+
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+                if (kachAktyèl < montan) {
+                    echèk = "❌ Pa gen ase kòb fizik pou w retire montan sa a!";
+                    return false;
+                }
+                let mesajLog;
+                if (destinasyon.toUpperCase() === "BW") {
+                    eta.stokVenteEnGro += montan;
+                    mesajLog = `Vandè a pran ${montan} HTG nan Kès NatCash pou mete l nan Kès BW.`;
                 } else {
-                    let items = Object.values(lokalState.logsAnGwo);
-                    if (datFiltre) items = items.filter(i => i.dat === datFiltre);
-                    enGroBox.innerHTML = items.map(i => `<div class="log-item">⏰ ${i.tan} - ${i.mesaj}</div>`).join('') || "Pa gen lavant...";
+                    mesajLog = `Vandè a retire ${montan} HTG nan Kès NatCash — Destinasyon: ${destinasyon.toUpperCase()}.`;
                 }
-            } else { enGroBox.innerHTML = "Pa gen lavant..."; }
+                eta.kachFizikBaz = kachAktyèl - montan;
+                eta.kachFizikBazTan = Date.now();
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(mesajLog, 0, 'sistèm', 0));
+                return true;
+            });
 
-            if (lokalState.lisTranzaksyon) {
-                let items = Object.values(lokalState.lisTranzaksyon).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-                if (datFiltre) items = items.filter(i => i.dat === datFiltre);
-                natBox.innerHTML = items.map(i => {
-                    let stil = "";
-                    let prefiks = "";
-                    if ((i.tip === 'depo_berli' || i.tip === 'komisyon_manyèl')) {
-                        if (i.estati === 'an_atant') { stil = 'color: var(--warning); font-weight:700;'; prefiks = '⏳ '; }
-                        else if (i.estati === 'kontete') { stil = 'color: var(--danger); font-weight:700;'; prefiks = '🔴 '; }
-                    }
-                    return `<div class="log-item" style="${stil}">⏰ ${i.tan} - ${prefiks}${i.mesaj}</div>`;
-                }).join('') || "Pa gen tranzaksyon...";
-            } else { natBox.innerHTML = "Pa gen tranzaksyon..."; }
+            if (echèk) alert(echèk);
+            else if (siksè) alert(`Ou retire ${montan.toFixed(2)} HTG nan Kòb Fizik la. Direksyon: ${destinasyon.toUpperCase()}. Sove pou kès admin an pita!`);
+        }
+    }
+
+    // ===================================================================
+    // BALANS KAT LA — BERLI (depo mèt biznis) / KOMISYON manyèl
+    // Balans lan chanje TOUSUIT lè vandè a soumèt (menm jan l te fè deja).
+    // Tranzaksyon an antre nan estati "an_atant" — Admin ap valide oswa
+    // rejte l apre nan Dashboard Admin an. Si Admin rejte, balans lan
+    // ajiste otomatikman, epi vandè a ka korije l isit la (mesaj wouj).
+    // ===================================================================
+    async function manijeBalansKat() {
+        let chwa = prompt(`Aksyon sou Balans Kat la:\n\nEkri "BERLI" pou anrejistre yon Depo Mèt Biznis la (li pa la fizikman, sa pa afekte kach ou).\nEkri "KOMISYON" pou ajoute yon Komisyon sou balans kat la.`);
+        if (!chwa) return;
+
+        let echèk = null;
+
+        if (chwa.toUpperCase() === "BERLI") {
+            let montanKòd = prompt("Antre montan Depo Berli a (HTG):");
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) { alert("⚠️ Montan sa a pa valab!"); return; }
+
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                if (eta.natcashCardBalance < montan) {
+                    echèk = `❌ Balans kat la (${eta.natcashCardBalance.toFixed(2)} HTG) pa ase pou depo sa a!`;
+                    return false;
+                }
+                eta.natcashCardBalance -= montan;
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`BERLI: Depo Mèt Biznis la pou ${montan} HTG (pa afekte kach fizik ou).`, montan, 'depo_berli', 0, 'an_atant'));
+                return true;
+            });
+
+            if (echèk) alert(echèk);
+            else if (siksè) alert(`✅ Depo Berli anrejistre: ${montan.toFixed(2)} HTG retire nan balans kat la. Li an atant validasyon Admin.`);
+
+        } else if (chwa.toUpperCase() === "KOMISYON") {
+            let montanKòd = prompt("Antre montan Komisyon an (HTG):");
+            let montan = parseFloat(montanKòd);
+            if (isNaN(montan) || montan <= 0) { alert("⚠️ Montan sa a pa valab!"); return; }
+
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                eta.accumulatedCommission += montan;
+                eta.natcashCardBalance += montan; // komisyon a ajoute nan balans kat la
+                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`KOMISYON: Komisyon manyèl anrejistre pou ${montan} HTG (ajoute nan balans kat la).`, montan, 'komisyon_manyèl', 0, 'an_atant'));
+                return true;
+            });
+
+            if (siksè) alert(`✅ Komisyon anrejistre: ${montan.toFixed(2)} HTG ajoute nan balans kat la. Li an atant validasyon Admin.`);
+        }
+    }
+
+    // ===================================================================
+    // VERIFIKASYON KÈS (modal)
+    // ===================================================================
+    async function acceptFonDeKes() {
+        document.getElementById('verification-popup').style.display = 'none';
+
+        await ekriTranzaksyonAtomik((eta) => {
+            let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+            eta.kachFizikBaz = kachAktyèl;
+            eta.kachFizikBazTan = Date.now();
+            return true;
+        });
+
+        await update(natcashRef, { mandeVerifikasyon: false });
+        alert("Mèsi! Ou valide kès la ak siksè.");
+    }
+
+    function showDisputeInput() {
+        document.getElementById('modal-initial-btns').style.display = 'none';
+        document.getElementById('dispute-section').style.display = 'block';
+    }
+
+    async function submitDispute() {
+        let disputedAmt = document.getElementById('disputed-amount-input').value;
+        if (!disputedAmt || parseFloat(disputedAmt) < 0) {
+            alert("Tanpri antre yon kantite kòb ki valab.");
+            return;
         }
 
-        window.filtreIstorik = function() {
-            let datChwazi = document.getElementById('filtre-dat').value;
-            if (!datChwazi) { ranpliIstorikEkran(); return; }
-            ranpliIstorikEkran(datChwazi);
-        };
+        let montanDeklare = parseFloat(disputedAmt);
+        document.getElementById('verification-popup').style.display = 'none';
 
-        let femenJounenBtnLock = false;
-        window.femenJounenOfisyel = async function() {
-            if (femenJounenBtnLock) return;
-            if (!confirm("Èske ou sèten ou vle fèmen jounen an ofisyèlman? Sa ap reset kontè benefis ak lavant yo!")) return;
+        let kobSistemAvan = null;
+        await ekriTranzaksyonAtomik((eta) => {
+            kobSistemAvan = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+            eta.kachFizikBaz = montanDeklare;
+            eta.kachFizikBazTan = Date.now();
+            return true;
+        });
 
-            femenJounenBtnLock = true;
-            const btn = document.getElementById('btn-femen-jounen');
-            if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
-
-            try {
-                let achivRef = ref(db, "achivLavant");
-                let nouvoRapò = {
-                    dat: new Date().toLocaleDateString(),
-                    benefisPwofi: (lokalState.benefisDetay ?? 0) + (lokalState.benefisGro ?? 0),
-                    komisyonNatCash: (lokalState.totalKomisyonDepo ?? 0) + (lokalState.totalKomisyonRetre ?? 0),
-                    kèsFèmtiFrijidè: lokalState.stokBwasonFrijidè ?? 0,
-                    kèsFèmtiGro: lokalState.stokVenteEnGro ?? 0,
-                    kèsFèmtiNatCash: lokalState.kobfiziknatcash ?? 0
-                };
-
-                await push(achivRef, nouvoRapò);
-
-                let resetLavantKonte = {};
-                if (lokalState.inventory) {
-                    Object.keys(lokalState.inventory).forEach(id => {
-                        resetLavantKonte[id] = 0;
-                    });
-                }
-
-                await update(appRef, {
-                    benefisDetay: 0,
-                    benefisGro: 0,
-                    totalKomisyonDepo: 0,
-                    totalKomisyonRetre: 0,
-                    lavantKonte: resetLavantKonte,
-                    clotureAveg: null,
-                    kontestasyonKès: null
-                });
-
-                alert("🏁 Jounen an fèmen epi achive avèk siksè! Tout bagay pròp pou demen.");
-            } catch (err) {
-                console.error("Erè fèmen jounen:", err);
-                alert("⚠️ Pwoblèm koneksyon — fèmti jounen an pa t konplete. Tanpri eseye ankò.");
-            } finally {
-                femenJounenBtnLock = false;
-                if (btn) { btn.disabled = false; btn.innerText = "FÈMEN JOUNEN AN 🏁"; }
+        await update(natcashRef, {
+            mandeVerifikasyon: false,
+            kontestasyonKès: {
+                dat: new Date().toLocaleString(),
+                kòbSistèm: kobSistemAvan,
+                kòbMounNanWè: montanDeklare
             }
-        };
+        });
 
-        window.checkPin = function() {
-            let pin = document.getElementById('admin-pin').value;
-            if (pin === "4320") {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-            } else {
-                alert("❌ Kòd Sekirite a Enkorèk! Eseye ankò.");
-                document.getElementById('admin-pin').value = '';
-            }
-        };
-    </script>
+        alert(`Kontestasyon voye bay Admin! Ou deklare ou jwenn: ${montanDeklare} HTG olye de ${kobSistemAvan} HTG.`);
+    }
+
+    window.processNatCash = processNatCash;
+    window.manijeTranzaksyon = manijeTranzaksyon;
+    window.korijeKomisyonRejte = korijeKomisyonRejte;
+    window.manijeKòbFizikKach = manijeKòbFizikKach;
+    window.manijeBalansKat = manijeBalansKat;
+    window.acceptFonDeKes = acceptFonDeKes;
+    window.showDisputeInput = showDisputeInput;
+    window.submitDispute = submitDispute;
+    window.toggleTheme = toggleTheme;
+
+    updateNatCashDisplays();
+    aficheIstorikEkran();
+</script>
 </body>
 </html>
