@@ -890,16 +890,19 @@
             });
         };
 
-        window.chajePriPwodwi = function() {
-            const sel = document.getElementById('select-modifye-pwodwi');
-            if (!sel) return;
-            const pId = sel.value;
-            if (!pId || !lokalState.inventory || !lokalState.inventory[pId]) return;
-            const p = lokalState.inventory[pId];
-            document.getElementById('input-modifye-detail').value = p.prices?.detail ?? '';
-            document.getElementById('input-modifye-demi').value = p.prices?.demi ?? '';
-            document.getElementById('input-modifye-kes').value = p.prices?.kes ?? '';
-        };
+    window.chajePriPwodwi = function() {
+        const sel = document.getElementById('select-modifye-pwodwi');
+        if (!sel) return;
+        const pId = sel.value;
+        if (!pId || !lokalState.inventory || !lokalState.inventory[pId]) return;
+        const p = lokalState.inventory[pId];
+        document.getElementById('input-modifye-detail').value = p.prices?.detail ?? '';
+        document.getElementById('input-modifye-demi').value = p.prices?.demi ?? '';
+        document.getElementById('input-modifye-kes').value = p.prices?.kes ?? '';
+        document.getElementById('input-modifye-grenn3').value = p.prices?.grenn3 ?? '';
+        document.getElementById('input-modifye-grenn6').value = p.prices?.grenn6 ?? '';
+        document.getElementById('input-modifye-grenn9').value = p.prices?.grenn9 ?? '';
+    };
 
         function renderBWdepotIstoriks() {
             renderListeBWdepot('pete-istorik', lokalState.lisBwasonPete, '🧨');
