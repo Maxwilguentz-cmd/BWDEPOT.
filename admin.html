@@ -152,6 +152,7 @@
         font-size: 14px; font-weight: 700; color: white; cursor: pointer; margin-top: 4px;
     }
     .btn:hover { filter: brightness(0.95); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
     .btn-primary { background-color: var(--primary); }
     .btn-primary:hover { background-color: var(--primary-hover); }
     .btn-success { background-color: var(--success); }
@@ -206,6 +207,7 @@
     background: var(--danger); color: white; font-weight: 700;
     cursor: pointer; white-space: nowrap;
 }
+.footer-zone button:disabled { opacity: 0.55; cursor: not-allowed; }
     .logs-tabbar::-webkit-scrollbar { height: 0; }
     .logs-tab {
         flex: 0 0 auto;
@@ -234,6 +236,48 @@
     fieldset { border: 1px solid var(--border-soft); border-radius: 12px; }
     legend { color: var(--text-muted); font-size: 12px; }
 
+    /* ===================== BWDEPOT DRAWER (mwatye ekran) ===================== */
+    .bwdepot-drawer-overlay {
+        display: none;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 4000;
+    }
+    .bwdepot-drawer-overlay.active { display: block; }
+    .bwdepot-drawer {
+        position: fixed; top: 0; right: 0; height: 100%;
+        width: 50%;
+        max-width: 640px;
+        background: var(--bg-card);
+        box-shadow: -8px 0 30px rgba(0,0,0,0.2);
+        overflow-y: auto;
+        padding: 22px;
+        animation: slideInBWdepotDrawer 0.22s ease-out;
+    }
+    @keyframes slideInBWdepotDrawer { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    @media (max-width: 768px) {
+        .bwdepot-drawer { width: 94%; max-width: none; padding: 16px; }
+    }
+    .bwdepot-section { border: 1px solid var(--border-soft); border-radius: 14px; margin-bottom: 14px; overflow: hidden; }
+    .bwdepot-section-header {
+        padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between;
+        align-items: center; font-weight: 800; font-size: 14px; background: var(--bg-input);
+    }
+    .bwdepot-section-body { display: none; padding: 16px; border-top: 1px solid var(--border-soft); }
+    .bwdepot-section-body.open { display: block; }
+    .bwdepot-subtabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .bwdepot-subtab-btn {
+        flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+        background: var(--bg-input); color: var(--text-main); font-weight: 700; font-size: 12.5px; cursor: pointer;
+    }
+    .bwdepot-subtab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+    .bwdepot-list { max-height: 220px; overflow-y: auto; font-size: 12.5px; }
+
+    @media (min-width: 768px) {
+        .big-number { font-size: clamp(20px, 2.2vw, 26px); }
+        .logo { font-size: clamp(16px, 1.6vw, 19px); }
+    }
+
     @media (max-width: 640px) {
         body { padding: 12px; padding-top: 84px; }
         .header h1 { font-size: 20px; }
@@ -243,7 +287,7 @@
 <body>
     <header>
         <div class="header-container">
-            <div class="logo">📦 <span>BWdepot</span> Admin</div>
+            <button type="button" class="logo" style="background:none; border:none; padding:0; cursor:pointer;" onclick="openBWdepotDrawer()" title="Louvri Jesyon Rapid BWdepot">📦 <span>BWdepot</span> Admin</button>
             <nav>
                 <a href="index.html">🛒 Bwason</a>
                 <a href="natcash.html">🟢 NatCash</a>
@@ -295,7 +339,7 @@
                 <div class="panel-title" style="margin-top: 10px; margin-bottom: 5px; font-size: 12px;">MIZ AJOU BALANS KAT (RECHAJ)</div>
                 <div class="filter-container">
                     <input type="number" id="input-nat-balans" placeholder="Nouvo Balans Kat la" style="width: 100%; padding: 10px;">
-                    <button class="btn btn-warning" style="width: auto; padding: 10px 14px;" onclick="setNatCardBalance()">OK</button>
+                    <button class="btn btn-warning" id="btn-set-nat-balans" style="width: auto; padding: 10px 14px;" onclick="setNatCardBalance()">OK</button>
                 </div>
             </div>
 
@@ -361,7 +405,7 @@
                     <label>Fon NatCash Kach Fizik (HTG)</label>
                     <input type="number" id="fon-nat" placeholder="Eg: 10000">
                 </div>
-                <button class="btn btn-primary" onclick="mandeVerifikasyonMaten()">VOYE LÒD VERIFIKASYON</button>
+                <button class="btn btn-primary" id="btn-mande-verif" onclick="mandeVerifikasyonMaten()">VOYE LÒD VERIFIKASYON</button>
             </div>
 
             <!-- Retrè Fon Admin (Pansyon / Depans) -->
@@ -383,7 +427,7 @@
                     <label>Motif / Rezon Retrè a</label>
                     <input type="text" id="input-retre-motive" placeholder="Eg: Depans gaz, Achte glas...">
                 </div>
-                <button class="btn btn-danger" onclick="retireKòbAdmin()">VALIDÈ RETRÈ SA A</button>
+                <button class="btn btn-danger" id="btn-retire-admin" onclick="retireKòbAdmin()">VALIDÈ RETRÈ SA A</button>
             </div>
 
             <!-- Pwodiksyon / Antre ak Transfè Stock -->
@@ -403,7 +447,7 @@
                     </div>
                     <div class="filter-container">
                         <input type="number" id="input-kantite-bwat" placeholder="Kantite" style="flex:1; padding: 10px;">
-                        <button class="btn btn-success" style="width:auto; padding: 10px 15px;" onclick="ajouteEstokAdmin()">+ AJOUTE</button>
+                        <button class="btn btn-success" id="btn-ajoute-estok" style="width:auto; padding: 10px 15px;" onclick="ajouteEstokAdmin()">+ AJOUTE</button>
                     </div>
                 </div>
 
@@ -415,7 +459,7 @@
                     </div>
                     <div class="filter-container">
                         <input type="number" id="input-kantite-transfere" placeholder="Kantite Demi-Kès (12 gr)" style="flex:1; padding: 10px;">
-                        <button class="btn btn-purple" style="width:auto; padding: 10px 15px;" onclick="transfereNanFrizerAdmin()">⚡ TRANSFÈRE</button>
+                        <button class="btn btn-purple" id="btn-transfere-frize" style="width:auto; padding: 10px 15px;" onclick="transfereNanFrizerAdmin()">⚡ TRANSFÈRE</button>
                     </div>
                 </div>
 
@@ -468,7 +512,7 @@
                     </div>
                 </fieldset>
 
-                <button onclick="kreyeNouvoBwason()" class="btn btn-accent" style="margin-top: 16px;">💾 Kreye epi Sove Pwodwi a</button>
+                <button onclick="kreyeNouvoBwason()" id="btn-kreye-pwodwi" class="btn btn-accent" style="margin-top: 16px;">💾 Kreye epi Sove Pwodwi a</button>
             </div>
         </div>
 
@@ -535,8 +579,122 @@
         <h3>⚠️ Fèmen Jounen Ofisyèlman</h3>
         <p>Sa ap achive lavant jounen an epi reset kontè benefis yo. Pa ka anile.</p>
     </div>
-    <button onclick="femenJounenOfisyel()">FÈMEN JOUNEN AN 🏁</button>
+    <button id="btn-femen-jounen" onclick="femenJounenOfisyel()">FÈMEN JOUNEN AN 🏁</button>
 </div>
+
+        <!-- ===================== BWDEPOT DRAWER (mwatye ekran) ===================== -->
+        <div id="bwdepot-overlay" class="bwdepot-drawer-overlay" onclick="closeBWdepotDrawer()">
+            <div class="bwdepot-drawer" onclick="event.stopPropagation()">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <strong style="font-size:17px;">📦 BWdepot — Jesyon Rapid</strong>
+                    <span onclick="closeBWdepotDrawer()" style="cursor:pointer; font-size:24px; color:var(--text-muted);">&times;</span>
+                </div>
+
+                <!-- 1. BWASON PETE -->
+                <div class="bwdepot-section">
+                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-pete')">
+                        <span>🧨 Bwason Pete</span><span id="arrow-sec-pete">▾</span>
+                    </div>
+                    <div class="bwdepot-section-body" id="sec-pete">
+                        <div class="bwdepot-subtabs">
+                            <button type="button" class="bwdepot-subtab-btn active" data-sub="pete-istorik" onclick="switchBWdepotSubtab(this,'pete')">📜 Istorik</button>
+                            <button type="button" class="bwdepot-subtab-btn" data-sub="pete-ajoute" onclick="switchBWdepotSubtab(this,'pete')">➕ Ajoute</button>
+                        </div>
+                        <div id="pete-istorik" class="bwdepot-list"></div>
+                        <div id="pete-ajoute" style="display:none;">
+                            <div class="form-group">
+                                <label>Pwodwi</label>
+                                <select id="select-pete-pwodwi"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Kantite (grenn)</label>
+                                <input type="number" id="input-pete-kantite" placeholder="Kantite">
+                            </div>
+                            <button class="btn btn-danger" id="btn-ajoute-pete" onclick="ajouteBwasonPete()">🧨 Konfime Bwason Pete</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. RETIRE ESTÒK -->
+                <div class="bwdepot-section">
+                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-retire')">
+                        <span>📤 Retire Estòk (Pa Vann / Kado)</span><span id="arrow-sec-retire">▾</span>
+                    </div>
+                    <div class="bwdepot-section-body" id="sec-retire">
+                        <div class="bwdepot-subtabs">
+                            <button type="button" class="bwdepot-subtab-btn active" data-sub="retire-istorik" onclick="switchBWdepotSubtab(this,'retire')">📜 Istorik</button>
+                            <button type="button" class="bwdepot-subtab-btn" data-sub="retire-ajoute" onclick="switchBWdepotSubtab(this,'retire')">➖ Retire</button>
+                        </div>
+                        <div id="retire-istorik" class="bwdepot-list"></div>
+                        <div id="retire-ajoute" style="display:none;">
+                            <div class="form-group">
+                                <label>Pwodwi</label>
+                                <select id="select-retire-estok-pwodwi"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Kantite (grenn)</label>
+                                <input type="number" id="input-retire-estok-kantite" placeholder="Kantite">
+                            </div>
+                            <button class="btn btn-warning" id="btn-retire-estok" onclick="retireEstokBWdepot()">📤 Konfime Retrè</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. RETIRE NAN FRIZE -->
+                <div class="bwdepot-section">
+                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-frize')">
+                        <span>❄️ Retire nan Frize (Remèt nan Depo)</span><span id="arrow-sec-frize">▾</span>
+                    </div>
+                    <div class="bwdepot-section-body" id="sec-frize">
+                        <div class="bwdepot-subtabs">
+                            <button type="button" class="bwdepot-subtab-btn active" data-sub="frize-istorik" onclick="switchBWdepotSubtab(this,'frize')">📜 Istorik</button>
+                            <button type="button" class="bwdepot-subtab-btn" data-sub="frize-retire" onclick="switchBWdepotSubtab(this,'frize')">➖ Retire</button>
+                        </div>
+                        <div id="frize-istorik" class="bwdepot-list"></div>
+                        <div id="frize-retire" style="display:none;">
+                            <div class="form-group">
+                                <label>Pwodwi</label>
+                                <select id="select-frize-pwodwi"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Kantite Demi-Kès (12 gr)</label>
+                                <input type="number" id="input-frize-kantite" placeholder="Kantite Demi-Kès">
+                            </div>
+                            <button class="btn btn-purple" id="btn-retire-frize" onclick="retireNanFrizeBWdepot()">❄️ Retire nan Frize → Depo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. MODIFYE BWASON KI EGZISTE -->
+                <div class="bwdepot-section">
+                    <div class="bwdepot-section-header" onclick="toggleBWdepotSection('sec-modifye')">
+                        <span>✏️ Modifye Bwason ki Egziste</span><span id="arrow-sec-modifye">▾</span>
+                    </div>
+                    <div class="bwdepot-section-body" id="sec-modifye">
+                        <div class="form-group">
+                            <label>Pwodwi</label>
+                            <select id="select-modifye-pwodwi" onchange="chajePriPwodwi()"></select>
+                        </div>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:10px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Pri Detay</label>
+                                <input type="number" id="input-modifye-detail">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Pri Demi</label>
+                                <input type="number" id="input-modifye-demi">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Pri Kès</label>
+                                <input type="number" id="input-modifye-kes">
+                            </div>
+                        </div>
+                        <button class="btn btn-accent" id="btn-modifye-pwodwi" onclick="sovePriPwodwi()" style="margin-top:12px;">💾 Sove Nouvo Pri</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
     </div>
 
@@ -653,6 +811,311 @@
 
             if (valEstok) estokSelect.value = valEstok;
             if (valTrans) transSelect.value = valTrans;
+
+            ranpliSelectBWdepot();
+        }
+
+        // ===================================================================
+        // BWDEPOT DRAWER — jesyon dropdown pwodwi pou 4 seksyon yo
+        // ===================================================================
+        function ranpliSelectBWdepot() {
+            if (!lokalState.inventory) return;
+            let html = "";
+            Object.values(lokalState.inventory).forEach(p => {
+                html += `<option value="${p.id}">${p.name}</option>`;
+            });
+            ['select-pete-pwodwi', 'select-retire-estok-pwodwi', 'select-frize-pwodwi', 'select-modifye-pwodwi'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const cur = el.value;
+                el.innerHTML = html;
+                if (cur) el.value = cur;
+            });
+        }
+
+        window.openBWdepotDrawer = function() {
+            document.getElementById('bwdepot-overlay').classList.add('active');
+            ranpliSelectBWdepot();
+            chajePriPwodwi();
+            renderBWdepotIstoriks();
+        };
+
+        window.closeBWdepotDrawer = function() {
+            document.getElementById('bwdepot-overlay').classList.remove('active');
+        };
+
+        window.toggleBWdepotSection = function(id) {
+            const body = document.getElementById(id);
+            const arrow = document.getElementById('arrow-' + id);
+            const isOpen = body.classList.contains('open');
+            body.classList.toggle('open', !isOpen);
+            if (arrow) arrow.innerText = !isOpen ? '▴' : '▾';
+        };
+
+        window.switchBWdepotSubtab = function(btn, group) {
+            const container = btn.closest('.bwdepot-section-body');
+            container.querySelectorAll('.bwdepot-subtab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const target = btn.getAttribute('data-sub');
+            const mapping = {
+                pete: ['pete-istorik', 'pete-ajoute'],
+                retire: ['retire-istorik', 'retire-ajoute'],
+                frize: ['frize-istorik', 'frize-retire']
+            };
+            (mapping[group] || []).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = (id === target) ? 'block' : 'none';
+            });
+        };
+
+        window.chajePriPwodwi = function() {
+            const sel = document.getElementById('select-modifye-pwodwi');
+            if (!sel) return;
+            const pId = sel.value;
+            if (!pId || !lokalState.inventory || !lokalState.inventory[pId]) return;
+            const p = lokalState.inventory[pId];
+            document.getElementById('input-modifye-detail').value = p.prices?.detail ?? '';
+            document.getElementById('input-modifye-demi').value = p.prices?.demi ?? '';
+            document.getElementById('input-modifye-kes').value = p.prices?.kes ?? '';
+        };
+
+        function renderBWdepotIstoriks() {
+            renderListeBWdepot('pete-istorik', lokalState.lisBwasonPete, '🧨');
+            renderListeBWdepot('retire-istorik', lokalState.lisRetireEstok, '📤');
+            renderListeBWdepot('frize-istorik', lokalState.lisRetireFrize, '❄️');
+        }
+
+        function renderListeBWdepot(containerId, obj, ikon) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (!obj || Object.keys(obj).length === 0) {
+                el.innerHTML = '<div class="sub-info" style="padding:10px 0;">Pa gen istorik pou kounye a.</div>';
+                return;
+            }
+            let items = Object.values(obj).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            el.innerHTML = items.map(t => `
+                <div class="log-item">⏰ ${t.tan || ''} — ${ikon} <strong>${t.prodName || ''}</strong> — ${t.kantite || 0}g</div>
+            `).join('');
+        }
+
+        // 🔒 SEKIRITE: verrou pou anpeche double-klik voye menm reket la 2 fwa
+        let peteBtnLock = false;
+        let retireEstokBtnLock = false;
+        let retireFrizeBtnLock = false;
+        let modifyeBtnLock = false;
+
+        // ===================================================================
+        // 1. BWASON PETE — retire nan depo, anrejistre istorik
+        // ===================================================================
+        window.ajouteBwasonPete = async function() {
+            if (peteBtnLock) return;
+            const pId = document.getElementById('select-pete-pwodwi').value;
+            const kantite = parseFloat(document.getElementById('input-pete-kantite').value);
+            if (!pId || isNaN(kantite) || kantite <= 0) { alert("⚠️ Antre yon kantite valab!"); return; }
+
+            peteBtnLock = true;
+            const btn = document.getElementById('btn-ajoute-pete');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
+
+            let echèk = null, nonPwodwi = "";
+            try {
+                const { committed } = await runTransaction(appRef, (currentData) => {
+                    echèk = null;
+                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                        return;
+                    }
+                    let p = currentData.inventory[pId];
+                    if ((p.stockGrenn ?? 0) < kantite) {
+                        echèk = `❌ Pa gen ase stòk nan depo a pou ${p.name}! (${p.stockGrenn ?? 0}g disponib)`;
+                        return;
+                    }
+                    nonPwodwi = p.name;
+                    p.stockGrenn = (p.stockGrenn ?? 0) - kantite;
+                    currentData.inventory[pId] = p;
+
+                    if (!currentData.lisBwasonPete) currentData.lisBwasonPete = {};
+                    let now = new Date();
+                    let id = "pete_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+                    currentData.lisBwasonPete[id] = {
+                        id, prodId: pId, prodName: p.name, kantite,
+                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
+                    };
+                    return currentData;
+                });
+
+                if (echèk) { alert(echèk); return; }
+                if (committed) {
+                    alert(`🧨 ${kantite}g nan ${nonPwodwi} make pete epi retire nan depo a.`);
+                    document.getElementById('input-pete-kantite').value = '';
+                }
+            } catch (err) {
+                console.error("Erè bwason pete:", err);
+                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
+            } finally {
+                peteBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "🧨 Konfime Bwason Pete"; }
+            }
+        };
+
+        // ===================================================================
+        // 2. RETIRE ESTÒK (pa vann / kado) — retire nan depo, san rezon
+        // ===================================================================
+        window.retireEstokBWdepot = async function() {
+            if (retireEstokBtnLock) return;
+            const pId = document.getElementById('select-retire-estok-pwodwi').value;
+            const kantite = parseFloat(document.getElementById('input-retire-estok-kantite').value);
+            if (!pId || isNaN(kantite) || kantite <= 0) { alert("⚠️ Antre yon kantite valab!"); return; }
+
+            retireEstokBtnLock = true;
+            const btn = document.getElementById('btn-retire-estok');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
+
+            let echèk = null, nonPwodwi = "";
+            try {
+                const { committed } = await runTransaction(appRef, (currentData) => {
+                    echèk = null;
+                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                        return;
+                    }
+                    let p = currentData.inventory[pId];
+                    if ((p.stockGrenn ?? 0) < kantite) {
+                        echèk = `❌ Pa gen ase stòk nan depo a pou ${p.name}! (${p.stockGrenn ?? 0}g disponib)`;
+                        return;
+                    }
+                    nonPwodwi = p.name;
+                    p.stockGrenn = (p.stockGrenn ?? 0) - kantite;
+                    currentData.inventory[pId] = p;
+
+                    if (!currentData.lisRetireEstok) currentData.lisRetireEstok = {};
+                    let now = new Date();
+                    let id = "retest_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+                    currentData.lisRetireEstok[id] = {
+                        id, prodId: pId, prodName: p.name, kantite,
+                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
+                    };
+                    return currentData;
+                });
+
+                if (echèk) { alert(echèk); return; }
+                if (committed) {
+                    alert(`📤 ${kantite}g nan ${nonPwodwi} retire nan depo a.`);
+                    document.getElementById('input-retire-estok-kantite').value = '';
+                }
+            } catch (err) {
+                console.error("Erè retire estòk:", err);
+                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
+            } finally {
+                retireEstokBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "📤 Konfime Retrè"; }
+            }
+        };
+
+        // ===================================================================
+        // 3. RETIRE NAN FRIZE — opoze de "Transfè nan Frize", remèt nan depo
+        // ===================================================================
+        window.retireNanFrizeBWdepot = async function() {
+            if (retireFrizeBtnLock) return;
+            const pId = document.getElementById('select-frize-pwodwi').value;
+            const kantiteDemiKes = parseFloat(document.getElementById('input-frize-kantite').value);
+            if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("⚠️ Antre yon kantite Demi-Kès valab!"); return; }
+            const grenn = kantiteDemiKes * 12;
+
+            retireFrizeBtnLock = true;
+            const btn = document.getElementById('btn-retire-frize');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
+
+            let echèk = null, nonPwodwi = "";
+            try {
+                const { committed } = await runTransaction(appRef, (currentData) => {
+                    echèk = null;
+                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                        return;
+                    }
+                    let p = currentData.inventory[pId];
+                    if ((p.stockFrizerGrenn ?? 0) < grenn) {
+                        echèk = `❌ Pa gen ase stòk nan Frize a pou ${p.name}! (${p.stockFrizerGrenn ?? 0}g disponib)`;
+                        return;
+                    }
+                    nonPwodwi = p.name;
+                    p.stockFrizerGrenn = (p.stockFrizerGrenn ?? 0) - grenn;
+                    p.stockGrenn = (p.stockGrenn ?? 0) + grenn;
+                    currentData.inventory[pId] = p;
+
+                    if (!currentData.lisRetireFrize) currentData.lisRetireFrize = {};
+                    let now = new Date();
+                    let id = "retfriz_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+                    currentData.lisRetireFrize[id] = {
+                        id, prodId: pId, prodName: p.name, kantite: grenn,
+                        tan: now.toLocaleTimeString(), dat: now.toISOString().slice(0, 10), timestamp: Date.now()
+                    };
+                    return currentData;
+                });
+
+                if (echèk) { alert(echèk); return; }
+                if (committed) {
+                    alert(`❄️ ${grenn}g (${kantiteDemiKes} demi-kès) nan ${nonPwodwi} retire nan Frize a, remèt nan Depo.`);
+                    document.getElementById('input-frize-kantite').value = '';
+                }
+            } catch (err) {
+                console.error("Erè retire nan frize:", err);
+                alert("⚠️ Pwoblèm koneksyon — aksyon an pa t sove. Tanpri eseye ankò.");
+            } finally {
+                retireFrizeBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "❄️ Retire nan Frize → Depo"; }
+            }
+        };
+
+        // ===================================================================
+        // 4. MODIFYE BWASON KI EGZISTE — chanje pri sèlman
+        // ===================================================================
+        window.sovePriPwodwi = async function() {
+            if (modifyeBtnLock) return;
+            const pId = document.getElementById('select-modifye-pwodwi').value;
+            const detail = parseFloat(document.getElementById('input-modifye-detail').value);
+            const demi = parseFloat(document.getElementById('input-modifye-demi').value);
+            const kes = parseFloat(document.getElementById('input-modifye-kes').value);
+
+            if (!pId) { alert("⚠️ Chwazi yon pwodwi!"); return; }
+            if (isNaN(detail) || detail <= 0 || isNaN(demi) || demi <= 0 || isNaN(kes) || kes <= 0) {
+                alert("⚠️ Tanpri antre tout pri yo kòrèkteman (pi gwo pase 0)!");
+                return;
+            }
+
+            modifyeBtnLock = true;
+            const btn = document.getElementById('btn-modifye-pwodwi');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap sove..."; }
+
+            let echèk = null, nonPwodwi = "";
+            try {
+                const { committed } = await runTransaction(appRef, (currentData) => {
+                    echèk = null;
+                    if (!currentData || !currentData.inventory || !currentData.inventory[pId]) {
+                        echèk = "Pwodwi sa a pa jwenn nan baz done a!";
+                        return;
+                    }
+                    let p = currentData.inventory[pId];
+                    nonPwodwi = p.name;
+                    p.prices = { detail, demi, kes };
+                    currentData.inventory[pId] = p;
+                    return currentData;
+                });
+
+                if (echèk) { alert(echèk); return; }
+                if (committed) { alert(`✏️ Pri ${nonPwodwi} mete ajou avèk siksè!`); }
+            } catch (err) {
+                console.error("Erè modifye pri:", err);
+                alert("⚠️ Pwoblèm koneksyon — modifikasyon an pa t sove. Tanpri eseye ankò.");
+            } finally {
+                modifyeBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "💾 Sove Nouvo Pri"; }
+            }
+        };
+
+        function checkPosSecurityOnLoad() {
+            // (rete pou konpatibilite — pa itilize nan admin)
         }
 
         function majEkranAdmin() {
@@ -722,6 +1185,7 @@
             aficheEstatistik();
             ranpliIstorikEkran();
             majBadgeValidasyon();
+            renderBWdepotIstoriks();
         }
 
         // ===================================================================
@@ -769,6 +1233,10 @@
             document.getElementById('modal-validasyon-overlay').style.display = 'none';
         };
 
+        // 🔒 SEKIRITE: yon sèl verrou pataje pou tout bouton Valide/Rejte nan
+        // modal validasyon an, pou anpeche 2 klik voye 2 tranzaksyon opoze.
+        let validasyonBtnLock = false;
+
         function rannuModalValidasyon() {
             let body = document.getElementById('modal-validasyon-body');
             if (!body) return;
@@ -791,8 +1259,8 @@
                         </div>
                         <div class="sub-info" style="margin-bottom:10px;">${t.mesaj ?? ''}</div>
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-success" style="width:auto; flex:1; padding:9px;" onclick="valideKomisyon('${t.id}')">✅ Valide</button>
-                            <button class="btn btn-danger" style="width:auto; flex:1; padding:9px;" onclick="rejteKomisyon('${t.id}')">❌ Rejte</button>
+                            <button class="btn btn-success" style="width:auto; flex:1; padding:9px;" ${validasyonBtnLock ? 'disabled' : ''} onclick="valideKomisyon('${t.id}')">✅ Valide</button>
+                            <button class="btn btn-danger" style="width:auto; flex:1; padding:9px;" ${validasyonBtnLock ? 'disabled' : ''} onclick="rejteKomisyon('${t.id}')">❌ Rejte</button>
                         </div>
                     </div>
                 `;
@@ -801,6 +1269,10 @@
         }
 
         window.valideKomisyon = async function(id) {
+            if (validasyonBtnLock) return;
+            validasyonBtnLock = true;
+            rannuModalValidasyon();
+
             let echèk = null;
             try {
                 const { committed } = await runTransaction(appRef, (currentData) => {
@@ -823,13 +1295,20 @@
             } catch (err) {
                 console.error("Erè validasyon komisyon:", err);
                 alert("⚠️ Pwoblèm koneksyon — validasyon an pa t sove. Tanpri eseye ankò.");
+            } finally {
+                validasyonBtnLock = false;
+                rannuModalValidasyon();
             }
         };
 
         window.rejteKomisyon = async function(id) {
+            if (validasyonBtnLock) return;
             let rezon = prompt("Ekri rezon rejè a (obligatwa) — sa ap parèt nan istorik la:");
             if (!rezon || !rezon.trim()) { alert("⚠️ Ou dwe ekri yon rezon pou rejte tranzaksyon an."); return; }
             rezon = rezon.trim();
+
+            validasyonBtnLock = true;
+            rannuModalValidasyon();
 
             let echèk = null;
             try {
@@ -873,17 +1352,38 @@
             } catch (err) {
                 console.error("Erè rejè komisyon:", err);
                 alert("⚠️ Pwoblèm koneksyon — rejè a pa t sove. Tanpri eseye ankò.");
+            } finally {
+                validasyonBtnLock = false;
+                rannuModalValidasyon();
             }
         };
 
-        window.setNatCardBalance = function() {
+        // 🔒 SEKIRITE: verrou pou tout lòt bouton kritik yo (anpeche double-klik)
+        let setBalansBtnLock = false;
+        window.setNatCardBalance = async function() {
+            if (setBalansBtnLock) return;
             let val = parseFloat(document.getElementById('input-nat-balans').value);
             if (isNaN(val) || val < 0) { alert("Antre yon balans valab!"); return; }
-            update(appRef, { natcashCardBalance: val });
-            alert("Balans kat la ajou nan sistèm nan!");
-            document.getElementById('input-nat-balans').value = '';
+
+            setBalansBtnLock = true;
+            const btn = document.getElementById('btn-set-nat-balans');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳"; }
+            try {
+                await update(appRef, { natcashCardBalance: val });
+                alert("Balans kat la ajou nan sistèm nan!");
+                document.getElementById('input-nat-balans').value = '';
+            } catch (err) {
+                console.error("Erè mizajou balans kat:", err);
+                alert("⚠️ Pwoblèm koneksyon — balans lan pa t sove. Tanpri eseye ankò.");
+            } finally {
+                setBalansBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "OK"; }
+            }
         };
+
 window.kreyeNouvoBwason = async function() {
+    if (window.__kreyeBtnLock) return;
+
     // 1. Li chan yo nan fòm lan
     const name = document.getElementById('newProdName').value.trim();
     const img = document.getElementById('newProdImg').value.trim();
@@ -957,10 +1457,17 @@ window.kreyeNouvoBwason = async function() {
         }
     };
 
-    // 6. Push done yo nan Firebase Realtime Database
+    window.__kreyeBtnLock = true;
+    const btnKreye = document.getElementById('btn-kreye-pwodwi');
+    if (btnKreye) { btnKreye.disabled = true; btnKreye.innerText = "⏳ N ap sove..."; }
+
+    // 6. Sove nouvo pwodwi a nan Firebase Realtime Database
+    // 🔧 FIKS: kòd la te itilize firebase.database() (SDK compat) ki pa
+    // egziste nan paj sa a (nou itilize SDK modilè a). Nou ranplase l ak
+    // `update()` ki deja enpòte, sou yon chemen presi pou pa touche rès
+    // envantè a.
     try {
-        // Sèvi ak metòd update ki soti nan appRef ak chemen dinamik la
-        await firebase.database().ref(`appState/inventory/${nouvoId}`).set(nouvoPwodwiObj);
+        await update(appRef, { [`inventory/${nouvoId}`]: nouvoPwodwiObj });
         
         // 7. Reset fòm lan apre siksè
         document.getElementById('newProdName').value = "";
@@ -978,36 +1485,59 @@ window.kreyeNouvoBwason = async function() {
     } catch (error) {
         console.error("Erè lè n t ap sove pwodwi a nan Firebase:", error);
         alert("Gen yon erè ki rive lè n t ap sove done yo nan Firebase. Tcheke konsòl la.");
+    } finally {
+        window.__kreyeBtnLock = false;
+        if (btnKreye) { btnKreye.disabled = false; btnKreye.innerText = "💾 Kreye epi Sove Pwodwi a"; }
     }
 };
-        window.mandeVerifikasyonMaten = function() {
+        let verifBtnLock = false;
+        window.mandeVerifikasyonMaten = async function() {
+            if (verifBtnLock) return;
             let f = parseFloat(document.getElementById('fon-frijide').value) || 0;
             let g = parseFloat(document.getElementById('fon-gro').value) || 0;
             let n = parseFloat(document.getElementById('fon-nat').value) || 0;
 
-            update(appRef, {
-                mandeVerifikasyon: true,
-                adminFonDeKes: { detay: f, gwo: g, nat: n },
-                stokBwasonFrijidè: f,
-                stokVenteEnGro: g,
-                kobfiziknatcash: n,
-                kachFizikBaz: n,
-                kachFizikBazTan: Date.now(),
-                physicalCashBalance: f + g + n,
-                verifiedSections: { bwason: false, natcash: false },
-                kontestasyonKès: null,
-                clotureAveg: null
-            });
-            alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
+            verifBtnLock = true;
+            const btn = document.getElementById('btn-mande-verif');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap voye..."; }
+
+            try {
+                await update(appRef, {
+                    mandeVerifikasyon: true,
+                    adminFonDeKes: { detay: f, gwo: g, nat: n },
+                    stokBwasonFrijidè: f,
+                    stokVenteEnGro: g,
+                    kobfiziknatcash: n,
+                    kachFizikBaz: n,
+                    kachFizikBazTan: Date.now(),
+                    physicalCashBalance: f + g + n,
+                    verifiedSections: { bwason: false, natcash: false },
+                    kontestasyonKès: null,
+                    clotureAveg: null
+                });
+                alert("Lòd verifikasyon voye bay vandè a epi kès yo ajou otomatikman ak nouvo fon de kès la!");
+            } catch (err) {
+                console.error("Erè mande verifikasyon maten:", err);
+                alert("⚠️ Pwoblèm koneksyon — lòd la pa t voye. Tanpri eseye ankò.");
+            } finally {
+                verifBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "VOYE LÒD VERIFIKASYON"; }
+            }
         };
 
+        let retireAdminBtnLock = false;
         window.retireKòbAdmin = async function() {
+            if (retireAdminBtnLock) return;
             let kèsChwazi = document.getElementById('select-retre-kes').value;
             let montan = parseFloat(document.getElementById('input-retre-montan').value);
             let motif = document.getElementById('input-retre-motive').value.trim();
 
             if (isNaN(montan) || montan <= 0) { alert("⚠️ Antre yon montan valab!"); return; }
             if (!motif) { alert("⚠️ Tanpri ekri yon rezon pou retrè a!"); return; }
+
+            retireAdminBtnLock = true;
+            const btn = document.getElementById('btn-retire-admin');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
 
             let echèk = null;
 
@@ -1088,10 +1618,15 @@ window.kreyeNouvoBwason = async function() {
             } catch (err) {
                 console.error("Erè tranzaksyon retrè admin:", err);
                 alert("⚠️ Pwoblèm koneksyon — retrè a pa t sove. Tanpri eseye ankò.");
+            } finally {
+                retireAdminBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "VALIDÈ RETRÈ SA A"; }
             }
         };
 
+let ajouteEstokBtnLock = false;
 window.ajouteEstokAdmin = async function() {
+    if (ajouteEstokBtnLock) return;
     let pId = document.getElementById('select-pwodwi-estok').value;
     let inite = document.getElementById('select-inite-estok').value;
     let inputKantite = document.getElementById('input-kantite-bwat');
@@ -1110,6 +1645,10 @@ window.ajouteEstokAdmin = async function() {
     } else if (inite === "grenn") {
         grennPouAjoute = kantite;
     }
+
+    ajouteEstokBtnLock = true;
+    const btn = document.getElementById('btn-ajoute-estok');
+    if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
 
     let echèk = null;
     let nonPwodwi = "";
@@ -1140,16 +1679,25 @@ window.ajouteEstokAdmin = async function() {
     } catch (err) {
         console.error("Erè tranzaksyon ajoute estòk:", err);
         alert("⚠️ Pwoblèm koneksyon — ajout la pa t sove. Tanpri eseye ankò.");
+    } finally {
+        ajouteEstokBtnLock = false;
+        if (btn) { btn.disabled = false; btn.innerText = "+ AJOUTE"; }
     }
 };
 
+        let transfereFrizeBtnLock = false;
         window.transfereNanFrizerAdmin = async function() {
+            if (transfereFrizeBtnLock) return;
             let pId = document.getElementById('select-pwodwi-transfere').value;
             let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere').value);
 
             if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
 
             let grennPouTransfere = kantiteDemiKes * 12;
+            transfereFrizeBtnLock = true;
+            const btn = document.getElementById('btn-transfere-frize');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
+
             let echèk = null;
 
             try {
@@ -1183,6 +1731,9 @@ window.ajouteEstokAdmin = async function() {
             } catch (err) {
                 console.error("Erè tranzaksyon transfè frizè:", err);
                 alert("⚠️ Pwoblèm koneksyon — transfè a pa t sove. Tanpri eseye ankò.");
+            } finally {
+                transfereFrizeBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "⚡ TRANSFÈRE"; }
             }
         };
 
@@ -1256,39 +1807,53 @@ window.ajouteEstokAdmin = async function() {
             ranpliIstorikEkran(datChwazi);
         };
 
-        window.femenJounenOfisyel = function() {
+        let femenJounenBtnLock = false;
+        window.femenJounenOfisyel = async function() {
+            if (femenJounenBtnLock) return;
             if (!confirm("Èske ou sèten ou vle fèmen jounen an ofisyèlman? Sa ap reset kontè benefis ak lavant yo!")) return;
 
-            let achivRef = ref(db, "achivLavant");
-            let nouvoRapò = {
-                dat: new Date().toLocaleDateString(),
-                benefisPwofi: (lokalState.benefisDetay ?? 0) + (lokalState.benefisGro ?? 0),
-                komisyonNatCash: (lokalState.totalKomisyonDepo ?? 0) + (lokalState.totalKomisyonRetre ?? 0),
-                kèsFèmtiFrijidè: lokalState.stokBwasonFrijidè ?? 0,
-                kèsFèmtiGro: lokalState.stokVenteEnGro ?? 0,
-                kèsFèmtiNatCash: lokalState.kobfiziknatcash ?? 0
-            };
+            femenJounenBtnLock = true;
+            const btn = document.getElementById('btn-femen-jounen');
+            if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
 
-            push(achivRef, nouvoRapò);
+            try {
+                let achivRef = ref(db, "achivLavant");
+                let nouvoRapò = {
+                    dat: new Date().toLocaleDateString(),
+                    benefisPwofi: (lokalState.benefisDetay ?? 0) + (lokalState.benefisGro ?? 0),
+                    komisyonNatCash: (lokalState.totalKomisyonDepo ?? 0) + (lokalState.totalKomisyonRetre ?? 0),
+                    kèsFèmtiFrijidè: lokalState.stokBwasonFrijidè ?? 0,
+                    kèsFèmtiGro: lokalState.stokVenteEnGro ?? 0,
+                    kèsFèmtiNatCash: lokalState.kobfiziknatcash ?? 0
+                };
 
-            let resetLavantKonte = {};
-            if (lokalState.inventory) {
-                Object.keys(lokalState.inventory).forEach(id => {
-                    resetLavantKonte[id] = 0;
+                await push(achivRef, nouvoRapò);
+
+                let resetLavantKonte = {};
+                if (lokalState.inventory) {
+                    Object.keys(lokalState.inventory).forEach(id => {
+                        resetLavantKonte[id] = 0;
+                    });
+                }
+
+                await update(appRef, {
+                    benefisDetay: 0,
+                    benefisGro: 0,
+                    totalKomisyonDepo: 0,
+                    totalKomisyonRetre: 0,
+                    lavantKonte: resetLavantKonte,
+                    clotureAveg: null,
+                    kontestasyonKès: null
                 });
+
+                alert("🏁 Jounen an fèmen epi achive avèk siksè! Tout bagay pròp pou demen.");
+            } catch (err) {
+                console.error("Erè fèmen jounen:", err);
+                alert("⚠️ Pwoblèm koneksyon — fèmti jounen an pa t konplete. Tanpri eseye ankò.");
+            } finally {
+                femenJounenBtnLock = false;
+                if (btn) { btn.disabled = false; btn.innerText = "FÈMEN JOUNEN AN 🏁"; }
             }
-
-            update(appRef, {
-                benefisDetay: 0,
-                benefisGro: 0,
-                totalKomisyonDepo: 0,
-                totalKomisyonRetre: 0,
-                lavantKonte: resetLavantKonte,
-                clotureAveg: null,
-                kontestasyonKès: null
-            });
-
-            alert("🏁 Jounen an fèmen epi achive avèk siksè! Tout bagay pròp pou demen.");
         };
 
         window.checkPin = function() {
