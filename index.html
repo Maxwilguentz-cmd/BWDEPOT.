@@ -469,7 +469,7 @@
                         <span>Total:</span>
                         <span id="bill-total-display">0 HTG</span>
                     </div>
-                    <button onclick="checkoutSale()" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
+                    <button onclick="checkoutSale()" id="btn-checkout" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
                         Validate Lavant lan ✅
                     </button>
                 </div>
@@ -510,7 +510,8 @@ let inventory = {};
 let totalRevenue = 0;
 let totalProfit = 0;
 let natCashBalance = 5000;
-
+let venteAnKou = false;   // 🔒 anpeche vann de fwa nan menm segond
+    
 let physicalCashBalance = 0;    
 let kobfiziknatcash = 0;        
 let stokBwasonFrijidè = 0.00;    
@@ -891,6 +892,19 @@ function renderCart() {
 }
 
 window.checkoutSale = async function() {
+    if (venteAnKou) return;                 // 🔒 deja gen yon vant k ap trete
+    if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+
+    venteAnKou = true;
+    const btn = document.getElementById('btn-checkout');
+    if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
+
+    try {
+        // ... tout rès kòd runTransaction ki nan checkoutSale la rete menm jan an ...
+    } finally {
+        venteAnKou = false;
+        if (btn) { btn.disabled = false; btn.innerText = "Validate Lavant lan ✅"; }
+    }
     if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
     let cartSnapshot = [...currentCart];
     let echèk = null;
