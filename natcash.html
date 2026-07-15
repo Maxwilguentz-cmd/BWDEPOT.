@@ -319,6 +319,12 @@
     let totalKomisyonRetre = 0.00;
     let lisTranzaksyon = [];
 
+    // 🔒 FIKS SEKIRITE: veru anti-doub-klik/doub-soumisyon pou DEPO/RETRÈ.
+    // Lè yon reket ap trete, veru a bloke tout nouvo tantativ jiskaske
+    // premye a fini (siksè oswa echèk) — konsa yon menm depo/retrè pa ka
+    // pati 2 fwa pou yon sèl klik/reket.
+    let natCashEnTretman = false;
+
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         const themeBtn = document.getElementById('theme-btn');
@@ -585,6 +591,13 @@
     // DEPO / RETRÈ NATCASH
     // ===================================================================
     async function processNatCash(type) {
+        // 🔒 FIKS SEKIRITE: si yon reket DEPO/RETRÈ deja ap trete, bloke
+        // nouvo tantativ (doub-klik, doub-tap, klik rapid) pou evite 2
+        // tranzaksyon pati pou yon sèl aksyon vandè a.
+        if (natCashEnTretman) {
+            return;
+        }
+
         const amountInput = document.getElementById('nat-amount');
         if (!amountInput) return;
 
@@ -594,34 +607,46 @@
             return;
         }
 
-        let echèk = null;
-        const siksè = await ekriTranzaksyonAtomik((eta) => {
-            echèk = null;
-            if (type === 'depo') {
-                if (eta.natcashCardBalance < montan) {
-                    echèk = "❌ Ou pa gen ase balans sou kat la pou fè depo sa a!";
-                    return false;
-                }
-                eta.natcashCardBalance -= montan;
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan voye ${montan} HTG`, montan, 'depo', 0));
-            } else if (type === 'retre') {
-                let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
-                if (kachAktyèl < montan) {
-                    echèk = "❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!";
-                    return false;
-                }
-                eta.natcashCardBalance += montan;
-                eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan retire ${montan} HTG`, montan, 'retre', 0));
-            }
-            return true;
-        });
+        natCashEnTretman = true;
+        const btnDepo = document.getElementById('btn-depo');
+        const btnRetre = document.getElementById('btn-retre');
+        if (btnDepo) btnDepo.disabled = true;
+        if (btnRetre) btnRetre.disabled = true;
 
-        if (echèk) {
-            alert(echèk);
-            return;
-        }
-        if (siksè) {
-            amountInput.value = '';
+        try {
+            let echèk = null;
+            const siksè = await ekriTranzaksyonAtomik((eta) => {
+                echèk = null;
+                if (type === 'depo') {
+                    if (eta.natcashCardBalance < montan) {
+                        echèk = "❌ Ou pa gen ase balans sou kat la pou fè depo sa a!";
+                        return false;
+                    }
+                    eta.natcashCardBalance -= montan;
+                    eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan voye ${montan} HTG`, montan, 'depo', 0));
+                } else if (type === 'retre') {
+                    let kachAktyèl = kalkileKachFizikTanReyèlSouLis(eta.lisTranzaksyon, eta.kachFizikBaz, eta.kachFizikBazTan);
+                    if (kachAktyèl < montan) {
+                        echèk = "❌ Ou pa gen ase kòb fizik (Kach) pou remèt kliyan an!";
+                        return false;
+                    }
+                    eta.natcashCardBalance += montan;
+                    eta.lisTranzaksyon.unshift(kreyeTranzaksyon(`Kliyan retire ${montan} HTG`, montan, 'retre', 0));
+                }
+                return true;
+            });
+
+            if (echèk) {
+                alert(echèk);
+                return;
+            }
+            if (siksè) {
+                amountInput.value = '';
+            }
+        } finally {
+            natCashEnTretman = false;
+            if (btnDepo) btnDepo.disabled = false;
+            if (btnRetre) btnRetre.disabled = false;
         }
     }
 
