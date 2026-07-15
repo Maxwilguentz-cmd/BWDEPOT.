@@ -929,15 +929,24 @@ function finalizeAddToCart(prodId, effectiveType, labelType, qtyNeeded) {
     let prodPrice;
     let prodBuyPrice;
 
-    if (effectiveType.endsWith('_grenn_cho')) {
-        // Pri pwopòsyonèl ki soti nan pri Demi-Kès la (12 grenn = pri demi),
-        // menm jan lojik 6-grenn-cho a te fèt anvan — pri a pa chanje pou
-        // 6 grenn, sèlman 3 ak 9 grenn itilize menm règ pwopòsyonèl la.
+if (effectiveType.endsWith('_grenn_cho')) {
+    // Si Admin te mete yon pri FIKS pou kantite grenn sa a (grenn3/grenn6/grenn9),
+    // itilize l dirèkteman. Si pa gen okenn valè (null/undefined), kontinye
+    // kalkile pwopòsyonèl soti nan pri Demi-Kès la, menm jan l te fè anvan.
+    let grennKey = 'grenn' + qtyNeeded; // egzanp: "grenn3", "grenn6", "grenn9"
+    let prixFiks = (p.prices && p.prices[grennKey] !== undefined && p.prices[grennKey] !== null) ? p.prices[grennKey] : null;
+
+    if (prixFiks !== null) {
+        prodPrice = prixFiks;
+        prodBuyPrice = 0; // pa gen pri acha espesifik pou grenn cho fiks — ka ajiste si bezwen
+    } else {
         let demiPrice = (p.prices && p.prices.demi !== undefined) ? p.prices.demi : 0;
         let demiBuyPrice = (p.buyingPrice && p.buyingPrice.demi !== undefined) ? p.buyingPrice.demi : 0;
         prodPrice = Math.round((demiPrice * (qtyNeeded / 12)) / 10) * 10;
         prodBuyPrice = Math.round((demiBuyPrice * (qtyNeeded / 12)) / 10) * 10;
-    } else {
+    }
+}
+    else {
         prodPrice = (p.prices && p.prices[effectiveType] !== undefined) ? p.prices[effectiveType] : 0;
         prodBuyPrice = (p.buyingPrice && p.buyingPrice[effectiveType] !== undefined) ? p.buyingPrice[effectiveType] : 0;
     }
