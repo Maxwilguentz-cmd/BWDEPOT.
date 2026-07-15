@@ -1694,14 +1694,22 @@ window.ajouteEstokAdmin = async function() {
 };
 
         let transfereFrizeBtnLock = false;
-        window.transfereNanFrizerAdmin = async function() {
-            if (transfereFrizeBtnLock) return;
-            let pId = document.getElementById('select-pwodwi-transfere').value;
-            let kantiteDemiKes = parseFloat(document.getElementById('input-kantite-transfere').value);
+window.transfereNanFrizerAdmin = async function() {
+    if (transfereFrizeBtnLock) return;
+    let pId = document.getElementById('select-pwodwi-transfere').value;
+    let inite = document.getElementById('select-inite-transfere').value;
+    let kantite = parseFloat(document.getElementById('input-kantite-transfere').value);
 
-            if (!pId || isNaN(kantiteDemiKes) || kantiteDemiKes <= 0) { alert("Antre yon kantite Demi-Kès valab!"); return; }
+    if (!pId || isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite valab!"); return; }
 
-            let grennPouTransfere = kantiteDemiKes * 12;
+    let grennPouTransfere = 0;
+    if (inite === "kes") {
+        grennPouTransfere = kantite * 24;
+    } else if (inite === "demi") {
+        grennPouTransfere = kantite * 12;
+    } else if (inite === "grenn") {
+        grennPouTransfere = kantite;
+    }
             transfereFrizeBtnLock = true;
             const btn = document.getElementById('btn-transfere-frize');
             if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
