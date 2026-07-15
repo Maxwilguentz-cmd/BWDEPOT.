@@ -451,7 +451,7 @@
                     </div>
                 </div>
 
-                <!-- Seksyon 2: Transfere nan frizè -->
+
 <!-- Seksyon 2: Transfere nan frizè -->
 <div>
     <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px; font-weight: 700;">❄️ TRANSFÈ NAN FRIZÈ POU TI GLASE:</div>
@@ -530,7 +530,7 @@
             <!-- Tablo Stòk 32 Pwodwi nan Depo/Frizer -->
             <div class="panel">
                 <div class="panel-title">
-                    <span>📋 KANTITE STÒK REYÈL (32 PWODWI)</span>
+                    <span>📋 KANTITE STÒK REYÈL (36 PWODWI)</span>
                     <span id="disp-vale-estok" style="color: var(--success); font-weight: 700;">0.00 HTG</span>
                 </div>
                 <div class="table-container">
@@ -683,20 +683,34 @@
                             <label>Pwodwi</label>
                             <select id="select-modifye-pwodwi" onchange="chajePriPwodwi()"></select>
                         </div>
-                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:10px;">
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Detay</label>
-                                <input type="number" id="input-modifye-detail">
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Demi</label>
-                                <input type="number" id="input-modifye-demi">
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;">
-                                <label>Pri Kès</label>
-                                <input type="number" id="input-modifye-kes">
-                            </div>
-                        </div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:10px;">
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri Detay</label>
+        <input type="number" id="input-modifye-detail">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri Demi</label>
+        <input type="number" id="input-modifye-demi">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri Kès</label>
+        <input type="number" id="input-modifye-kes">
+    </div>
+</div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:10px; margin-top:10px;">
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri 3 Grenn <span style="font-weight:400;">(vid = auto)</span></label>
+        <input type="number" id="input-modifye-grenn3" placeholder="Otomatik si vid">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri 6 Grenn <span style="font-weight:400;">(vid = auto)</span></label>
+        <input type="number" id="input-modifye-grenn6" placeholder="Otomatik si vid">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+        <label>Pri 9 Grenn <span style="font-weight:400;">(vid = auto)</span></label>
+        <input type="number" id="input-modifye-grenn9" placeholder="Otomatik si vid">
+    </div>
+</div>
                         <button class="btn btn-accent" id="btn-modifye-pwodwi" onclick="sovePriPwodwi()" style="margin-top:12px;">💾 Sove Nouvo Pri</button>
                     </div>
                 </div>
