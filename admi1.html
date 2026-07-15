@@ -88,6 +88,8 @@
 
         .logo span { color: #38BDF8; }
 
+        .logo-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; }
+
         .theme-toggle {
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -336,6 +338,11 @@
         .btn-modal-no { flex: 1; background-color: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .dispute-box { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
 
+        .istorik-tabs { display:flex; gap:6px; margin-bottom:12px; }
+        .istorik-tab-btn { flex:1; padding:9px; border-radius:8px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-weight:700; font-size:13px; cursor:pointer; }
+        .istorik-tab-btn.active { background:var(--purple); color:white; border-color:var(--purple); }
+        .istorik-list { max-height: 320px; overflow-y:auto; text-align:left; }
+
         .search-input:focus, .input-text:focus, .select-style:focus {
             border-color: var(--primary-light);
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
@@ -409,11 +416,42 @@
         </div>
     </div>
 
+    <!-- MODAL CHWA GRENN CHO (3/6/9) -->
+    <div id="cho-grenn-popup" class="verification-modal" style="display: none;">
+        <div class="modal-content" style="border-color: var(--primary);">
+            <span style="font-size: 40px;">🥤</span>
+            <h3>Konbyen Grenn Cho?</h3>
+            <p>Chwazi kantite grenn cho, oswa Kès Antye si se pa grenn cho.</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+                <button onclick="window.chwaziGrennCho(3)" class="type-btn" style="padding:12px 4px; font-size:13px;">3 Grenn</button>
+                <button onclick="window.chwaziGrennCho(6)" class="type-btn" style="padding:12px 4px; font-size:13px;">6 Grenn</button>
+                <button onclick="window.chwaziGrennCho(9)" class="type-btn" style="padding:12px 4px; font-size:13px;">9 Grenn</button>
+            </div>
+            <button onclick="window.chwaziGrennCho(0)" class="btn-main" style="background-color: var(--text-muted);">Kès Antye (24 grenn)</button>
+        </div>
+    </div>
+
+    <!-- MODAL ISTORIK VANT (ANILE VANT — 20 MINIT) -->
+    <div id="istorik-popup" class="verification-modal" style="display: none;">
+        <div class="modal-content" style="border-color: var(--purple); max-width: 480px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0;">📜 Istorik Vant (20 min)</h3>
+                <span onclick="window.closeIstorikModal()" style="cursor:pointer; font-size:22px; color:var(--text-muted);">&times;</span>
+            </div>
+            <div class="istorik-tabs">
+                <button id="istorik-tab-detay" class="istorik-tab-btn active" onclick="window.switchIstorikTab('detay')">🧊 Istorik Detay</button>
+                <button id="istorik-tab-gro" class="istorik-tab-btn" onclick="window.switchIstorikTab('gro')">📦 Istorik En Gwo</button>
+            </div>
+            <div class="istorik-list" id="istorik-view-detay"></div>
+            <div class="istorik-list" id="istorik-view-gro" style="display:none;"></div>
+        </div>
+    </div>
+
 
     <header>
         <div class="header-container">
             <div class="header-top">
-                <div class="logo">📦 <span>BWdepo</span></div>
+                <button type="button" class="logo logo-btn" onclick="window.openIstorikModal()" title="Wè istorik vant ak anile yon vant">📦 <span>BWdepo</span></button>
                 <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Lajounen</button>
             </div>
             <nav>
@@ -469,7 +507,7 @@
                         <span>Total:</span>
                         <span id="bill-total-display">0 HTG</span>
                     </div>
-                    <button onclick="checkoutSale()" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
+                    <button onclick="checkoutSale()" id="btn-checkout" class="btn-main" style="background-color: var(--accent); margin-top: 14px;">
                         Validate Lavant lan ✅
                     </button>
                 </div>
@@ -510,7 +548,8 @@ let inventory = {};
 let totalRevenue = 0;
 let totalProfit = 0;
 let natCashBalance = 5000;
-
+let venteAnKou = false;   // 🔒 anpeche vann de fwa nan menm segond
+    
 let physicalCashBalance = 0;    
 let kobfiziknatcash = 0;        
 let stokBwasonFrijidè = 0.00;    
@@ -520,10 +559,20 @@ let adminFonDeKes = { natcash: 0, gwo: 0, detay: 0 };
 let verifiedSections = { natcash: false, bwason: false };
 let currentVerifyingType = "";
 let securityChecked = false;
-let logsAnGwo = "";
-let logsAnDetay = "";
 let currentCart = [];
 let currentTheme = "light";
+
+// 🔒 SEKIRITE: konte konbyen fwa n ap wè yon baz done "vid" pandan nou
+// deja te wè vrè done anvan — sa pwoteje kont yon glitch koneksyon.
+let vidRetryCount = 0;
+
+// 📜 Istorik estriktire pou fonksyon "Anile Vant" (undo)
+let lisTranzaksyonDetayObj = {};
+let logsAnGwoObj = {};
+const ISTORIK_WINDOW_MS = 20 * 60 * 1000; // 20 minit pou vandè a ka anile yon vant
+
+// 🥤 Itèm k ap tann chwa 3/6/9 grenn cho (oswa Kès Antye)
+let pendingKesItem = null;
 
 function saveAppStateToFirebase() {
     const inventoryObj = {};
@@ -542,9 +591,7 @@ function saveAppStateToFirebase() {
         stokBwasonFrijidè: stokBwasonFrijidè,
         stokVenteEnGro: stokVenteEnGro,
         adminFonDeKes: adminFonDeKes,
-        verifiedSections: verifiedSections,
-        logsAnGwo: logsAnGwo,
-        logsAnDetay: logsAnDetay
+        verifiedSections: verifiedSections
     };
     update(dbRef, updates);
 }
@@ -587,8 +634,23 @@ onValue(dbRef, (snapshot) => {
     ];
 
     // KA 1 — Baz done a vid nèt (premye fwa nèt app la lanse).
+    // 🔒 SEKIRITE: nou pa janm efase/reset baz done a otomatikman si aparèy
+    // sa a te deja wè vrè done anvan (localStorage sonje sa pou nou). Sa
+    // pwoteje kont yon ti glitch koneksyon ki ta ka fè Firebase parèt vid
+    // pou yon segond epi fè app la kwè se yon "premye lansman".
     if (!snapshot.exists() || !data) {
-        console.log("Firebase vid nèt! Inisyalizasyon konplè...");
+        const tedejaWèDone = localStorage.getItem('bwdepot_ever_had_data') === 'true';
+
+        if (tedejaWèDone) {
+            vidRetryCount++;
+            console.error("⚠️ SEKIRITE: Firebase parèt vid men done te egziste anvan sou aparèy sa a! OKENN done p ap efase. Tantativ #" + vidRetryCount);
+            if (vidRetryCount >= 3) {
+                alert("⚠️ ATANSYON SEKIRITE: Sistèm nan pa ka jwenn done ki te egziste yo nan Firebase kounye a. POU PWOTEJE DONE YO, APLIKASYON AN PAP EFASE OKENN BAGAY OTOMATIKMAN. Tanpri verifye koneksyon entènèt ou epi rechaje paj la (F5). Si pwoblèm nan kontinye, kontakte administratè a — pa kontinye rechaje plizyè fwa san rezon.");
+            }
+            return; // 🔒 JANM efase/re-inisyalize done ki te egziste
+        }
+
+        console.log("Firebase vid nèt (premye lansman verifye sou aparèy sa a) — inisyalizasyon konplè...");
         
         const initialInventoryObj = {};
         initialProducts.forEach(p => {
@@ -606,12 +668,17 @@ onValue(dbRef, (snapshot) => {
             kobfiziknatcash: 0,
             adminFonDeKes: { natcash: 0, gwo: 0, detay: 0 },
             verifiedSections: { natcash: false, bwason: false },
-            logsAnGwo: "",
-            logsAnDetay: ""
+            logsAnGwo: {},
+            lisTranzaksyonDetay: {}
         };
         set(dbRef, initialAppState);
+        localStorage.setItem('bwdepot_ever_had_data', 'true');
         return;
     }
+
+    // Nou wè vrè done nan men — sonje sa pou tout tan sou aparèy sa a.
+    localStorage.setItem('bwdepot_ever_had_data', 'true');
+    vidRetryCount = 0;
 
     // KA 2 — Done yo egziste nan baz la, men se sèlman "inventory" ki manke pou yon ti moman.
     if (!data.inventory) {
@@ -639,11 +706,16 @@ onValue(dbRef, (snapshot) => {
     stokVenteEnGro = data.stokVenteEnGro || 0;
     if (data.adminFonDeKes) adminFonDeKes = data.adminFonDeKes;
     if (data.verifiedSections) verifiedSections = data.verifiedSections;
-    if (data.logsAnGwo !== undefined) logsAnGwo = data.logsAnGwo;
-    if (data.logsAnDetay !== undefined) logsAnDetay = data.logsAnDetay;
+
+    // Istorik estriktire (pou fonksyon "Anile Vant") — aksepte tou ansyen
+    // fòma (string) san kraze si vye done rete nan baz la; senpleman n ap
+    // trete yo kòm yon lis vid nan ka sa a.
+    logsAnGwoObj = (data.logsAnGwo && typeof data.logsAnGwo === 'object') ? data.logsAnGwo : {};
+    lisTranzaksyonDetayObj = (data.lisTranzaksyonDetay && typeof data.lisTranzaksyonDetay === 'object') ? data.lisTranzaksyonDetay : {};
 
     renderProducts();
     updatePosCashDisplay();
+    renderIstorikList();
     if (!securityChecked) {
         securityChecked = true;
         checkPosSecurityOnLoad();
@@ -804,34 +876,51 @@ window.toggleTheme = function() {
 
 window.addToCart = function(prodId, type) {
     console.log("addToCart deklanche pou ID:", prodId, "ak Kalite:", type);
-    
-    let p = inventory[prodId.toString()]; 
+
+    let p = inventory[prodId.toString()];
     if (!p) {
         console.error("Pwodwi sa a pa egziste nan envantè lokal la:", prodId);
         return;
     }
 
-    let labelType;
-    let qtyNeeded;
-    let effectiveType = type;
-
     if (type === 'kes') {
-        let venn6Cho = confirm("Èske ou vle vann 6 grenn CHO pwodwi sa a pito?");
-        if (venn6Cho) {
-            effectiveType = '6_grenn_cho';
-            labelType = '6 Grenn Cho';
-            qtyNeeded = 6;
-        } else {
-            effectiveType = 'kes';
-            labelType = 'Kès';
-            qtyNeeded = 24;
-        }
-    } else {
-        labelType = type === 'detail' ? 'Grenn' : type === 'demi' ? 'Demi-Kès' : 'Kès';
-        qtyNeeded = type === 'detail' ? 1 : type === 'demi' ? 12 : 24;
+        // Ouvri ti modal pou chwazi 3 / 6 / 9 grenn cho, oswa Kès Antye (24g)
+        pendingKesItem = { prodId: prodId };
+        document.getElementById('cho-grenn-popup').style.display = 'flex';
+        return;
     }
 
-    if (type === 'detail') {
+    let labelType = type === 'detail' ? 'Grenn' : 'Demi-Kès';
+    let qtyNeeded = type === 'detail' ? 1 : 12;
+
+    finalizeAddToCart(prodId, type, labelType, qtyNeeded);
+}
+
+// Deklanche apre vandè a chwazi nan modal 3/6/9 grenn cho la.
+// qte === 0 vle di "Kès Antye" (24 grenn, pri nòmal kès la).
+window.chwaziGrennCho = function(qte) {
+    document.getElementById('cho-grenn-popup').style.display = 'none';
+    if (!pendingKesItem) return;
+    let prodId = pendingKesItem.prodId;
+    pendingKesItem = null;
+
+    if (qte === 0) {
+        finalizeAddToCart(prodId, 'kes', 'Kès', 24);
+    } else {
+        finalizeAddToCart(prodId, qte + '_grenn_cho', qte + ' Grenn Cho', qte);
+    }
+}
+
+function finalizeAddToCart(prodId, effectiveType, labelType, qtyNeeded) {
+    let p = inventory[prodId.toString()];
+    if (!p) {
+        console.error("Pwodwi sa a pa egziste nan envantè lokal la:", prodId);
+        return;
+    }
+
+    // Grenn (detail) soti nan FRIZÈ; tout lòt kalite (demi, kès, ak 3/6/9
+    // grenn cho) soti dirèkteman nan DEPO JENERAL la.
+    if (effectiveType === 'detail') {
         if ((p.stockFrizerGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase bwason frèt nan FRIZÈ a! (Stòk aktyèl: ${p.stockFrizerGrenn || 0}g)`);
     } else {
         if ((p.stockGrenn || 0) < qtyNeeded) return alert(`⚠️ Pa gen ase stòk nan depo jeneral la pou ${labelType}! (Stòk aktyèl: ${p.stockGrenn || 0}g, ou bezwen: ${qtyNeeded}g)`);
@@ -840,29 +929,32 @@ window.addToCart = function(prodId, type) {
     let prodPrice;
     let prodBuyPrice;
 
-    if (effectiveType === '6_grenn_cho') {
+    if (effectiveType.endsWith('_grenn_cho')) {
+        // Pri pwopòsyonèl ki soti nan pri Demi-Kès la (12 grenn = pri demi),
+        // menm jan lojik 6-grenn-cho a te fèt anvan — pri a pa chanje pou
+        // 6 grenn, sèlman 3 ak 9 grenn itilize menm règ pwopòsyonèl la.
         let demiPrice = (p.prices && p.prices.demi !== undefined) ? p.prices.demi : 0;
         let demiBuyPrice = (p.buyingPrice && p.buyingPrice.demi !== undefined) ? p.buyingPrice.demi : 0;
-        prodPrice = Math.round((demiPrice / 2) / 10) * 10;
-        prodBuyPrice = Math.round((demiBuyPrice / 2) / 10) * 10;
+        prodPrice = Math.round((demiPrice * (qtyNeeded / 12)) / 10) * 10;
+        prodBuyPrice = Math.round((demiBuyPrice * (qtyNeeded / 12)) / 10) * 10;
     } else {
-        prodPrice = (p.prices && p.prices[type] !== undefined) ? p.prices[type] : 0;
-        prodBuyPrice = (p.buyingPrice && p.buyingPrice[type] !== undefined) ? p.buyingPrice[type] : 0;
+        prodPrice = (p.prices && p.prices[effectiveType] !== undefined) ? p.prices[effectiveType] : 0;
+        prodBuyPrice = (p.buyingPrice && p.buyingPrice[effectiveType] !== undefined) ? p.buyingPrice[effectiveType] : 0;
     }
 
     let cartItemId = "cart_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
-    currentCart.push({ 
-        uniqueId: cartItemId, 
-        prodId: p.id, 
-        name: p.name, 
-        type: effectiveType, 
-        labelType: labelType, 
-        price: prodPrice, 
-        buyPrice: prodBuyPrice, 
-        qtyNeeded: qtyNeeded 
+    currentCart.push({
+        uniqueId: cartItemId,
+        prodId: p.id,
+        name: p.name,
+        type: effectiveType,
+        labelType: labelType,
+        price: prodPrice,
+        buyPrice: prodBuyPrice,
+        qtyNeeded: qtyNeeded
     });
-    
+
     console.log("Atik ajoute nan panyen lokal la. Total atik:", currentCart.length);
     renderCart();
 }
@@ -891,11 +983,20 @@ function renderCart() {
 }
 
 window.checkoutSale = async function() {
+    if (venteAnKou) return;                 // 🔒 deja gen yon vant k ap trete
     if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
+
+    venteAnKou = true;
+    const btn = document.getElementById('btn-checkout');
+    if (btn) { btn.disabled = true; btn.innerText = "⏳ N ap trete..."; }
+
     let cartSnapshot = [...currentCart];
     let echèk = null;
     let billTotal = 0;
 
+    // 🔒 TOUT lojik tranzaksyon an (verifikasyon + ekriti) rete DEDAN
+    // try/finally la pou pwoteksyon "venteAnKou" a mache pandan TOUT tan
+    // vant lan ap trete — se sa ki t ap manke anvan an.
     try {
         const { committed } = await runTransaction(dbRef, (currentData) => {
             echèk = null;
@@ -916,19 +1017,49 @@ window.checkoutSale = async function() {
             }
 
             // 2. Aplike chanjman yo SÈLMAN sou pwodwi ki nan panyen an
-            let timeStr = new Date().toLocaleTimeString();
+            let now = new Date();
+            let timeStr = now.toLocaleTimeString();
+            let mwa = String(now.getMonth() + 1).padStart(2, '0');
+            let jou = String(now.getDate()).padStart(2, '0');
+            let datISO = `${now.getFullYear()}-${mwa}-${jou}`;
             let localTotal = 0, localProfit = 0;
+
+            if (!currentData.lisTranzaksyonDetay) currentData.lisTranzaksyonDetay = {};
+            if (!currentData.logsAnGwo || typeof currentData.logsAnGwo !== 'object') currentData.logsAnGwo = {};
 
             cartSnapshot.forEach(item => {
                 let p = currentData.inventory[item.prodId.toString()];
+                let saleId = "sale_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+
+                // Chak tranzaksyon estriktire konsève tout enfòmasyon
+                // nesesè pou n ka "anile" li pita (rebay stòk + lajan).
+                let tranzaksyonRec = {
+                    id: saleId,
+                    prodId: item.prodId,
+                    prodName: p.name,
+                    type: item.type,
+                    labelType: item.labelType,
+                    qtyNeeded: item.qtyNeeded,
+                    price: item.price,
+                    buyPrice: item.buyPrice,
+                    tan: timeStr,
+                    dat: datISO,
+                    timestamp: Date.now(),
+                    mesaj: `${p.name} (${item.labelType}) -> ${item.price} G (S${item.price / 5})`
+                };
+
                 if (item.type === 'detail') {
                     p.stockFrizerGrenn -= item.qtyNeeded;
                     currentData.stokBwasonFrijidè = (currentData.stokBwasonFrijidè ?? 0) + item.price;
-                    currentData.logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnDetay ?? "");
+                    tranzaksyonRec.stockField = 'stockFrizerGrenn';
+                    tranzaksyonRec.kesField = 'stokBwasonFrijidè';
+                    currentData.lisTranzaksyonDetay[saleId] = tranzaksyonRec;
                 } else {
                     p.stockGrenn -= item.qtyNeeded;
                     currentData.stokVenteEnGro = (currentData.stokVenteEnGro ?? 0) + item.price;
-                    currentData.logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnGwo ?? "");
+                    tranzaksyonRec.stockField = 'stockGrenn';
+                    tranzaksyonRec.kesField = 'stokVenteEnGro';
+                    currentData.logsAnGwo[saleId] = tranzaksyonRec;
                 }
                 currentData.inventory[item.prodId.toString()] = p;
                 localTotal += item.price;
@@ -952,8 +1083,108 @@ window.checkoutSale = async function() {
     } catch (err) {
         console.error("Erè tranzaksyon lavant:", err);
         alert("⚠️ Pwoblèm koneksyon — lavant lan pa t sove. Tanpri eseye ankò.");
+    } finally {
+        venteAnKou = false;
+        if (btn) { btn.disabled = false; btn.innerText = "Validate Lavant lan ✅"; }
     }
 };
+
+// ===================================================================
+// ISTORIK VANT / ANILE VANT (BWdepo bouton nan tèt paj la)
+// ===================================================================
+window.openIstorikModal = function() {
+    document.getElementById('istorik-popup').style.display = 'flex';
+    renderIstorikList();
+}
+
+window.closeIstorikModal = function() {
+    document.getElementById('istorik-popup').style.display = 'none';
+}
+
+window.switchIstorikTab = function(tab) {
+    document.getElementById('istorik-tab-detay').classList.toggle('active', tab === 'detay');
+    document.getElementById('istorik-tab-gro').classList.toggle('active', tab === 'gro');
+    document.getElementById('istorik-view-detay').style.display = tab === 'detay' ? 'block' : 'none';
+    document.getElementById('istorik-view-gro').style.display = tab === 'gro' ? 'block' : 'none';
+}
+
+function renderIstorikList() {
+    renderIstorikOneList('istorik-view-detay', lisTranzaksyonDetayObj, 'detay');
+    renderIstorikOneList('istorik-view-gro', logsAnGwoObj, 'gro');
+}
+
+function renderIstorikOneList(containerId, obj, kalite) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    let limitAncyen = Date.now() - ISTORIK_WINDOW_MS;
+    let items = Object.values(obj || {})
+        .filter(t => (t.timestamp || 0) >= limitAncyen)
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (items.length === 0) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:14px 0;">Pa gen vant resan (20 dènye minit) pou anile.</p>`;
+        return;
+    }
+
+    container.innerHTML = items.map(t => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 4px; border-bottom:1px dashed var(--border); font-size:13px;">
+            <span>⏰ ${t.tan} — <strong>${t.prodName}</strong> (${t.labelType}) — ${t.price} G</span>
+            <button onclick="window.annuleTranzaksyon('${t.id}', '${kalite}')" style="flex-shrink:0; border:none; background:var(--danger); color:white; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">Anile ↩️</button>
+        </div>
+    `).join('');
+}
+
+// Anile yon vant: retabli stòk pwodwi a AK lajan an nan kès konsène a,
+// sèlman si vant lan te fèt nan 20 dènye minit yo.
+window.annuleTranzaksyon = async function(saleId, kalite) {
+    if (!confirm("Èske ou sèten ou vle anile vant sa a? Lajan an ak stòk la ap retounen ala nòmal.")) return;
+
+    let echèk = null;
+    try {
+        const { committed } = await runTransaction(dbRef, (currentData) => {
+            echèk = null;
+            if (!currentData) { echèk = "⚠️ Done yo poko chaje. Eseye ankò."; return; }
+
+            let champLis = kalite === 'detay' ? 'lisTranzaksyonDetay' : 'logsAnGwo';
+            let lis = currentData[champLis];
+            if (!lis || !lis[saleId]) { echèk = "⚠️ Vant sa a pa jwenn ankò — petèt li deja anile."; return; }
+
+            let t = lis[saleId];
+            if ((Date.now() - (t.timestamp || 0)) > ISTORIK_WINDOW_MS) {
+                echèk = "⚠️ Tan pou anile vant sa a ekspire (20 minit pase).";
+                return;
+            }
+
+            let p = currentData.inventory ? currentData.inventory[t.prodId.toString()] : null;
+            if (p && t.stockField) {
+                p[t.stockField] = (p[t.stockField] ?? 0) + (t.qtyNeeded || 0);
+                currentData.inventory[t.prodId.toString()] = p;
+            }
+
+            if (t.kesField) {
+                currentData[t.kesField] = (currentData[t.kesField] ?? 0) - (t.price || 0);
+            }
+            currentData.physicalCashBalance = (currentData.physicalCashBalance ?? 0) - (t.price || 0);
+            currentData.totalRevenue = (currentData.totalRevenue ?? 0) - (t.price || 0);
+            currentData.totalProfit = (currentData.totalProfit ?? 0) - ((t.price || 0) - (t.buyPrice || 0));
+
+            delete lis[saleId];
+            currentData[champLis] = lis;
+            return currentData;
+        });
+
+        if (echèk) { alert(echèk); return; }
+        if (committed) { alert("✅ Vant lan anile — lajan ak stòk la retounen ala nòmal."); }
+    } catch (err) {
+        console.error("Erè anilasyon vant:", err);
+        alert("⚠️ Pwoblèm koneksyon — anilasyon an pa t sove. Tanpri eseye ankò.");
+    }
+};
+
+// Rafrechi lis la chak 30 segond pou vant ki pase 20 minit disparèt
+// otomatikman nan modal la menm si pa gen lòt chanjman nan Firebase.
+setInterval(renderIstorikList, 30000);
 </script>
 
 </body>
