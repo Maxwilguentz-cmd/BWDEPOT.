@@ -489,7 +489,7 @@
     </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, update, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, update, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
@@ -890,38 +890,70 @@ function renderCart() {
     document.getElementById('bill-total-display').innerText = total + " HTG (S" + (total / 5) + ")";
 }
 
-window.checkoutSale = function() {
+window.checkoutSale = async function() {
     if (currentCart.length === 0) return alert("Chwazi yon pwodwi anvan!");
-    let billTotal = 0; let billProfit = 0;
-    let timeStr = new Date().toLocaleTimeString();
+    let cartSnapshot = [...currentCart];
+    let echèk = null;
+    let billTotal = 0;
 
-    currentCart.forEach(item => {
-        let p = inventory[item.prodId.toString()]; 
-        if (!p) return;
-        
-        if (item.type === 'detail') {
-            p.stockFrizerGrenn -= item.qtyNeeded;
-            stokBwasonFrijidè += item.price;
-            logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnDetay;
-        } else {
-            p.stockGrenn -= item.qtyNeeded;
-            stokVenteEnGro += item.price;
-            logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + logsAnGwo;
+    try {
+        const { committed } = await runTransaction(dbRef, (currentData) => {
+            echèk = null;
+            if (!currentData || !currentData.inventory) {
+                echèk = "⚠️ Done yo poko chaje nan Firebase. Eseye ankò.";
+                return;
+            }
+
+            // 1. Verifye stòk pou CHAK atik AVAN nou touche anyen
+            for (const item of cartSnapshot) {
+                let p = currentData.inventory[item.prodId.toString()];
+                if (!p) { echèk = `Pwodwi "${item.name}" pa jwenn nan sistèm nan ankò.`; return; }
+                let stokDisponib = item.type === 'detail' ? (p.stockFrizerGrenn || 0) : (p.stockGrenn || 0);
+                if (stokDisponib < item.qtyNeeded) {
+                    echèk = `⚠️ Pa gen ase ${p.name} ankò (${stokDisponib}g disponib) — done yo chanje.`;
+                    return;
+                }
+            }
+
+            // 2. Aplike chanjman yo SÈLMAN sou pwodwi ki nan panyen an
+            let timeStr = new Date().toLocaleTimeString();
+            let localTotal = 0, localProfit = 0;
+
+            cartSnapshot.forEach(item => {
+                let p = currentData.inventory[item.prodId.toString()];
+                if (item.type === 'detail') {
+                    p.stockFrizerGrenn -= item.qtyNeeded;
+                    currentData.stokBwasonFrijidè = (currentData.stokBwasonFrijidè ?? 0) + item.price;
+                    currentData.logsAnDetay = `[${timeStr}] 🥤 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnDetay ?? "");
+                } else {
+                    p.stockGrenn -= item.qtyNeeded;
+                    currentData.stokVenteEnGro = (currentData.stokVenteEnGro ?? 0) + item.price;
+                    currentData.logsAnGwo = `[${timeStr}] 📦 ${p.name} -> ${item.price} G (S${item.price / 5})<br>` + (currentData.logsAnGwo ?? "");
+                }
+                currentData.inventory[item.prodId.toString()] = p;
+                localTotal += item.price;
+                localProfit += (item.price - item.buyPrice);
+            });
+
+            currentData.totalRevenue = (currentData.totalRevenue ?? 0) + localTotal;
+            currentData.totalProfit = (currentData.totalProfit ?? 0) + localProfit;
+            currentData.physicalCashBalance = (currentData.physicalCashBalance ?? 0) + localTotal;
+
+            billTotal = localTotal;
+            return currentData;
+        });
+
+        if (echèk) { alert(echèk); return; }
+        if (committed) {
+            alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
+            currentCart = [];
+            renderCart();
         }
-        billTotal += item.price; billProfit += (item.price - item.buyPrice);
-    });
-
-    totalRevenue += billTotal; 
-    totalProfit += billProfit; 
-    physicalCashBalance += billTotal; 
-    
-    alert(`✅ Lavant anrejistre (${billTotal} HTG / S${billTotal / 5}).`);
-    currentCart = [];
-    renderCart();
-    renderProducts();
-    updatePosCashDisplay();
-    saveAppStateToFirebase();
-}
+    } catch (err) {
+        console.error("Erè tranzaksyon lavant:", err);
+        alert("⚠️ Pwoblèm koneksyon — lavant lan pa t sove. Tanpri eseye ankò.");
+    }
+};
 </script>
 
 </body>
