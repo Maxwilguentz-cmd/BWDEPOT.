@@ -1096,18 +1096,31 @@
         // ===================================================================
         // 4. MODIFYE BWASON KI EGZISTE — chanje pri sèlman
         // ===================================================================
-        window.sovePriPwodwi = async function() {
-            if (modifyeBtnLock) return;
-            const pId = document.getElementById('select-modifye-pwodwi').value;
-            const detail = parseFloat(document.getElementById('input-modifye-detail').value);
-            const demi = parseFloat(document.getElementById('input-modifye-demi').value);
-            const kes = parseFloat(document.getElementById('input-modifye-kes').value);
+window.sovePriPwodwi = async function() {
+    if (modifyeBtnLock) return;
+    const pId = document.getElementById('select-modifye-pwodwi').value;
+    const detail = parseFloat(document.getElementById('input-modifye-detail').value);
+    const demi = parseFloat(document.getElementById('input-modifye-demi').value);
+    const kes = parseFloat(document.getElementById('input-modifye-kes').value);
 
-            if (!pId) { alert("⚠️ Chwazi yon pwodwi!"); return; }
-            if (isNaN(detail) || detail <= 0 || isNaN(demi) || demi <= 0 || isNaN(kes) || kes <= 0) {
-                alert("⚠️ Tanpri antre tout pri yo kòrèkteman (pi gwo pase 0)!");
-                return;
-            }
+    if (!pId) { alert("⚠️ Chwazi yon pwodwi!"); return; }
+    if (isNaN(detail) || detail <= 0 || isNaN(demi) || demi <= 0 || isNaN(kes) || kes <= 0) {
+        alert("⚠️ Tanpri antre tout pri yo kòrèkteman (pi gwo pase 0)!");
+        return;
+    }
+
+    // Chan opsyonèl — si vid, pa mete okenn valè (index.html ap kalkile otomatikman)
+    let g3raw = document.getElementById('input-modifye-grenn3').value.trim();
+    let g6raw = document.getElementById('input-modifye-grenn6').value.trim();
+    let g9raw = document.getElementById('input-modifye-grenn9').value.trim();
+
+    let grenn3 = g3raw === "" ? null : parseFloat(g3raw);
+    let grenn6 = g6raw === "" ? null : parseFloat(g6raw);
+    let grenn9 = g9raw === "" ? null : parseFloat(g9raw);
+
+    if (g3raw !== "" && (isNaN(grenn3) || grenn3 <= 0)) { alert("⚠️ Pri 3 Grenn dwe pi gwo pase 0 si w ranpli l!"); return; }
+    if (g6raw !== "" && (isNaN(grenn6) || grenn6 <= 0)) { alert("⚠️ Pri 6 Grenn dwe pi gwo pase 0 si w ranpli l!"); return; }
+    if (g9raw !== "" && (isNaN(grenn9) || grenn9 <= 0)) { alert("⚠️ Pri 9 Grenn dwe pi gwo pase 0 si w ranpli l!"); return; }
 
             modifyeBtnLock = true;
             const btn = document.getElementById('btn-modifye-pwodwi');
