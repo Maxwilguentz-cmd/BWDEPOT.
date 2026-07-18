@@ -3,7 +3,11 @@
 // stòk, kès) toujou bezwen entènèt pou senkronize an tan reyèl — sa a
 // sèlman fè paj la chaje pi vit epi fonksyone san koneksyon.
 
-const CACHE_NAME = 'bwdepot-shell-v1';
+// 🔧 MIZAJOU VÈSYON: chak fwa w chanje kontni service-worker.js la (oswa
+// kontni SHELL_FILES yo), ogmante nimewo a anba a (v1 → v2 → v3...).
+// Sa a se sa ki fè navigatè a rann kont gen yon "nouvo vèsyon" epi ki
+// deklanche bandwòl "Aktyalize Kounye a" nan index.html.
+const CACHE_NAME = 'bwdepot-shell-v2';
 
 // Paj prensipal yo nou vle disponib menm san entènèt.
 const SHELL_FILES = [
@@ -23,7 +27,19 @@ self.addEventListener('install', (event) => {
             });
         })
     );
-    self.skipWaiting();
+    // 🔧 NÒT: nou PA rele self.skipWaiting() otomatikman isit la ankò.
+    // Konsa, yon nouvo vèsyon service-worker.js rete "an atant" jiskaske
+    // itilizatè a klike sou bouton "Aktyalize Kounye a" nan bandwòl la —
+    // sa evite yon mizajou aplike san moun nan pa konnen pandan l ap
+    // travay (pa egzanp pandan l ap fè yon vant).
+});
+
+// Resevwa mesaj ki soti nan paj la (index.html) lè itilizatè a klike sou
+// "Aktyalize Kounye a" — se sa ki fè nouvo vèsyon an vin aktif.
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 self.addEventListener('activate', (event) => {
