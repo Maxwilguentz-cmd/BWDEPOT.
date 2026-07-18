@@ -1405,9 +1405,49 @@ if (navigator.onLine) {
 // ===================================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js').catch(err => {
+        navigator.serviceWorker.register('service-worker.js').then((reg) => {
+            // Ka 1: gen deja yon nouvo vèsyon k ap tann (paj la te fèk rechaje).
+            if (reg.waiting) {
+                afichaNouvoVèsyonDisponib(reg.waiting);
+            }
+            // Ka 2: yon nouvo vèsyon fèk fin telechaje pandan moun nan sou paj la.
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // Gen yon SW k ap kontwole deja paj la → se yon VRÈ mizajou,
+                        // pa premye enstalasyon (nan ka sa a pa gen kontwolè ankò).
+                        afichaNouvoVèsyonDisponib(newWorker);
+                    }
+                });
+            });
+        }).catch(err => {
             console.error("Pa t kapab anrejistre Service Worker la:", err);
         });
+    });
+
+    // Lè nouvo Service Worker la vin aktif (apre klik sou bouton la),
+    // rechaje paj la yon sèl fwa pou l sèvi ak nouvo vèsyon an.
+    let rechajDejaFèt = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (rechajDejaFèt) return;
+        rechajDejaFèt = true;
+        window.location.reload();
+    });
+}
+
+function afichaNouvoVèsyonDisponib(waitingWorker) {
+    if (document.getElementById('bwdepot-update-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'bwdepot-update-banner';
+    banner.style.cssText = "position:fixed; bottom:0; left:0; width:100%; background:var(--purple); color:white; padding:12px 16px; text-align:center; font-size:13px; font-weight:700; z-index:5000; display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; box-shadow:0 -4px 12px rgba(0,0,0,0.15);";
+    banner.innerHTML = `🔄 Yon nouvo vèsyon app la disponib. <button id="bwdepot-update-btn" style="background:white; color:var(--purple); border:none; padding:7px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:13px;">Aktyalize Kounye a</button>`;
+    document.body.appendChild(banner);
+    document.getElementById('bwdepot-update-btn').addEventListener('click', () => {
+        waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        const btn = document.getElementById('bwdepot-update-btn');
+        if (btn) { btn.disabled = true; btn.innerText = "⏳..."; }
     });
 }
 </script>
