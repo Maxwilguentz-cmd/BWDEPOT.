@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BWdepot - Bwason</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1E3A8A">
     <style>
         :root {
             --bg-body: #F1F5F9;
@@ -527,7 +529,7 @@
     </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, update, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, update, onValue, set, runTransaction, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
@@ -839,7 +841,7 @@ function renderProducts() {
         container.innerHTML += `
             <div class="prod-card" data-name="${p.name.toLowerCase()}">
                 ${alertBadge}
-                <img src="${p.img}" alt="${p.name}">
+                <img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async">
                 <div class="prod-info">
                     <div class="prod-name">${p.name}</div>
                     <div class="prod-stock">Depo: <strong>${p.stockGrenn}g</strong> | <span style="color:var(--purple);font-weight:bold;">Frize: ${p.stockFrizerGrenn}g</span></div>
@@ -872,6 +874,7 @@ window.toggleTheme = function() {
         root.removeAttribute('data-theme');
         btn.innerText = "☀️ Lajounen"; currentTheme = "light";
     }
+    localStorage.setItem('theme', currentTheme);
 }
 
 window.addToCart = function(prodId, type) {
@@ -1091,12 +1094,186 @@ window.checkoutSale = async function() {
         }
     } catch (err) {
         console.error("Erè tranzaksyon lavant:", err);
-        alert("⚠️ Pwoblèm koneksyon — lavant lan pa t sove. Tanpri eseye ankò.");
+        // 🔌 SEKIRITE OFFLINE: si erè a se yon pwoblèm koneksyon (pa yon
+        // erè "aplikasyon" nòmal), pa pèdi vant lan — mete l nan yon file
+        // datant lokal (localStorage) pou l ka re-eseye otomatikman lè
+        // entènèt la retounen, olye pèdi tout enfòmasyon vant lan.
+        sovVantOfflineNanFileDatant(cartSnapshot);
+        alert("⚠️ Pa gen koneksyon entènèt kounye a. Vant lan sove LOKALMAN sou aparèy sa a — l ap voye l otomatikman bay Firebase kou entènèt la retounen. Pa efase paj la san w pa verifye koneksyon an retounen.");
+        currentCart = [];
+        renderCart();
     } finally {
         venteAnKou = false;
         if (btn) { btn.disabled = false; btn.innerText = "Validate Lavant lan ✅"; }
     }
 };
+
+// ===================================================================
+// 🔌 FILE DATANT OFFLINE — pou vant ki fèt lè pa gen entènèt
+// (localStorage sèlman sou aparèy sa a; okenn lòt done/chan pa touche)
+// ===================================================================
+const OFFLINE_QUEUE_KEY = 'bwdepot_offline_sales_queue';
+let offlineSyncEnKou = false;
+
+function li_FileDatantOffline() {
+    try {
+        const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function sove_FileDatantOffline(lis) {
+    try {
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(lis));
+    } catch (e) {
+        console.error("Pa kapab sove file datant offline lokalman:", e);
+    }
+}
+
+function sovVantOfflineNanFileDatant(cartSnapshot) {
+    let lis = li_FileDatantOffline();
+    lis.push({
+        id: "offline_" + Date.now() + "_" + Math.floor(Math.random() * 100000),
+        cart: cartSnapshot,
+        tan: new Date().toLocaleTimeString(),
+        timestamp: Date.now()
+    });
+    sove_FileDatantOffline(lis);
+    majBadjOfflineAfichaj();
+}
+
+function majBadjOfflineAfichaj() {
+    let lis = li_FileDatantOffline();
+    const btn = document.getElementById('btn-checkout');
+    if (!btn) return;
+    const badgeId = 'offline-queue-badge';
+    let badge = document.getElementById(badgeId);
+    if (lis.length > 0) {
+        if (!badge) {
+            badge = document.createElement('div');
+            badge.id = badgeId;
+            badge.style.cssText = "margin-top:8px; text-align:center; font-size:11px; font-weight:700; color:var(--danger);";
+            btn.insertAdjacentElement('afterend', badge);
+        }
+        badge.innerText = `📴 ${lis.length} vant an atant sinkronizasyon (offline)`;
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+// Eseye re-voye chak vant ki nan file datant lokal la bay Firebase, yonn
+// apre lòt, ak menm lojik verifikasyon/ekriti runTransaction ki itilize
+// pou yon vant nòmal — sa ap fè menm verifikasyon stòk la san chanje anyen.
+async function sinkronizeFileDatantOffline() {
+    if (offlineSyncEnKou) return;
+    let lis = li_FileDatantOffline();
+    if (lis.length === 0) return;
+
+    offlineSyncEnKou = true;
+    try {
+        for (const vantOffline of [...lis]) {
+            let echèk = null;
+            let billTotal = 0;
+            try {
+                const { committed } = await runTransaction(dbRef, (currentData) => {
+                    echèk = null;
+                    if (!currentData || !currentData.inventory) { echèk = "vid"; return; }
+
+                    for (const item of vantOffline.cart) {
+                        let p = currentData.inventory[item.prodId.toString()];
+                        if (!p) { echèk = `Pwodwi "${item.name}" pa jwenn ankò.`; return; }
+                        let stokDisponib = item.type === 'detail' ? (p.stockFrizerGrenn || 0) : (p.stockGrenn || 0);
+                        if (stokDisponib < item.qtyNeeded) {
+                            echèk = `⚠️ Pa gen ase ${p.name} ankò pou vant offline #${vantOffline.tan} — verifye stòk la manyèlman.`;
+                            return;
+                        }
+                    }
+
+                    let now = new Date();
+                    let timeStr = now.toLocaleTimeString();
+                    let mwa = String(now.getMonth() + 1).padStart(2, '0');
+                    let jou = String(now.getDate()).padStart(2, '0');
+                    let datISO = `${now.getFullYear()}-${mwa}-${jou}`;
+                    let localTotal = 0, localProfit = 0;
+
+                    if (!currentData.lisTranzaksyonDetay) currentData.lisTranzaksyonDetay = {};
+                    if (!currentData.logsAnGwo || typeof currentData.logsAnGwo !== 'object') currentData.logsAnGwo = {};
+
+                    vantOffline.cart.forEach(item => {
+                        let p = currentData.inventory[item.prodId.toString()];
+                        let saleId = "sale_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+                        let tranzaksyonRec = {
+                            id: saleId,
+                            prodId: item.prodId,
+                            prodName: p.name,
+                            type: item.type,
+                            labelType: item.labelType,
+                            qtyNeeded: item.qtyNeeded,
+                            price: item.price,
+                            buyPrice: item.buyPrice,
+                            tan: timeStr,
+                            dat: datISO,
+                            timestamp: Date.now(),
+                            mesaj: `${p.name} (${item.labelType}) -> ${item.price} G (S${item.price / 5}) [sinkronize offline ${vantOffline.tan}]`
+                        };
+
+                        if (item.type === 'detail') {
+                            p.stockFrizerGrenn -= item.qtyNeeded;
+                            currentData.stokBwasonFrijidè = (currentData.stokBwasonFrijidè ?? 0) + item.price;
+                            tranzaksyonRec.stockField = 'stockFrizerGrenn';
+                            tranzaksyonRec.kesField = 'stokBwasonFrijidè';
+                            currentData.lisTranzaksyonDetay[saleId] = tranzaksyonRec;
+                        } else {
+                            p.stockGrenn -= item.qtyNeeded;
+                            currentData.stokVenteEnGro = (currentData.stokVenteEnGro ?? 0) + item.price;
+                            tranzaksyonRec.stockField = 'stockGrenn';
+                            tranzaksyonRec.kesField = 'stokVenteEnGro';
+                            currentData.logsAnGwo[saleId] = tranzaksyonRec;
+                        }
+                        currentData.inventory[item.prodId.toString()] = p;
+                        localTotal += item.price;
+                        localProfit += (item.price - item.buyPrice);
+                    });
+
+                    currentData.totalRevenue = (currentData.totalRevenue ?? 0) + localTotal;
+                    currentData.totalProfit = (currentData.totalProfit ?? 0) + localProfit;
+                    currentData.physicalCashBalance = (currentData.physicalCashBalance ?? 0) + localTotal;
+
+                    billTotal = localTotal;
+                    return currentData;
+                });
+
+                if (committed && !echèk) {
+                    // Retire sèlman vant sa a nan file datant lokal la, si l pase byen.
+                    lis = lis.filter(v => v.id !== vantOffline.id);
+                    sove_FileDatantOffline(lis);
+                    majBadjOfflineAfichaj();
+                } else if (echèk && echèk !== "vid") {
+                    // Pwoblèm reyèl (pa stòk) — kite l nan file a, avèti admin/vandè a.
+                    console.warn("Vant offline pa t pase:", echèk);
+                }
+            } catch (errIndividuel) {
+                console.error("Erè pandan sinkronizasyon yon vant offline:", errIndividuel);
+                // Rete nan file a, n ap eseye ankò pi devan (pa gen entènèt toujou petèt).
+                break;
+            }
+        }
+    } finally {
+        offlineSyncEnKou = false;
+    }
+}
+
+// Deklanche sinkronizasyon otomatik lè navigatè a detekte entènèt retounen,
+// epi yon fwa nan demaraj paj la si gen vant ki te rete an atant.
+window.addEventListener('online', () => {
+    console.log("🌐 Entènèt retounen — n ap eseye sinkronize vant offline yo...");
+    sinkronizeFileDatantOffline();
+});
+window.addEventListener('offline', () => {
+    console.log("📴 Entènèt pati — vant yo ap sove lokalman jiskaske l retounen.");
+});
 
 // ===================================================================
 // ISTORIK VANT / ANILE VANT (BWdepo bouton nan tèt paj la)
@@ -1194,6 +1371,45 @@ window.annuleTranzaksyon = async function(saleId, kalite) {
 // Rafrechi lis la chak 30 segond pou vant ki pase 20 minit disparèt
 // otomatikman nan modal la menm si pa gen lòt chanjman nan Firebase.
 setInterval(renderIstorikList, 30000);
+
+// ===================================================================
+// 🎨 TÈM (dark/light) sonje ant chak vizit — menm konpòtman ak natcash.html
+// ===================================================================
+if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    currentTheme = 'dark';
+    const themeBtn0 = document.getElementById('theme-btn');
+    if (themeBtn0) themeBtn0.innerText = "🌙 Nwit";
+}
+
+// ===================================================================
+// 📶 GOOFFLINE/GOONLINE — evite Firebase kontinye eseye rekonekte san
+// rete lè pa gen entènèt ditou (ekonomize batri/done), epi re-eseye
+// konekte otomatikman ansanm ak sinkronizasyon file datant lan.
+// ===================================================================
+if (!navigator.onLine) {
+    goOffline(database);
+}
+window.addEventListener('online', () => goOnline(database));
+window.addEventListener('offline', () => goOffline(database));
+
+// Verifye si gen vant an atant depi anvan (paj rechaje pandan yo offline)
+majBadjOfflineAfichaj();
+if (navigator.onLine) {
+    sinkronizeFileDatantOffline();
+}
+
+// ===================================================================
+// 📲 PWA — anrejistre Service Worker la pou app la ka louvri san
+// entènèt (koki HTML/CSS/JS la kache lokalman sou aparèy la).
+// ===================================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(err => {
+            console.error("Pa t kapab anrejistre Service Worker la:", err);
+        });
+    });
+}
 </script>
 
 </body>
