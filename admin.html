@@ -288,6 +288,7 @@
     <header>
         <div class="header-container">
             <button type="button" class="logo" style="background:none; border:none; padding:0; cursor:pointer;" onclick="openBWdepotDrawer()" title="Louvri Jesyon Rapid BWdepot">📦 <span>BWdepot</span> Admin</button>
+            <button type="button" class="logo" style="background:none;border:none;padding:0;cursor:pointer;" onclick="openJGDrawer()">📊 <span>Jesyon</span></button>
             <nav>
                 <a href="index.html">🛒 Bwason</a>
                 <a href="natcash.html">🟢 NatCash</a>
@@ -1366,10 +1367,8 @@
                     let nouvoBalansKat = currentData.natcashCardBalance ?? 0;
 
                     if (t.tip === 'depo_berli') {
-                        // BERLI te fè balans lan DESANN lè l soumèt → rejè fè l REMONTE.
                         nouvoBalansKat += montan;
                     } else if (t.tip === 'komisyon_manyèl') {
-                        // KOMISYON te fè balans lan MONTE lè l soumèt → rejè fè l REDESANN.
                         nouvoBalansKat -= montan;
                         if (nouvoBalansKat < 0) {
                             echèk = `❌ Aksyon anile! Rejè sa a ap fè balans kat la vin negatif (${nouvoBalansKat.toFixed(2)} HTG). Verifye balans lan anvan.`;
@@ -1422,7 +1421,6 @@
 window.kreyeNouvoBwason = async function() {
     if (window.__kreyeBtnLock) return;
 
-    // 1. Li chan yo nan fòm lan
     const name = document.getElementById('newProdName').value.trim();
     const img = document.getElementById('newProdImg').value.trim();
     const priceDetail = parseFloat(document.getElementById('newProdPriceDetail').value);
@@ -1433,28 +1431,13 @@ window.kreyeNouvoBwason = async function() {
     let buyDemi = document.getElementById('newProdBuyDemi').value.trim();
     let buyKes = document.getElementById('newProdBuyKes').value.trim();
 
-    // 2. Validasyon chan obligatwa yo
-    if (!name) {
-        alert("Tanpri antre non bwason an!");
-        return;
-    }
-    if (!img) {
-        alert("Tanpri antre non fichye imaj la!");
-        return;
-    }
-    if (isNaN(priceDetail) || priceDetail <= 0) {
-        alert("Tanpri antre yon pri detay ki valab epi ki pi gwo pase 0!");
-        return;
-    }
-    if (isNaN(priceKes) || priceKes <= 0) {
-        alert("Tanpri antre yon pri kès ki valab epi ki pi gwo pase 0!");
-        return;
-    }
+    if (!name) { alert("Tanpri antre non bwason an!"); return; }
+    if (!img) { alert("Tanpri antre non fichye imaj la!"); return; }
+    if (isNaN(priceDetail) || priceDetail <= 0) { alert("Tanpri antre yon pri detay ki valab epi ki pi gwo pase 0!"); return; }
+    if (isNaN(priceKes) || priceKes <= 0) { alert("Tanpri antre yon pri kès ki valab epi ki pi gwo pase 0!"); return; }
 
-    // 3. Traite chan opsyonèl yo (Fallback ak lojik otomatik)
     let finalPriceDemi;
     if (priceDemi === "") {
-        // Kalkil otomatik: (priKès / 2), divize pa 10, awondi, miltipliye pa 10
         finalPriceDemi = Math.round((priceKes / 2) / 10) * 10;
     } else {
         finalPriceDemi = parseFloat(priceDemi);
@@ -1468,7 +1451,6 @@ window.kreyeNouvoBwason = async function() {
     const finalBuyDemi = buyDemi === "" ? 0 : (parseFloat(buyDemi) || 0);
     const finalBuyKes = buyKes === "" ? 0 : (parseFloat(buyKes) || 0);
 
-    // 4. Kalkile nouvo ID sekans lan
     if (!lokalState || !lokalState.inventory) {
         alert("Erè: Done envantè a poko chaje depi nan Firebase. Reantre sa pita.");
         return;
@@ -1476,7 +1458,6 @@ window.kreyeNouvoBwason = async function() {
     let maxId = Math.max(...Object.keys(lokalState.inventory).map(Number), 0);
     let nouvoId = maxId + 1;
 
-    // 5. Bati objè a egzakteman selon schema a (SAN prices.pa6)
     const nouvoPwodwiObj = {
         id: nouvoId,
         name: name,
@@ -1499,15 +1480,9 @@ window.kreyeNouvoBwason = async function() {
     const btnKreye = document.getElementById('btn-kreye-pwodwi');
     if (btnKreye) { btnKreye.disabled = true; btnKreye.innerText = "⏳ N ap sove..."; }
 
-    // 6. Sove nouvo pwodwi a nan Firebase Realtime Database
-    // 🔧 FIKS: kòd la te itilize firebase.database() (SDK compat) ki pa
-    // egziste nan paj sa a (nou itilize SDK modilè a). Nou ranplase l ak
-    // `update()` ki deja enpòte, sou yon chemen presi pou pa touche rès
-    // envantè a.
     try {
         await update(appRef, { [`inventory/${nouvoId}`]: nouvoPwodwiObj });
         
-        // 7. Reset fòm lan apre siksè
         document.getElementById('newProdName').value = "";
         document.getElementById('newProdImg').value = "";
         document.getElementById('newProdPriceDetail').value = "";
@@ -1517,7 +1492,6 @@ window.kreyeNouvoBwason = async function() {
         document.getElementById('newProdBuyDemi').value = "0";
         document.getElementById('newProdBuyKes').value = "0";
 
-        // Alèt siksè ak rapèl pou Github
         alert(`🎉 Pwodwi "${name}" la kreye avèk siksè ak ID: ${nouvoId}!\n\n⚠️ PA BLIYE: Ou dwe telechaje imaj fizik la ki rele "${img}" sou GitHub pou l ka parèt nan index.html.`);
         
     } catch (error) {
@@ -1733,12 +1707,16 @@ window.transfereNanFrizerAdmin = async function() {
     if (!pId || isNaN(kantite) || kantite <= 0) { alert("Antre yon kantite valab!"); return; }
 
     let grennPouTransfere = 0;
+    let kantiteDemiKes;
     if (inite === "kes") {
         grennPouTransfere = kantite * 24;
+        kantiteDemiKes = kantite * 2;
     } else if (inite === "demi") {
         grennPouTransfere = kantite * 12;
+        kantiteDemiKes = kantite;
     } else if (inite === "grenn") {
         grennPouTransfere = kantite;
+        kantiteDemiKes = (kantite / 12).toFixed(2);
     }
             transfereFrizeBtnLock = true;
             const btn = document.getElementById('btn-transfere-frize');
@@ -1912,6 +1890,531 @@ window.transfereNanFrizerAdmin = async function() {
                 document.getElementById('admin-pin').value = '';
             }
         };
+    </script>
+
+    <!-- ============================ MODIL JESYON KONPLÈ — HTML DRAWER ============================ -->
+    <div id="jg-overlay" class="bwdepot-drawer-overlay" onclick="closeJGDrawer()">
+        <div class="bwdepot-drawer" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <strong style="font-size:17px;">📊 Jesyon Konplè</strong>
+                <span onclick="closeJGDrawer()" style="cursor:pointer; font-size:24px; color:var(--text-muted);">&times;</span>
+            </div>
+
+            <!-- 1. TABLO DBÒ -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-dashboard')">
+                    <span>📊 Tablo Dbò</span><span id="arrow-jg-dashboard">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-dashboard">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:6px;">
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">💰 Total Kès (3)</div>
+                            <div class="big-number" id="jg-db-totalkes" style="font-size:19px;">0 HTG</div>
+                        </div>
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">📦 Valè Stòk</div>
+                            <div class="big-number" id="jg-db-valestok" style="font-size:19px;">0 HTG</div>
+                        </div>
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">💸 Total Chaj</div>
+                            <div class="big-number" id="jg-db-totalchaj" style="font-size:19px; color:var(--danger);">0 HTG</div>
+                        </div>
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">🪙 Total Apò</div>
+                            <div class="big-number" id="jg-db-totalapo" style="font-size:19px; color:var(--purple);">0 HTG</div>
+                        </div>
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">👤 Dèt Kliyan</div>
+                            <div class="big-number" id="jg-db-dettclient" style="font-size:19px; color:var(--danger);">0 HTG</div>
+                        </div>
+                        <div class="panel" style="padding:14px;">
+                            <div class="panel-title" style="margin-bottom:6px;">🚚 Dèt Founisè</div>
+                            <div class="big-number" id="jg-db-dettfourniseur" style="font-size:19px; color:var(--warning);">0 HTG</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. STÒK AKTYÈL -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-stock')">
+                    <span>📦 Stòk Aktyèl</span><span id="arrow-jg-stock">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-stock">
+                    <div class="table-container" style="max-height:280px;">
+                        <table>
+                            <thead><tr><th>Pwodwi</th><th>Depo</th><th>Frizè</th><th>Total</th><th>Valè (HTG)</th></tr></thead>
+                            <tbody id="jg-stock-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CHAJ ÒDINÈ (Hors Marchandises) -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-charges')">
+                    <span>💸 Chaj Òdinè (Hors Marchandises)</span><span id="arrow-jg-charges">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-charges">
+                    <div class="bwdepot-subtabs">
+                        <button type="button" class="bwdepot-subtab-btn active" data-sub="jg-charges-istorik" onclick="switchJGSubtab(this,'jg-charges')">📜 Istorik</button>
+                        <button type="button" class="bwdepot-subtab-btn" data-sub="jg-charges-ajoute" onclick="switchJGSubtab(this,'jg-charges')">➕ Ajoute</button>
+                    </div>
+                    <div id="jg-charges-istorik" class="bwdepot-list"></div>
+                    <div id="jg-charges-ajoute" style="display:none;">
+                        <div class="form-group">
+                            <label>Deskripsyon</label>
+                            <select id="jg-ch-desc">
+                                <option value="Salè">Salè</option>
+                                <option value="Manutention">Manutention</option>
+                                <option value="Transpò">Transpò</option>
+                                <option value="Gaz">Gaz</option>
+                                <option value="Prim">Prim</option>
+                                <option value="Lòt Chaj">Lòt Chaj</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Montan (HTG)</label>
+                            <input type="number" id="jg-ch-montant" placeholder="Ex: 500">
+                        </div>
+                        <div class="form-group">
+                            <label>Nòt (opsyonèl)</label>
+                            <input type="text" id="jg-ch-note" placeholder="Presizyon...">
+                        </div>
+                        <button class="btn btn-danger" id="jg-btn-charges" onclick="jgSubmitCharge()">💸 Anrejistre Chaj la</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. APÒ (Apport) -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-apport')">
+                    <span>🪙 Apò (Injeksyon Kapital)</span><span id="arrow-jg-apport">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-apport">
+                    <div class="bwdepot-subtabs">
+                        <button type="button" class="bwdepot-subtab-btn active" data-sub="jg-apport-istorik" onclick="switchJGSubtab(this,'jg-apport')">📜 Istorik</button>
+                        <button type="button" class="bwdepot-subtab-btn" data-sub="jg-apport-ajoute" onclick="switchJGSubtab(this,'jg-apport')">➕ Ajoute</button>
+                    </div>
+                    <div id="jg-apport-istorik" class="bwdepot-list"></div>
+                    <div id="jg-apport-ajoute" style="display:none;">
+                        <div class="form-group">
+                            <label>Montan (HTG)</label>
+                            <input type="number" id="jg-ap-montant" placeholder="Ex: 10000">
+                        </div>
+                        <div class="form-group">
+                            <label>Sous</label>
+                            <select id="jg-ap-source">
+                                <option value="Propriyetè">Propriyetè</option>
+                                <option value="Aksyonè">Aksyonè</option>
+                                <option value="Prè">Prè</option>
+                                <option value="Lòt">Lòt</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nòt (opsyonèl)</label>
+                            <input type="text" id="jg-ap-note" placeholder="Presizyon...">
+                        </div>
+                        <button class="btn btn-purple" id="jg-btn-apport" onclick="jgSubmitApport()">🪙 Anrejistre Apò a</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. LIS DÈT -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-dettes')">
+                    <span>📋 Lis Dèt (Kliyan / Founisè)</span><span id="arrow-jg-dettes">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-dettes">
+                    <div class="bwdepot-subtabs">
+                        <button type="button" class="bwdepot-subtab-btn active" data-sub="jg-dettes-clients" onclick="switchJGSubtab(this,'jg-dettes')">👤 Kliyan</button>
+                        <button type="button" class="bwdepot-subtab-btn" data-sub="jg-dettes-fournisseurs" onclick="switchJGSubtab(this,'jg-dettes')">🚚 Founisè</button>
+                    </div>
+
+                    <div id="jg-dettes-clients">
+                        <div id="jg-dettclient-list" class="bwdepot-list" style="margin-bottom:12px;"></div>
+                        <fieldset style="padding:12px;">
+                            <legend>➕ Ajoute yon dèt kliyan</legend>
+                            <div class="form-group"><label>Non Kliyan</label><input type="text" id="jg-dc-nom" placeholder="Ex: Jean Pierre"></div>
+                            <div class="form-group"><label>Total Dwe (HTG)</label><input type="number" id="jg-dc-due" placeholder="0"></div>
+                            <div class="form-group"><label>Total Deja Peye (HTG)</label><input type="number" id="jg-dc-paid" placeholder="0" value="0"></div>
+                            <button class="btn btn-danger" id="jg-btn-dc" onclick="jgSubmitDetteClient()">➕ Ajoute Dèt la</button>
+                        </fieldset>
+                    </div>
+
+                    <div id="jg-dettes-fournisseurs" style="display:none;">
+                        <div id="jg-dettfourniseur-list" class="bwdepot-list" style="margin-bottom:12px;"></div>
+                        <fieldset style="padding:12px;">
+                            <legend>➕ Ajoute yon dèt founisè</legend>
+                            <div class="form-group"><label>Non Founisè</label><input type="text" id="jg-df-nom" placeholder="Ex: Distributeur ABC"></div>
+                            <div class="form-group"><label>Total Dwe (HTG)</label><input type="number" id="jg-df-due" placeholder="0"></div>
+                            <div class="form-group"><label>Total Deja Peye (HTG)</label><input type="number" id="jg-df-paid" placeholder="0" value="0"></div>
+                            <button class="btn btn-warning" id="jg-btn-df" onclick="jgSubmitDetteFournisseur()">➕ Ajoute Dèt la</button>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. KREDI KLIYAN (Peman) -->
+            <div class="bwdepot-section">
+                <div class="bwdepot-section-header" onclick="toggleJGSection('jg-credit')">
+                    <span>💳 Kredi Kliyan (Anrejistre Peman)</span><span id="arrow-jg-credit">▾</span>
+                </div>
+                <div class="bwdepot-section-body" id="jg-credit">
+                    <div class="bwdepot-subtabs">
+                        <button type="button" class="bwdepot-subtab-btn active" data-sub="jg-credit-istorik" onclick="switchJGSubtab(this,'jg-credit')">📜 Istorik Peman</button>
+                        <button type="button" class="bwdepot-subtab-btn" data-sub="jg-credit-ajoute" onclick="switchJGSubtab(this,'jg-credit')">➕ Nouvo Peman</button>
+                    </div>
+                    <div id="jg-credit-istorik" class="bwdepot-list"></div>
+                    <div id="jg-credit-ajoute" style="display:none;">
+                        <div class="form-group">
+                            <label>Non Kliyan</label>
+                            <select id="jg-cr-client"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Balans Aktyèl (HTG) — otomatik</label>
+                            <input type="text" id="jg-cr-balance" readonly style="background:var(--bg-input);font-weight:700;">
+                        </div>
+                        <div class="form-group">
+                            <label>Montan Peye Kounye a (HTG)</label>
+                            <input type="number" id="jg-cr-paid" placeholder="Ex: 500" oninput="jgCalcCreditFinal()">
+                        </div>
+                        <div class="form-group">
+                            <label>Balans ki Rete (HTG) — otomatik</label>
+                            <input type="text" id="jg-cr-final" readonly style="background:var(--bg-input);font-weight:700;color:var(--success);">
+                        </div>
+                        <button class="btn btn-success" id="jg-btn-credit" onclick="jgSubmitPaiement()">💳 Anrejistre Peman an</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================ MODIL JESYON KONPLÈ — SCRIPT ============================ -->
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const jgFirebaseConfig = {
+        apiKey: "AIzaSyA76yMMRz0VgcoywUJNvgdP3h4l7S6Xogk",
+        authDomain: "bwdepot-61214.firebaseapp.com",
+        databaseURL: "https://bwdepot-61214-default-rtdb.firebaseio.com",
+        projectId: "bwdepot-61214",
+        storageBucket: "bwdepot-61214.firebasestorage.app",
+        messagingSenderId: "624010872324",
+        appId: "1:624010872324:web:0b0565c3872b3caccd5751",
+        measurementId: "G-8VEN9QQF7B"
+    };
+
+    const jgApp = initializeApp(jgFirebaseConfig, "JesyonKonpleApp");
+    const jgDb = getDatabase(jgApp);
+    const jgAppRef = ref(jgDb, "appState");
+
+    let jgState = {};
+
+    onValue(jgAppRef, (snap) => {
+        const data = snap.val();
+        if (data) {
+            jgState = data;
+            jgRenderAll();
+        }
+    });
+
+    function jgFmt(n) {
+        return (n || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) + " HTG";
+    }
+    function jgToday() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function jgNowStr() { return new Date().toLocaleTimeString('fr-FR'); }
+
+    window.openJGDrawer = function() {
+        document.getElementById('jg-overlay').classList.add('active');
+        jgRenderAll();
+    };
+    window.closeJGDrawer = function() {
+        document.getElementById('jg-overlay').classList.remove('active');
+    };
+    window.toggleJGSection = function(id) {
+        const body = document.getElementById(id);
+        const arrow = document.getElementById('arrow-' + id);
+        const isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        if (arrow) arrow.innerText = !isOpen ? '▴' : '▾';
+    };
+    window.switchJGSubtab = function(btn, group) {
+        const container = btn.closest('.bwdepot-section-body');
+        container.querySelectorAll('.bwdepot-subtab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.getAttribute('data-sub');
+        container.querySelectorAll('[id^="' + group + '-"]').forEach(el => {
+            if (el.classList.contains('bwdepot-subtabs')) return;
+            el.style.display = (el.id === target) ? 'block' : 'none';
+        });
+    };
+
+    function jgRenderDashboard() {
+        const totalKes = (jgState.stokBwasonFrijidè||0) + (jgState.stokVenteEnGro||0) + (jgState.kobfiziknatcash||0);
+        document.getElementById('jg-db-totalkes').innerText = jgFmt(totalKes);
+
+        let valeStok = 0;
+        if (jgState.inventory) {
+            Object.values(jgState.inventory).forEach(p => {
+                const stk = (p.stockGrenn||0) + (p.stockFrizerGrenn||0);
+                valeStok += (stk/24) * (p.prices?.kes||0);
+            });
+        }
+        document.getElementById('jg-db-valestok').innerText = jgFmt(valeStok);
+
+        const totalChaj = jgSumObj(jgState.chargesHM, 'montant');
+        document.getElementById('jg-db-totalchaj').innerText = jgFmt(totalChaj);
+
+        const totalApo = jgSumObj(jgState.apports, 'montant');
+        document.getElementById('jg-db-totalapo').innerText = jgFmt(totalApo);
+
+        const totalDettClient = jgSumRemainingClient();
+        document.getElementById('jg-db-dettclient').innerText = jgFmt(totalDettClient);
+
+        const totalDettFourniseur = jgSumRemainingFournisseur();
+        document.getElementById('jg-db-dettfourniseur').innerText = jgFmt(totalDettFourniseur);
+    }
+    function jgSumObj(obj, field) {
+        if (!obj) return 0;
+        return Object.values(obj).reduce((a,x) => a + (x[field]||0), 0);
+    }
+
+    function jgRenderStock() {
+        const body = document.getElementById('jg-stock-body');
+        if (!jgState.inventory) { body.innerHTML = '<tr><td colspan="5" style="text-align:center;">Pa gen done.</td></tr>'; return; }
+        let html = '';
+        Object.values(jgState.inventory).forEach(p => {
+            const depo = p.stockGrenn||0, friz = p.stockFrizerGrenn||0;
+            const total = depo + friz;
+            const vale = (total/24) * (p.prices?.kes||0);
+            html += `<tr>
+                <td><strong>${p.name}</strong></td>
+                <td>${depo}g</td>
+                <td>${friz}g</td>
+                <td>${total}g</td>
+                <td>${jgFmt(vale)}</td>
+            </tr>`;
+        });
+        body.innerHTML = html;
+    }
+
+    window.jgSubmitCharge = async function() {
+        const desc = document.getElementById('jg-ch-desc').value;
+        const montant = parseFloat(document.getElementById('jg-ch-montant').value);
+        const note = document.getElementById('jg-ch-note').value.trim();
+        if (isNaN(montant) || montant <= 0) { alert('⚠️ Antre yon montan valab!'); return; }
+
+        const btn = document.getElementById('jg-btn-charges');
+        btn.disabled = true; btn.innerText = '⏳...';
+        try {
+            const id = "ch_" + Date.now();
+            await update(jgAppRef, {
+                [`chargesHM/${id}`]: { description: desc, montant, note, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now() }
+            });
+            document.getElementById('jg-ch-montant').value = '';
+            document.getElementById('jg-ch-note').value = '';
+            alert('✅ Chaj anrejistre!');
+        } catch(e) { alert('⚠️ Erè: ' + e.message); }
+        finally { btn.disabled = false; btn.innerText = '💸 Anrejistre Chaj la'; }
+    };
+    function jgRenderCharges() {
+        const el = document.getElementById('jg-charges-istorik');
+        if (!jgState.chargesHM) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">Pa gen chaj anrejistre.</div>'; return; }
+        let items = Object.values(jgState.chargesHM).sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+        el.innerHTML = items.map(c => `<div class="log-item">📅 ${c.dat} — <strong>${c.description}</strong>: ${jgFmt(c.montant)} ${c.note ? '('+c.note+')' : ''}</div>`).join('');
+    }
+
+    window.jgSubmitApport = async function() {
+        const source = document.getElementById('jg-ap-source').value;
+        const montant = parseFloat(document.getElementById('jg-ap-montant').value);
+        const note = document.getElementById('jg-ap-note').value.trim();
+        if (isNaN(montant) || montant <= 0) { alert('⚠️ Antre yon montan valab!'); return; }
+
+        const btn = document.getElementById('jg-btn-apport');
+        btn.disabled = true; btn.innerText = '⏳...';
+        try {
+            const id = "ap_" + Date.now();
+            await update(jgAppRef, {
+                [`apports/${id}`]: { source, montant, note, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now() }
+            });
+            document.getElementById('jg-ap-montant').value = '';
+            document.getElementById('jg-ap-note').value = '';
+            alert('✅ Apò anrejistre!');
+        } catch(e) { alert('⚠️ Erè: ' + e.message); }
+        finally { btn.disabled = false; btn.innerText = '🪙 Anrejistre Apò a'; }
+    };
+    function jgRenderApports() {
+        const el = document.getElementById('jg-apport-istorik');
+        if (!jgState.apports) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">Pa gen apò anrejistre.</div>'; return; }
+        let items = Object.values(jgState.apports).sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+        el.innerHTML = items.map(a => `<div class="log-item">📅 ${a.dat} — <strong>${a.source}</strong>: ${jgFmt(a.montant)} ${a.note ? '('+a.note+')' : ''}</div>`).join('');
+    }
+
+    window.jgSubmitDetteClient = async function() {
+        const nom = document.getElementById('jg-dc-nom').value.trim();
+        const due = parseFloat(document.getElementById('jg-dc-due').value);
+        const paid = parseFloat(document.getElementById('jg-dc-paid').value) || 0;
+        if (!nom || isNaN(due) || due <= 0) { alert('⚠️ Non kliyan ak Total Dwe obligatwa!'); return; }
+
+        const btn = document.getElementById('jg-btn-dc');
+        btn.disabled = true; btn.innerText = '⏳...';
+        try {
+            const id = "dc_" + Date.now();
+            await update(jgAppRef, {
+                [`detteClients/${id}`]: { client: nom, due, paid, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now() }
+            });
+            document.getElementById('jg-dc-nom').value = '';
+            document.getElementById('jg-dc-due').value = '';
+            document.getElementById('jg-dc-paid').value = '0';
+            alert('✅ Dèt kliyan ajoute!');
+        } catch(e) { alert('⚠️ Erè: ' + e.message); }
+        finally { btn.disabled = false; btn.innerText = '➕ Ajoute Dèt la'; }
+    };
+    window.jgSubmitDetteFournisseur = async function() {
+        const nom = document.getElementById('jg-df-nom').value.trim();
+        const due = parseFloat(document.getElementById('jg-df-due').value);
+        const paid = parseFloat(document.getElementById('jg-df-paid').value) || 0;
+        if (!nom || isNaN(due) || due <= 0) { alert('⚠️ Non founisè ak Total Dwe obligatwa!'); return; }
+
+        const btn = document.getElementById('jg-btn-df');
+        btn.disabled = true; btn.innerText = '⏳...';
+        try {
+            const id = "df_" + Date.now();
+            await update(jgAppRef, {
+                [`detteFournisseurs/${id}`]: { fournisseur: nom, due, paid, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now() }
+            });
+            document.getElementById('jg-df-nom').value = '';
+            document.getElementById('jg-df-due').value = '';
+            document.getElementById('jg-df-paid').value = '0';
+            alert('✅ Dèt founisè ajoute!');
+        } catch(e) { alert('⚠️ Erè: ' + e.message); }
+        finally { btn.disabled = false; btn.innerText = '➕ Ajoute Dèt la'; }
+    };
+
+    function jgGetClientBalances() {
+        if (!jgState.detteClients) return {};
+        const balances = {};
+        Object.values(jgState.detteClients).forEach(d => {
+            const key = (d.client||'').toLowerCase();
+            if (!balances[key]) balances[key] = { client: d.client, due: 0, paid: 0 };
+            balances[key].due += d.due||0;
+            balances[key].paid += d.paid||0;
+        });
+        return balances;
+    }
+    function jgSumRemainingClient() {
+        const balances = jgGetClientBalances();
+        return Object.values(balances).reduce((a,b) => a + Math.max(0, b.due - b.paid), 0);
+    }
+    function jgSumRemainingFournisseur() {
+        if (!jgState.detteFournisseurs) return 0;
+        const balances = {};
+        Object.values(jgState.detteFournisseurs).forEach(d => {
+            const key = (d.fournisseur||'').toLowerCase();
+            if (!balances[key]) balances[key] = { due: 0, paid: 0 };
+            balances[key].due += d.due||0;
+            balances[key].paid += d.paid||0;
+        });
+        return Object.values(balances).reduce((a,b) => a + Math.max(0, b.due - b.paid), 0);
+    }
+
+    function jgRenderDettesClients() {
+        const el = document.getElementById('jg-dettclient-list');
+        const balances = jgGetClientBalances();
+        const rows = Object.values(balances).filter(b => (b.due - b.paid) > 0.01);
+        if (!rows.length) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">✅ Pa gen dèt kliyan an kou.</div>'; return; }
+        rows.sort((a,b) => (b.due-b.paid) - (a.due-a.paid));
+        el.innerHTML = rows.map(b => `<div class="log-item">👤 <strong>${b.client}</strong> — Dwe: ${jgFmt(b.due)} | Peye: ${jgFmt(b.paid)} | <span style="color:var(--danger); font-weight:700;">Rete: ${jgFmt(b.due-b.paid)}</span></div>`).join('');
+    }
+    function jgRenderDettesFournisseurs() {
+        const el = document.getElementById('jg-dettfourniseur-list');
+        if (!jgState.detteFournisseurs) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">✅ Pa gen dèt founisè an kou.</div>'; return; }
+        const balances = {};
+        Object.values(jgState.detteFournisseurs).forEach(d => {
+            const key = (d.fournisseur||'').toLowerCase();
+            if (!balances[key]) balances[key] = { fournisseur: d.fournisseur, due: 0, paid: 0 };
+            balances[key].due += d.due||0;
+            balances[key].paid += d.paid||0;
+        });
+        const rows = Object.values(balances).filter(b => (b.due - b.paid) > 0.01);
+        if (!rows.length) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">✅ Pa gen dèt founisè an kou.</div>'; return; }
+        rows.sort((a,b) => (b.due-b.paid) - (a.due-a.paid));
+        el.innerHTML = rows.map(b => `<div class="log-item">🚚 <strong>${b.fournisseur}</strong> — Dwe: ${jgFmt(b.due)} | Peye: ${jgFmt(b.paid)} | <span style="color:var(--warning); font-weight:700;">Rete: ${jgFmt(b.due-b.paid)}</span></div>`).join('');
+    }
+
+    function jgFillClientSelect() {
+        const sel = document.getElementById('jg-cr-client');
+        if (!sel) return;
+        const balances = jgGetClientBalances();
+        const names = Object.values(balances).filter(b => (b.due-b.paid) > 0.01);
+        const cur = sel.value;
+        sel.innerHTML = names.length
+            ? names.map(b => `<option value="${b.client}">${b.client} (Rete: ${jgFmt(b.due-b.paid)})</option>`).join('')
+            : '<option value="">Pa gen kliyan ki gen dèt</option>';
+        if (cur) sel.value = cur;
+        jgUpdateClientBalanceField();
+    }
+    window.jgUpdateClientBalanceField = function() {
+        const client = document.getElementById('jg-cr-client').value;
+        const balances = jgGetClientBalances();
+        const key = client.toLowerCase();
+        const rest = balances[key] ? Math.max(0, balances[key].due - balances[key].paid) : 0;
+        document.getElementById('jg-cr-balance').value = jgFmt(rest);
+        document.getElementById('jg-cr-final').value = jgFmt(rest);
+    };
+    document.addEventListener('change', (e) => {
+        if (e.target && e.target.id === 'jg-cr-client') jgUpdateClientBalanceField();
+    });
+    window.jgCalcCreditFinal = function() {
+        const client = document.getElementById('jg-cr-client').value;
+        const balances = jgGetClientBalances();
+        const key = client.toLowerCase();
+        const rest = balances[key] ? Math.max(0, balances[key].due - balances[key].paid) : 0;
+        const paye = parseFloat(document.getElementById('jg-cr-paid').value) || 0;
+        document.getElementById('jg-cr-final').value = jgFmt(Math.max(0, rest - paye));
+    };
+    window.jgSubmitPaiement = async function() {
+        const client = document.getElementById('jg-cr-client').value;
+        const paye = parseFloat(document.getElementById('jg-cr-paid').value);
+        if (!client) { alert('⚠️ Chwazi yon kliyan!'); return; }
+        if (isNaN(paye) || paye <= 0) { alert('⚠️ Antre yon montan valab!'); return; }
+
+        const btn = document.getElementById('jg-btn-credit');
+        btn.disabled = true; btn.innerText = '⏳...';
+        try {
+            const id = "pay_" + Date.now();
+            await update(jgAppRef, {
+                [`detteClients/${id}`]: { client, due: 0, paid: paye, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now(), typePeman: true },
+                [`paiementsClients/${id}`]: { client, montant: paye, dat: jgToday(), tan: jgNowStr(), timestamp: Date.now() }
+            });
+            document.getElementById('jg-cr-paid').value = '';
+            alert(`✅ Peman ${jgFmt(paye)} anrejistre pou ${client}!`);
+        } catch(e) { alert('⚠️ Erè: ' + e.message); }
+        finally { btn.disabled = false; btn.innerText = '💳 Anrejistre Peman an'; }
+    };
+    function jgRenderPaiements() {
+        const el = document.getElementById('jg-credit-istorik');
+        if (!jgState.paiementsClients) { el.innerHTML = '<div class="sub-info" style="padding:10px 0;">Pa gen peman anrejistre.</div>'; return; }
+        let items = Object.values(jgState.paiementsClients).sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+        el.innerHTML = items.map(p => `<div class="log-item">📅 ${p.dat} ${p.tan} — <strong>${p.client}</strong>: ${jgFmt(p.montant)} peye</div>`).join('');
+    }
+
+    function jgRenderAll() {
+        jgRenderDashboard();
+        jgRenderStock();
+        jgRenderCharges();
+        jgRenderApports();
+        jgRenderDettesClients();
+        jgRenderDettesFournisseurs();
+        jgFillClientSelect();
+        jgRenderPaiements();
+    }
     </script>
 </body>
 </html>
